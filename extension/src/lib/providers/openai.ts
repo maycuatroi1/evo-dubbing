@@ -44,7 +44,7 @@ async function translate(batch: TranslateBatch, key: string): Promise<Translated
     ]
   };
   if (isReasoning) {
-    body.reasoning_effort = "minimal";
+    body.reasoning_effort = "low";
   } else {
     body.temperature = 0.3;
   }

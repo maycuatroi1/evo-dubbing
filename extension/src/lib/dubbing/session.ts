@@ -68,6 +68,7 @@ export class DubSession {
   private activeGen = 0;
   private queue: number[] = [];
   private readyCount = 0;
+  private firstError: string | null = null;
   private subtitleEl: HTMLDivElement | null = null;
   private lastSubText = "";
   private boundReset = () => this.forceReevaluate();
@@ -369,6 +370,9 @@ export class DubSession {
       const text = (st.translated ?? "").trim();
       if (!text) {
         st.status = "empty";
+        if (this.cues[idx].text.trim()) {
+          console.warn(`[evo-dubbing] cue ${idx} translated to empty text (original: "${this.cues[idx].text.slice(0, 40)}")`);
+        }
         return;
       }
 
@@ -390,9 +394,23 @@ export class DubSession {
       st.buffer = await this.ctx.decodeAudioData(st.data.slice(0));
       st.status = "ready";
       this.reportReady();
-    } catch {
+    } catch (err) {
       st.status = "error";
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error(`[evo-dubbing] cue ${idx} generation failed:`, msg);
+      this.reportError(msg);
     }
+  }
+
+  private reportError(message: string): void {
+    if (this.firstError) return;
+    this.firstError = message;
+    this.onProgress({
+      phase: "error",
+      current: this.readyCount,
+      total: this.cues.length,
+      message: `Dubbing failed: ${message}`
+    });
   }
 
   private reportReady(): void {

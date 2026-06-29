@@ -62,7 +62,10 @@ async function onDub(targetLang: string): Promise<void> {
     video,
     context,
     settings,
-    onProgress: (p) => overlay?.setProgress(p),
+    onProgress: (p) => {
+      if (p.phase === "error") overlay?.setError(p.message);
+      else overlay?.setProgress(p);
+    },
     onReady: () => {
       overlay?.setReady();
       overlay?.setPlaying(true);
