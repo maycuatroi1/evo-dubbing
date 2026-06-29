@@ -63,6 +63,7 @@ export interface DubbingSettings {
   targetLang: string;
   voice: string;
   duckVolume: number;
+  showSubtitles: boolean;
   ttsModel: string;
   translateModel: string;
   shareServerUrl: string;

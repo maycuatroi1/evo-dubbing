@@ -51,6 +51,7 @@ async function init() {
   ($("openaiKey") as HTMLInputElement).value = settings.keys.openai ?? "";
   ($("geminiKey") as HTMLInputElement).value = settings.keys.gemini ?? "";
   ($("targetLang") as HTMLInputElement).value = settings.targetLang;
+  ($("showSubtitles") as HTMLInputElement).checked = settings.showSubtitles;
   ($("shareServerUrl") as HTMLInputElement).value = settings.shareServerUrl;
   ($("autoUpload") as HTMLInputElement).checked = settings.autoUpload;
   ($("defaultVisibility") as HTMLSelectElement).value = settings.defaultVisibility;
@@ -103,6 +104,7 @@ async function onSave() {
     targetLang: ($("targetLang") as HTMLInputElement).value.trim() || "vi",
     voice: ($("voice") as HTMLSelectElement).value,
     duckVolume: Number(($("duckVolume") as HTMLInputElement).value),
+    showSubtitles: ($("showSubtitles") as HTMLInputElement).checked,
     ttsModel: ($("ttsModel") as HTMLSelectElement).value,
     translateModel: ($("translateModel") as HTMLSelectElement).value,
     shareServerUrl: ($("shareServerUrl") as HTMLInputElement).value.trim().replace(/\/$/, ""),

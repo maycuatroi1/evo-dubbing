@@ -68,6 +68,8 @@ export class DubSession {
   private activeGen = 0;
   private queue: number[] = [];
   private readyCount = 0;
+  private subtitleEl: HTMLDivElement | null = null;
+  private lastSubText = "";
   private boundReset = () => this.forceReevaluate();
 
   constructor(opts: SessionOptions) {
@@ -138,8 +140,37 @@ export class DubSession {
     this.video.addEventListener("play", this.boundReset);
     this.video.addEventListener("pause", this.boundReset);
     this.lastIdx = -2;
+    this.mountSubtitle();
     this.ticker = window.setInterval(() => this.tick(), 60);
     this.pump();
+  }
+
+  private mountSubtitle(): void {
+    if (!this.settings.showSubtitles || this.subtitleEl) return;
+    const host = (this.video.closest(".html5-video-player") as HTMLElement | null) ?? this.video.parentElement;
+    if (!host) return;
+    const el = document.createElement("div");
+    el.className = "evo-subtitle";
+    host.appendChild(el);
+    this.subtitleEl = el;
+    this.lastSubText = "";
+  }
+
+  private removeSubtitle(): void {
+    if (this.subtitleEl) {
+      this.subtitleEl.remove();
+      this.subtitleEl = null;
+    }
+    this.lastSubText = "";
+  }
+
+  private updateSubtitle(idx: number): void {
+    if (!this.subtitleEl) return;
+    const text = idx >= 0 ? this.states[idx]?.translated ?? "" : "";
+    if (text !== this.lastSubText) {
+      this.subtitleEl.textContent = text;
+      this.lastSubText = text;
+    }
   }
 
   pause(): void {
@@ -152,6 +183,7 @@ export class DubSession {
     this.video.removeEventListener("play", this.boundReset);
     this.video.removeEventListener("pause", this.boundReset);
     this.stopSource();
+    this.removeSubtitle();
     this.video.volume = this.originalVolume;
   }
 
@@ -198,14 +230,16 @@ export class DubSession {
 
   private tick(): void {
     if (!this.active) return;
+
+    const ms = this.video.currentTime * 1000;
+    const idx = this.findWindow(ms);
+    this.updateSubtitle(idx);
+
     if (this.video.paused) {
       if (this.activePlaying) this.stopSource();
       this.applyDuck();
       return;
     }
-
-    const ms = this.video.currentTime * 1000;
-    const idx = this.findWindow(ms);
 
     if (idx !== this.lastIdx) {
       this.stopSource();

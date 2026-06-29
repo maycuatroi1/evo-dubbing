@@ -156,6 +156,30 @@
   display: none !important;
 }
 
+.evo-subtitle {
+  position: absolute;
+  left: 50%;
+  bottom: 11%;
+  transform: translateX(-50%);
+  max-width: 86%;
+  z-index: 60;
+  pointer-events: none;
+  text-align: center;
+  font-family: "Roboto", "Segoe UI", system-ui, sans-serif;
+  font-size: clamp(15px, 1.9vw, 30px);
+  line-height: 1.35;
+  color: #fff;
+  background: rgba(8, 8, 8, 0.72);
+  padding: 4px 12px;
+  border-radius: 6px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+  white-space: pre-wrap;
+}
+
+.evo-subtitle:empty {
+  display: none;
+}
+
 #evo-dub-fab {
   position: fixed;
   right: 18px;

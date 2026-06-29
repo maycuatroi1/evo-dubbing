@@ -10,6 +10,7 @@ export const DEFAULT_SETTINGS: DubbingSettings = {
   targetLang: "vi",
   voice: "alloy",
   duckVolume: 0.18,
+  showSubtitles: true,
   ttsModel: "gpt-4o-mini-tts",
   translateModel: "gpt-5.4-mini",
   shareServerUrl: "",
