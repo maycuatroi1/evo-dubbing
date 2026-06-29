@@ -16,6 +16,7 @@ const LOOKAHEAD_MS = 30000;
 const BEHIND_MS = 2000;
 const TTS_CONCURRENCY = 2;
 const TRANSLATE_CHUNK = 10;
+const MAX_PLAYBACK_RATE = 2;
 
 type CueStatus = "idle" | "pending" | "ready" | "empty" | "error";
 
@@ -58,8 +59,7 @@ export class DubSession {
   private gain: GainNode;
   private currentSource: AudioBufferSourceNode | null = null;
   private activePlaying = false;
-  private lastIdx = -2;
-  private startedForWindow = false;
+  private playingIdx = -2;
   private originalVolume = 1;
   private ticker: number | null = null;
 
@@ -140,7 +140,7 @@ export class DubSession {
     this.video.addEventListener("seeked", this.boundReset);
     this.video.addEventListener("play", this.boundReset);
     this.video.addEventListener("pause", this.boundReset);
-    this.lastIdx = -2;
+    this.playingIdx = -2;
     this.mountSubtitle();
     this.ticker = window.setInterval(() => this.tick(), 60);
     this.pump();
@@ -208,8 +208,13 @@ export class DubSession {
 
   private forceReevaluate(): void {
     this.stopSource();
-    this.lastIdx = -2;
-    this.startedForWindow = false;
+    this.playingIdx = -2;
+  }
+
+  private spanSeconds(i: number): number {
+    const start = this.cues[i].startMs;
+    const nextStart = i + 1 < this.cues.length ? this.cues[i + 1].startMs : this.cues[i].endMs;
+    return Math.max(0.001, (nextStart - start) / 1000);
   }
 
   private findWindow(ms: number): number {
@@ -234,26 +239,24 @@ export class DubSession {
 
     const ms = this.video.currentTime * 1000;
     const idx = this.findWindow(ms);
-    this.updateSubtitle(idx);
+    const subIdx = idx >= 0 ? idx : this.activePlaying ? this.playingIdx : -1;
+    this.updateSubtitle(subIdx);
 
     if (this.video.paused) {
       if (this.activePlaying) this.stopSource();
+      this.playingIdx = -2;
       this.applyDuck();
       return;
     }
 
-    if (idx !== this.lastIdx) {
-      this.stopSource();
-      this.lastIdx = idx;
-      this.startedForWindow = false;
-    }
-
-    if (idx >= 0 && !this.startedForWindow) {
+    if (idx >= 0 && idx !== this.playingIdx) {
       const buffer = this.states[idx]?.buffer;
       if (buffer) {
-        const offset = (ms - this.cues[idx].startMs) / 1000;
-        if (offset < buffer.duration - 0.04) this.startSource(buffer, Math.max(0, offset));
-        this.startedForWindow = true;
+        this.stopSource();
+        const rate = Math.min(MAX_PLAYBACK_RATE, Math.max(1, buffer.duration / this.spanSeconds(idx)));
+        const audioPos = ((ms - this.cues[idx].startMs) / 1000) * rate;
+        if (audioPos < buffer.duration - 0.04) this.startSource(buffer, Math.max(0, audioPos), rate);
+        this.playingIdx = idx;
       }
     }
 
@@ -261,9 +264,10 @@ export class DubSession {
     this.pump();
   }
 
-  private startSource(buffer: AudioBuffer, offset: number): void {
+  private startSource(buffer: AudioBuffer, offset: number, rate: number): void {
     const source = this.ctx.createBufferSource();
     source.buffer = buffer;
+    source.playbackRate.value = rate;
     source.connect(this.gain);
     source.onended = () => {
       if (this.currentSource === source) {
