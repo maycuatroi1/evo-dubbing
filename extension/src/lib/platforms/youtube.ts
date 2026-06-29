@@ -5,8 +5,7 @@ import {
   BRIDGE_RES,
   type BridgeEnvelope,
   type BridgeRequest,
-  type BridgeResult,
-  type CaptionTrack
+  type BridgeResult
 } from "../../content/bridge-protocol";
 
 let counter = 0;
@@ -23,7 +22,7 @@ window.addEventListener("message", (event) => {
   }
 });
 
-function bridge(req: BridgeRequest, timeoutMs = 20000): Promise<BridgeResult> {
+function bridge(req: BridgeRequest, timeoutMs = 30000): Promise<BridgeResult> {
   const id = ++counter;
   return new Promise((resolve, reject) => {
     const timer = setTimeout(() => {
@@ -37,14 +36,6 @@ function bridge(req: BridgeRequest, timeoutMs = 20000): Promise<BridgeResult> {
     const envelope: BridgeEnvelope<BridgeRequest> = { channel: BRIDGE_REQ, id, payload: req };
     window.postMessage(envelope, "*");
   });
-}
-
-function pickTrack(tracks: CaptionTrack[], avoidLang?: string): CaptionTrack | null {
-  if (tracks.length === 0) return null;
-  const usable = tracks.filter((t) => !avoidLang || t.languageCode !== avoidLang);
-  const pool = usable.length > 0 ? usable : tracks;
-  const manual = pool.find((t) => t.kind !== "asr");
-  return manual ?? pool[0];
 }
 
 function videoIdFromUrl(url: string): string | null {
@@ -94,21 +85,16 @@ export const youtubePlatform: Platform = {
   },
 
   async getCaptionTranscript(preferAgainstLang?: string): Promise<Transcript | null> {
-    const tracksRes = await bridge({ kind: "getCaptionTracks" });
-    if (tracksRes.kind !== "captionTracks" || tracksRes.tracks.length === 0) return null;
-    const track = pickTrack(tracksRes.tracks, preferAgainstLang);
-    if (!track) return null;
+    const res = await bridge({ kind: "fetchTranscript", avoidLang: preferAgainstLang });
+    if (res.kind !== "transcript" || res.events.length === 0) return null;
 
-    const capRes = await bridge({ kind: "fetchCaption", baseUrl: track.baseUrl });
-    if (capRes.kind !== "caption") return null;
-
-    const segments = capRes.events.map((ev, idx) => ({
+    const segments = res.events.map((ev, idx) => ({
       idx,
       startMs: ev.startMs,
       endMs: ev.endMs,
       text: ev.text
     }));
 
-    return { source: "captions", lang: track.languageCode, segments };
+    return { source: "captions", lang: res.lang, segments };
   }
 };

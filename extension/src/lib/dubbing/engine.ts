@@ -49,9 +49,8 @@ async function getTranscript(opts: BuildDubOptions): Promise<Transcript> {
   }
 
   throw new Error(
-    "No caption track was found for this video (checked the player, the initial response, and the InnerTube API). " +
-      "The video likely has captions disabled and no auto-captions. Speech-to-text from the audio stream is not " +
-      "wired up yet, so try a video that has CC available."
+    "Could not load captions for this video. If it has a CC button, turn captions on once and try again so the " +
+      "player loads them. Videos with no captions at all are not supported yet (speech-to-text fallback is not wired up)."
   );
 }
 
