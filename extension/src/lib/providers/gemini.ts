@@ -108,8 +108,8 @@ async function stt(_req: SttRequest, _key: string): Promise<Transcript> {
 export const geminiProvider: Provider = {
   id: "gemini",
   label: "Gemini",
-  translateModels: ["gemini-2.0-flash", "gemini-2.5-flash", "gemini-1.5-flash"],
-  ttsModels: ["gemini-2.5-flash-preview-tts", "gemini-2.5-pro-preview-tts"],
+  translateModels: ["gemini-3.5-flash", "gemini-3.1-flash-lite", "gemini-2.5-flash"],
+  ttsModels: ["gemini-3.1-flash-tts-preview", "gemini-2.5-flash-preview-tts", "gemini-2.5-pro-preview-tts"],
   sttModels: [],
   voices: [
     { id: "Kore", label: "Kore" },
