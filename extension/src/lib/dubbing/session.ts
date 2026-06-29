@@ -10,6 +10,7 @@ import type { Platform } from "../platforms";
 import { getProvider, type Provider } from "../providers";
 import { mergeCues } from "./merge";
 import { ttsCacheKey, getCachedAudio, putCachedAudio } from "./cache";
+import { timeCompress } from "./stretch";
 import { fetchArrayBuffer } from "../net";
 
 const LOOKAHEAD_MS = 30000;
@@ -26,6 +27,7 @@ interface CueState {
   data: ArrayBuffer | null;
   mime: string;
   buffer: AudioBuffer | null;
+  playBuffer: AudioBuffer | null;
   remoteUrl?: string;
 }
 
@@ -107,7 +109,14 @@ export class DubSession {
     }
     this.sourceLang = transcript.lang;
     this.cues = mergeCues(transcript.segments);
-    this.states = this.cues.map(() => ({ status: "idle", translated: null, data: null, mime: "audio/mpeg", buffer: null }));
+    this.states = this.cues.map(() => ({
+      status: "idle",
+      translated: null,
+      data: null,
+      mime: "audio/mpeg",
+      buffer: null,
+      playBuffer: null
+    }));
 
     this.onProgress({ phase: "ready", current: 0, total: this.cues.length, message: "Dubbing live as you watch" });
     this.attach();
@@ -124,6 +133,7 @@ export class DubSession {
       data: null,
       mime: s.audioMime,
       buffer: null,
+      playBuffer: null,
       remoteUrl: s.audioUrl
     }));
     this.onProgress({ phase: "ready", current: 0, total: this.cues.length, message: "Playing shared dub" });
@@ -217,6 +227,13 @@ export class DubSession {
     return Math.max(0.001, (nextStart - start) / 1000);
   }
 
+  private preparePlayback(idx: number): void {
+    const st = this.states[idx];
+    if (!st.buffer) return;
+    const rate = st.buffer.duration / this.spanSeconds(idx);
+    st.playBuffer = rate > 1.03 ? timeCompress(this.ctx, st.buffer, Math.min(MAX_PLAYBACK_RATE, rate)) : st.buffer;
+  }
+
   private findWindow(ms: number): number {
     let lo = 0;
     let hi = this.cues.length - 1;
@@ -250,12 +267,11 @@ export class DubSession {
     }
 
     if (idx >= 0 && idx !== this.playingIdx) {
-      const buffer = this.states[idx]?.buffer;
+      const buffer = this.states[idx]?.playBuffer ?? this.states[idx]?.buffer;
       if (buffer) {
         this.stopSource();
-        const rate = Math.min(MAX_PLAYBACK_RATE, Math.max(1, buffer.duration / this.spanSeconds(idx)));
-        const audioPos = ((ms - this.cues[idx].startMs) / 1000) * rate;
-        if (audioPos < buffer.duration - 0.04) this.startSource(buffer, Math.max(0, audioPos), rate);
+        const audioPos = (ms - this.cues[idx].startMs) / 1000;
+        if (audioPos < buffer.duration - 0.04) this.startSource(buffer, Math.max(0, audioPos));
         this.playingIdx = idx;
       }
     }
@@ -264,10 +280,9 @@ export class DubSession {
     this.pump();
   }
 
-  private startSource(buffer: AudioBuffer, offset: number, rate: number): void {
+  private startSource(buffer: AudioBuffer, offset: number): void {
     const source = this.ctx.createBufferSource();
     source.buffer = buffer;
-    source.playbackRate.value = rate;
     source.connect(this.gain);
     source.onended = () => {
       if (this.currentSource === source) {
@@ -363,6 +378,7 @@ export class DubSession {
           ? await (await fetch(st.remoteUrl)).arrayBuffer()
           : await fetchArrayBuffer(st.remoteUrl);
         st.buffer = await this.ctx.decodeAudioData(data.slice(0));
+        this.preparePlayback(idx);
         st.status = "ready";
         this.reportReady();
         return;
@@ -396,6 +412,7 @@ export class DubSession {
       }
 
       st.buffer = await this.ctx.decodeAudioData(st.data.slice(0));
+      this.preparePlayback(idx);
       st.status = "ready";
       this.reportReady();
     } catch (err) {

@@ -57,8 +57,10 @@ function pcm16ToWav(pcm: ArrayBuffer, sampleRate: number): ArrayBuffer {
 async function translate(batch: TranslateBatch, key: string): Promise<TranslatedSegment[]> {
   const numbered = batch.segments.map((s) => `${s.idx}: ${s.text}`).join("\n");
   const prompt =
-    "You are a professional subtitle translator. Translate each numbered line into the target language. " +
-    "Keep the meaning natural and spoken, preserve the line numbering, do not merge or split lines.\n" +
+    "You are a professional dubbing translator. Translate each numbered line into the target language for voice-over. " +
+    "Keep the meaning natural and spoken, and prefer concise phrasing that can be spoken in roughly the same time as the " +
+    "source line, so it dubs cleanly without rushing. Keep terminology, names, register and tone consistent across all lines. " +
+    "Preserve the line numbering, do not merge or split lines.\n" +
     `Source language: ${batch.sourceLang}\n` +
     `Target language: ${batch.targetLang}\n` +
     `Return JSON of the form {"translations":[{"idx":<number>,"text":"<translation>"}]}.\n\n` +
