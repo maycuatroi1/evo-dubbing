@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>evo-dubbing settings</title>
+    <link rel="stylesheet" href="./options.css" />
+  </head>
+  <body>
+    <main class="wrap">
+      <header class="head">
+        <div class="logo">E</div>
+        <div>
+          <h1>evo-dubbing</h1>
+          <p class="muted">Your API keys stay in this browser and are never sent to the share server.</p>
+        </div>
+      </header>
+
+      <section class="card">
+        <h2>API keys</h2>
+        <label class="field">
+          <span>OpenAI key</span>
+          <input id="openaiKey" type="password" placeholder="sk-..." autocomplete="off" />
+        </label>
+        <label class="field">
+          <span>Gemini key</span>
+          <input id="geminiKey" type="password" placeholder="AIza..." autocomplete="off" />
+        </label>
+      </section>
+
+      <section class="card">
+        <h2>Dubbing</h2>
+        <div class="grid">
+          <label class="field">
+            <span>Target language</span>
+            <input id="targetLang" type="text" placeholder="vi" />
+          </label>
+          <label class="field">
+            <span>Duck original volume</span>
+            <input id="duckVolume" type="range" min="0" max="0.6" step="0.02" />
+            <small id="duckValue" class="muted"></small>
+          </label>
+        </div>
+
+        <div class="grid">
+          <label class="field">
+            <span>Translate provider</span>
+            <select id="translateProvider"></select>
+          </label>
+          <label class="field">
+            <span>Translate model</span>
+            <select id="translateModel"></select>
+          </label>
+        </div>
+
+        <div class="grid">
+          <label class="field">
+            <span>TTS provider</span>
+            <select id="ttsProvider"></select>
+          </label>
+          <label class="field">
+            <span>TTS model</span>
+            <select id="ttsModel"></select>
+          </label>
+          <label class="field">
+            <span>Voice</span>
+            <select id="voice"></select>
+          </label>
+        </div>
+
+        <div class="grid">
+          <label class="field">
+            <span>STT provider (fallback)</span>
+            <select id="sttProvider"></select>
+          </label>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Sharing</h2>
+        <label class="field">
+          <span>Share server URL</span>
+          <input id="shareServerUrl" type="text" placeholder="https://your-server.example.com" />
+        </label>
+        <div class="grid">
+          <label class="field checkbox">
+            <input id="autoUpload" type="checkbox" />
+            <span>Upload finished dubs automatically</span>
+          </label>
+          <label class="field">
+            <span>Default visibility</span>
+            <select id="defaultVisibility">
+              <option value="public">Public</option>
+              <option value="private">Private</option>
+            </select>
+          </label>
+        </div>
+      </section>
+
+      <footer class="actions">
+        <button id="save" class="primary">Save</button>
+        <span id="status" class="muted"></span>
+      </footer>
+    </main>
+    <script type="module" src="./options.ts"></script>
+  </body>
+</html>

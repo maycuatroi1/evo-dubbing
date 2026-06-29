@@ -1,0 +1,61 @@
+name: Release Extension
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Build extension
+        run: npm run build:ext
+
+      - name: Resolve version
+        id: ver
+        run: |
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            echo "name=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+          else
+            echo "name=manual-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Package extension
+        run: |
+          cd extension/dist
+          zip -r "${GITHUB_WORKSPACE}/evo-dubbing-extension-${{ steps.ver.outputs.name }}.zip" .
+
+      - name: Publish release
+        if: github.ref_type == 'tag'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: evo-dubbing-extension-${{ steps.ver.outputs.name }}.zip
+          generate_release_notes: true
+          body: |
+            Unpacked Chrome extension build.
+
+            Install:
+            1. Download and unzip `evo-dubbing-extension-${{ steps.ver.outputs.name }}.zip`.
+            2. Open `chrome://extensions`, enable Developer mode.
+            3. Click "Load unpacked" and select the unzipped folder.
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: evo-dubbing-extension-${{ steps.ver.outputs.name }}
+          path: evo-dubbing-extension-${{ steps.ver.outputs.name }}.zip

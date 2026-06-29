@@ -1,0 +1,24 @@
+{
+  "name": "evo-dubbing",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AI dubbing tool for online video platforms - Chrome extension and share server",
+  "workspaces": [
+    "extension",
+    "server"
+  ],
+  "scripts": {
+    "dev:ext": "npm run dev --workspace extension",
+    "build:ext": "npm run build --workspace extension",
+    "dev:server": "npm run dev --workspace server",
+    "build:server": "npm run build --workspace server",
+    "db:push": "npm run db:push --workspace server",
+    "db:generate": "npm run db:generate --workspace server"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "evo-dubbing": "file:"
+  }
+}

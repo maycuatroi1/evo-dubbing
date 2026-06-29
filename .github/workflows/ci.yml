@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Typecheck extension
+        run: npm run typecheck --workspace extension
+
+      - name: Build extension
+        run: npm run build:ext
+
+      - name: Build server
+        run: npm run build:server
+        env:
+          DATABASE_URL: postgres://placeholder:placeholder@localhost:5432/placeholder
+
+      - name: Upload extension build
+        uses: actions/upload-artifact@v4
+        with:
+          name: extension-dist
+          path: extension/dist
+          if-no-files-found: error

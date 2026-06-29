@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>evo-dubbing</title>
+    <link rel="stylesheet" href="./popup.css" />
+  </head>
+  <body>
+    <div class="head">
+      <div class="logo">E</div>
+      <div class="title">evo-dubbing</div>
+    </div>
+    <div class="body">
+      <p class="hint">Open a YouTube video and use the floating panel to dub it.</p>
+      <div class="status">
+        <div class="row"><span>OpenAI key</span><b id="openaiState">-</b></div>
+        <div class="row"><span>Gemini key</span><b id="geminiState">-</b></div>
+        <div class="row"><span>Target language</span><b id="langState">-</b></div>
+        <div class="row"><span>Share server</span><b id="serverState">-</b></div>
+      </div>
+      <button id="openOptions" class="btn">Open settings</button>
+    </div>
+    <script type="module" src="./popup.ts"></script>
+  </body>
+</html>
