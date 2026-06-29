@@ -49,8 +49,9 @@ async function getTranscript(opts: BuildDubOptions): Promise<Transcript> {
   }
 
   throw new Error(
-    "No captions available for this video. Speech-to-text fallback needs the audio stream, " +
-      "which is not wired up yet. Try a video that has captions."
+    "No caption track was found for this video (checked the player, the initial response, and the InnerTube API). " +
+      "The video likely has captions disabled and no auto-captions. Speech-to-text from the audio stream is not " +
+      "wired up yet, so try a video that has CC available."
   );
 }
 
