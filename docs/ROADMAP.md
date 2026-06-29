@@ -22,8 +22,11 @@
 
 ## Milestone 3 - hardening and reach
 
+- [x] Lazy windowed generation (only dub what is watched)
+- [x] Segment caching in IndexedDB to avoid re-paying for the same dub
+- [x] Merge fragmented caption cues into sentence-level cues
 - [ ] More platforms (Vimeo, Coursera, generic <video>)
-- [ ] Segment caching in IndexedDB to avoid re-paying for the same dub
+- [ ] STT fallback for videos with no captions
 - [ ] Time-stretch tuning and pause/seek robustness
 - [ ] Optional accounts + moderation for the public library
 - [ ] Rate limiting and abuse protection on the server

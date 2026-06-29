@@ -50,10 +50,26 @@ evo-dubbing is split into a Chrome extension that does all the heavy lifting cli
 1. Resolve the platform adapter from the page URL. YouTube first.
 2. Get a transcript:
    - Preferred: the platform's own caption track (YouTube `timedtext`). Cheap, already timed.
-   - Fallback: download the audio and run Whisper STT (OpenAI). Produces timed segments.
-3. Translate each segment to the target language with the selected provider. Segments are translated in batches with surrounding context for coherence.
-4. Synthesize speech per segment with the selected TTS voice.
-5. Build a `Dub` object: ordered segments, each with `startMs`, `endMs`, `translatedText`, and an audio blob / url.
+     YouTube now requires a `pot` (poToken) on `timedtext`; the MAIN-world bridge hooks the
+     player's own caption request to capture a valid `pot` and appends it to the track baseUrl.
+   - Fallback: download the audio and run Whisper STT (OpenAI). Produces timed segments. (Not wired yet.)
+3. Merge fragmented caption cues into sentence-level cues (fewer TTS calls, more natural speech).
+4. Translate and synthesize lazily, driven by the playhead. See "Cost: lazy generation".
+5. Play as a voice-over while generating ahead. Sharing runs a one-off "complete all" pass.
+
+## Cost: lazy generation
+
+The `DubSession` never generates the whole video up front. It only translates and synthesizes
+cues inside a sliding window around the current playback position (a lookahead of ~30s), so a
+viewer who watches two minutes of a long video only pays for two minutes of TTS.
+
+- Translation is cheap and runs in small chunks just before TTS; TTS is the dominant cost and is
+  the thing kept strictly on-demand.
+- Generation stops when the dub is paused, so leaving a video idle costs nothing further.
+- Generated audio is cached in IndexedDB keyed by `provider|model|voice|hash(text)`, so seeking
+  back, re-watching, reloading, or hitting the same line in another video reuses the audio for free.
+- Before generating anything, the extension asks the share server whether a finished dub already
+  exists for `(platform, video, targetLang, voice, provider)`; if so it streams that for free.
 
 ## Playback (voice-over)
 

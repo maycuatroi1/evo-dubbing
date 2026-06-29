@@ -1,8 +1,7 @@
 import { EvoOverlay } from "./overlay";
 import { getSettings, saveOwnerToken, getOwnerToken } from "../lib/storage";
 import { resolvePlatform } from "../lib/platforms";
-import { buildDub } from "../lib/dubbing/engine";
-import { DubPlayer } from "../lib/dubbing/player";
+import { DubSession } from "../lib/dubbing/session";
 import { lookupDub, uploadDub, setVisibility, type RemoteDub } from "../lib/api/shareClient";
 import type { Dub, Settings, VideoContext } from "../lib/types";
 
@@ -10,11 +9,9 @@ const platform = resolvePlatform(location.href);
 
 let overlay: EvoOverlay | null = null;
 let context: VideoContext | null = null;
-let player: DubPlayer | null = null;
-let currentDub: Dub | null = null;
+let session: DubSession | null = null;
 let fromRemote = false;
-let playing = false;
-let abort: AbortController | null = null;
+let uploadedDubId: string | null = null;
 
 function remoteToDub(remote: RemoteDub): Dub {
   return {
@@ -40,38 +37,37 @@ function remoteToDub(remote: RemoteDub): Dub {
   };
 }
 
-function cleanupPlayer(): void {
-  if (player) {
-    player.destroy();
-    player = null;
+function cleanupSession(): void {
+  if (session) {
+    session.destroy();
+    session = null;
   }
-  playing = false;
-}
-
-async function startPlayback(dub: Dub, settings: Settings): Promise<void> {
-  cleanupPlayer();
-  const video = platform?.getVideoElement() ?? null;
-  if (!video) {
-    overlay?.setError("Could not find the video element.");
-    return;
-  }
-  player = new DubPlayer({ video, dub, duckVolume: settings.duckVolume });
-  await player.prepare((done, total) =>
-    overlay?.setProgress({ phase: "synthesizing", current: done, total, message: "Preparing audio" })
-  );
-  await player.enable();
-  playing = true;
-  overlay?.setReady();
-  overlay?.setPlaying(true);
 }
 
 async function onDub(targetLang: string): Promise<void> {
   if (!platform || !context) return;
-  abort?.abort();
-  abort = new AbortController();
+
+  const video = platform.getVideoElement();
+  if (!video) {
+    overlay?.setError("Could not find the video element.");
+    return;
+  }
 
   const stored = await getSettings();
   const settings: Settings = { ...stored, targetLang };
+
+  cleanupSession();
+  uploadedDubId = null;
+  session = new DubSession({
+    video,
+    context,
+    settings,
+    onProgress: (p) => overlay?.setProgress(p),
+    onReady: () => {
+      overlay?.setReady();
+      overlay?.setPlaying(true);
+    }
+  });
 
   try {
     if (settings.shareServerUrl) {
@@ -84,49 +80,38 @@ async function onDub(targetLang: string): Promise<void> {
         provider: settings.ttsProvider
       });
       if (remote && remote.segments.length > 0) {
-        currentDub = remoteToDub(remote);
         fromRemote = true;
-        overlay?.setShareStatus("Loaded a shared dub");
-        await startPlayback(currentDub, settings);
+        await session.startRemote(remoteToDub(remote));
         overlay?.setVisibility(remote.visibility);
+        overlay?.setShareStatus("Playing a shared dub (free)");
         return;
       }
     }
 
-    const dub = await buildDub({
-      context,
-      platform,
-      settings,
-      signal: abort.signal,
-      onProgress: (p) => overlay?.setProgress(p)
-    });
-    currentDub = dub;
     fromRemote = false;
-    await startPlayback(dub, settings);
-
-    if (settings.autoUpload && settings.shareServerUrl) {
-      await shareCurrent(settings.defaultVisibility, settings);
-    }
+    await session.startGenerated(platform);
   } catch (err) {
-    if (err instanceof DOMException && err.name === "AbortError") return;
     overlay?.setError(err instanceof Error ? err.message : String(err));
   }
 }
 
 async function shareCurrent(visibility: "public" | "private", settings: Settings): Promise<void> {
-  if (!currentDub) return;
+  if (!session) return;
   if (!settings.shareServerUrl) {
     overlay?.setError("Set a share server URL in the extension options first.");
     return;
   }
+  if (fromRemote) {
+    overlay?.setShareStatus("This dub is already shared.");
+    return;
+  }
 
-  if (currentDub.id && !fromRemote) {
-    const token = await getOwnerToken(currentDub.id);
+  if (uploadedDubId) {
+    const token = await getOwnerToken(uploadedDubId);
     if (token) {
       overlay?.setShareStatus("Updating visibility...");
       try {
-        await setVisibility(settings.shareServerUrl, currentDub.id, visibility, token);
-        currentDub.visibility = visibility;
+        await setVisibility(settings.shareServerUrl, uploadedDubId, visibility, token);
         overlay?.setShareStatus(`Visibility set to ${visibility}`);
       } catch (err) {
         overlay?.setError(err instanceof Error ? err.message : String(err));
@@ -135,16 +120,12 @@ async function shareCurrent(visibility: "public" | "private", settings: Settings
     }
   }
 
-  if (fromRemote) {
-    overlay?.setShareStatus("This dub is already shared.");
-    return;
-  }
-
-  currentDub.visibility = visibility;
-  overlay?.setShareStatus("Uploading dub...");
   try {
-    const result = await uploadDub(settings.shareServerUrl, currentDub);
-    currentDub.id = result.id;
+    const dub = await session.completeAll((p) => overlay?.setProgress(p));
+    dub.visibility = visibility;
+    overlay?.setShareStatus("Uploading dub...");
+    const result = await uploadDub(settings.shareServerUrl, dub);
+    uploadedDubId = result.id;
     await saveOwnerToken(result.id, result.ownerToken);
     overlay?.setShareStatus(`Shared (${result.visibility})`);
   } catch (err) {
@@ -153,22 +134,20 @@ async function shareCurrent(visibility: "public" | "private", settings: Settings
 }
 
 function onTogglePlay(): void {
-  if (!player) return;
-  if (playing) {
-    player.disable();
-    playing = false;
+  if (!session) return;
+  if (session.isActive()) {
+    session.pause();
     overlay?.setPlaying(false);
   } else {
-    player.enable();
-    playing = true;
+    session.resume();
     overlay?.setPlaying(true);
   }
 }
 
 async function onRedub(): Promise<void> {
-  cleanupPlayer();
-  currentDub = null;
+  cleanupSession();
   fromRemote = false;
+  uploadedDubId = null;
   const settings = await getSettings();
   overlay?.reset(settings.targetLang);
 }
@@ -193,9 +172,9 @@ async function init(): Promise<void> {
   await refreshContext();
 
   document.addEventListener("yt-navigate-finish", async () => {
-    cleanupPlayer();
-    currentDub = null;
+    cleanupSession();
     fromRemote = false;
+    uploadedDubId = null;
     const latest = await getSettings();
     overlay?.reset(latest.targetLang);
     await refreshContext();
