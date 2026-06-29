@@ -11,7 +11,7 @@ export const DEFAULT_SETTINGS: DubbingSettings = {
   voice: "alloy",
   duckVolume: 0.18,
   ttsModel: "gpt-4o-mini-tts",
-  translateModel: "gpt-4o-mini",
+  translateModel: "gpt-5.4-mini",
   shareServerUrl: "",
   autoUpload: false,
   defaultVisibility: "public"

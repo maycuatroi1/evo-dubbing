@@ -34,18 +34,25 @@ async function translate(batch: TranslateBatch, key: string): Promise<Translated
     `Return JSON of the form {"translations":[{"idx":<number>,"text":"<translation>"}]}.\n\n` +
     numbered;
 
+  const isReasoning = /^(gpt-5|o[0-9])/.test(batch.model);
+  const body: Record<string, unknown> = {
+    model: batch.model,
+    response_format: { type: "json_object" },
+    messages: [
+      { role: "system", content: system },
+      { role: "user", content: user }
+    ]
+  };
+  if (isReasoning) {
+    body.reasoning_effort = "minimal";
+  } else {
+    body.temperature = 0.3;
+  }
+
   const res = await fetchJson<ChatResponse>(`${BASE}/chat/completions`, {
     method: "POST",
     headers: authHeaders(key),
-    body: JSON.stringify({
-      model: batch.model,
-      temperature: 0.3,
-      response_format: { type: "json_object" },
-      messages: [
-        { role: "system", content: system },
-        { role: "user", content: user }
-      ]
-    })
+    body: JSON.stringify(body)
   });
 
   const content = res.choices?.[0]?.message?.content ?? "{}";
@@ -105,16 +112,21 @@ async function stt(req: SttRequest, key: string): Promise<Transcript> {
 export const openaiProvider: Provider = {
   id: "openai",
   label: "OpenAI",
-  translateModels: ["gpt-4o-mini", "gpt-4o", "gpt-4.1-mini"],
+  translateModels: ["gpt-5.4-mini", "gpt-5.4-nano", "gpt-5.5", "gpt-5.4"],
   ttsModels: ["gpt-4o-mini-tts", "tts-1", "tts-1-hd"],
-  sttModels: ["whisper-1", "gpt-4o-mini-transcribe"],
+  sttModels: ["gpt-4o-mini-transcribe", "gpt-4o-transcribe", "whisper-1"],
   voices: [
     { id: "alloy", label: "Alloy" },
+    { id: "ash", label: "Ash" },
+    { id: "ballad", label: "Ballad" },
+    { id: "coral", label: "Coral" },
     { id: "echo", label: "Echo" },
     { id: "fable", label: "Fable" },
     { id: "onyx", label: "Onyx" },
     { id: "nova", label: "Nova" },
-    { id: "shimmer", label: "Shimmer" }
+    { id: "sage", label: "Sage" },
+    { id: "shimmer", label: "Shimmer" },
+    { id: "verse", label: "Verse" }
   ],
   translate,
   tts,
