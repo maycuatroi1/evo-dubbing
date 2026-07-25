@@ -2,6 +2,7 @@ import { defineManifest } from "@crxjs/vite-plugin";
 
 export default defineManifest({
   manifest_version: 3,
+  key: "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsB3y5hbaGvB31aBfHB+Ytrut6uHJ5Jxk04+pZ0NbePsYir7ZDMlZzDMPUEq63vIURbUJ2snXMa50fifd7rlrD6JRhxiuLBXk5L0J1Q6yzoh1caK2po/6tlYO9WQ9N8mnqabpaEGTA+bwwRsjx77OLAzWghsl6rhpj/+gtZM2fTQysVu4pkRZ2RuZ/wl9c9GXlcTiN25Ww6revKraClRsesr72S7YJuHKwKWEdoyRb2mquLlCqsZiFXqzdKLb+DkrpNJ4Q0SpjAleYslnu6Q7Jr2VBG6l9NE1Fxz+yh36T2M4HBif/oEXhSwl+ZDJ3ZZKuBcq31FWsqSDOQYKSJkcuwIDAQAB",
   name: "evo-dubbing",
   version: "0.1.0",
   description: "AI voice-over dubbing for online videos, starting with YouTube.",
@@ -37,7 +38,11 @@ export default defineManifest({
       run_at: "document_idle"
     }
   ],
-  permissions: ["storage", "scripting", "activeTab"],
+  permissions: ["storage", "scripting", "activeTab", "identity"],
+  oauth2: {
+    client_id: "401458936175-sofsattbm8g3t3qcjjgb1c333eo97k9h.apps.googleusercontent.com",
+    scopes: ["openid", "email", "profile"]
+  },
   host_permissions: [
     "https://www.youtube.com/*",
     "https://*.googlevideo.com/*",
