@@ -47,8 +47,10 @@ export default defineManifest({
     "https://www.youtube.com/*",
     "https://*.googlevideo.com/*",
     "https://api.openai.com/*",
-    "https://generativelanguage.googleapis.com/*"
+    "https://generativelanguage.googleapis.com/*",
+    "https://*.supabase.co/*"
   ],
+  optional_host_permissions: ["https://*/*"],
   web_accessible_resources: [
     {
       resources: ["icons/*"],

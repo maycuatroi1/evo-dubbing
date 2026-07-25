@@ -1,4 +1,4 @@
-import { getSettings } from "../lib/storage";
+import { getSettings } from "../lib/storage.ts";
 
 function set(id: string, value: string): void {
   const el = document.getElementById(id);

@@ -1,5 +1,7 @@
 export type ProviderId = "openai" | "gemini";
 
+export type BillingMode = "byok" | "managed";
+
 export type TranscriptSource = "captions" | "stt";
 
 export interface TranscriptSegment {
@@ -69,6 +71,9 @@ export interface DubbingSettings {
   shareServerUrl: string;
   autoUpload: boolean;
   defaultVisibility: "public" | "private";
+  billingMode: BillingMode;
+  managedBaseUrl: string;
+  managedVoiceProfileId: string;
 }
 
 export interface Settings extends DubbingSettings {

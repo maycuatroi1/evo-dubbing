@@ -1,4 +1,4 @@
-import type { DubbingProgress, VideoContext } from "../lib/types";
+import type { DubbingProgress, VideoContext } from "../lib/types.ts";
 
 export interface OverlayHandlers {
   onDub: (targetLang: string) => void;

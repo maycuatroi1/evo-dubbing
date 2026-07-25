@@ -6,7 +6,7 @@ import {
   type BridgeResult,
   type CaptionEvent,
   type PlayerInfo
-} from "./bridge-protocol";
+} from "./bridge-protocol.ts";
 
 interface RawCaptionTrack {
   baseUrl: string;

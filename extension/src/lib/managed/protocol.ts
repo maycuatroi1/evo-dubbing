@@ -1,0 +1,70 @@
+import type { BillingMode } from "../types.ts";
+
+export interface ManagedTranslateSegment {
+  idx: number;
+  text: string;
+  startMs: number;
+  endMs: number;
+}
+
+export interface ManagedTranslatePayload {
+  baseUrl: string;
+  sourceLang: string;
+  targetLang: string;
+  segments: ManagedTranslateSegment[];
+}
+
+export interface ManagedTtsPayload {
+  baseUrl: string;
+  idempotencyKey: string;
+  voiceProfileId: string;
+  targetLang: string;
+  text: string;
+  cue: { startMs: number; endMs: number };
+}
+
+export type AuthMessage =
+  | { type: "auth.signIn" }
+  | { type: "auth.signOut" }
+  | { type: "auth.refresh" }
+  | { type: "auth.getState" };
+
+export type ManagedMessage =
+  | { type: "managed.translate"; payload: ManagedTranslatePayload }
+  | { type: "managed.tts"; payload: ManagedTtsPayload };
+
+export type RuntimeMessage = AuthMessage | ManagedMessage;
+
+export type RuntimeMessageType = RuntimeMessage["type"];
+
+export const RUNTIME_MESSAGE_TYPES: RuntimeMessageType[] = [
+  "auth.signIn",
+  "auth.signOut",
+  "auth.refresh",
+  "auth.getState",
+  "managed.translate",
+  "managed.tts"
+];
+
+export type RuntimeResponse =
+  | { ok: true; data: unknown }
+  | { ok: false; status: number; code: string; error: string };
+
+export interface ManagedTranslateResult {
+  translations: { idx: number; text: string }[];
+}
+
+export interface ManagedTtsResult {
+  audio?: ArrayBuffer;
+  audioUrl?: string;
+  mime: string;
+  chargedSourceMs: number;
+  remainingMs: number;
+  voiceProfileVersion: string;
+}
+
+export interface ManagedBackendContext {
+  billingMode: BillingMode;
+  managedBaseUrl: string;
+  managedVoiceProfileId: string;
+}

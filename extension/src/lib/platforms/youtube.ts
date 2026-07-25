@@ -1,12 +1,12 @@
-import type { Transcript, VideoContext } from "../types";
-import type { Platform } from "./index";
+import type { Transcript, VideoContext } from "../types.ts";
+import type { Platform } from "./index.ts";
 import {
   BRIDGE_REQ,
   BRIDGE_RES,
   type BridgeEnvelope,
   type BridgeRequest,
   type BridgeResult
-} from "../../content/bridge-protocol";
+} from "../../content/bridge-protocol.ts";
 
 let counter = 0;
 const pending = new Map<number, (result: BridgeResult) => void>();

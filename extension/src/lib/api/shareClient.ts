@@ -1,5 +1,5 @@
-import type { Dub, DubSegment } from "../types";
-import { fetchJson, putBinary } from "../net";
+import type { Dub, DubSegment } from "../types.ts";
+import { fetchJson, putBinary, HttpError } from "../net.ts";
 
 export interface RemoteSegment {
   idx: number;
@@ -47,8 +47,9 @@ export async function lookupDub(serverUrl: string, q: LookupQuery): Promise<Remo
   const params = new URLSearchParams(q as unknown as Record<string, string>);
   try {
     return await fetchJson<RemoteDub>(`${base(serverUrl)}/api/dubs/lookup?${params.toString()}`);
-  } catch {
-    return null;
+  } catch (err) {
+    if (err instanceof HttpError && err.status === 404) return null;
+    throw err;
   }
 }
 

@@ -1,9 +1,9 @@
-import { EvoOverlay } from "./overlay";
-import { getSettings, saveOwnerToken, getOwnerToken } from "../lib/storage";
-import { resolvePlatform } from "../lib/platforms";
-import { DubSession } from "../lib/dubbing/session";
-import { lookupDub, uploadDub, setVisibility, type RemoteDub } from "../lib/api/shareClient";
-import type { Dub, Settings, VideoContext } from "../lib/types";
+import { EvoOverlay } from "./overlay.ts";
+import { getSettings, saveOwnerToken, getOwnerToken } from "../lib/storage.ts";
+import { resolvePlatform } from "../lib/platforms/index.ts";
+import { DubSession } from "../lib/dubbing/session.ts";
+import { lookupDub, uploadDub, setVisibility, type RemoteDub } from "../lib/api/shareClient.ts";
+import type { Dub, Settings, VideoContext } from "../lib/types.ts";
 
 const platform = resolvePlatform(location.href);
 
@@ -75,13 +75,22 @@ async function onDub(targetLang: string): Promise<void> {
   try {
     if (settings.shareServerUrl) {
       overlay?.setProgress({ phase: "transcript", current: 0, total: 1, message: "Checking shared library" });
-      const remote = await lookupDub(settings.shareServerUrl, {
-        platform: context.platform,
-        videoId: context.videoId,
-        targetLang,
-        voice: settings.voice,
-        provider: settings.ttsProvider
-      });
+      let remote: RemoteDub | null;
+      try {
+        remote = await lookupDub(settings.shareServerUrl, {
+          platform: context.platform,
+          videoId: context.videoId,
+          targetLang,
+          voice: settings.voice,
+          provider: settings.ttsProvider
+        });
+      } catch (err) {
+        overlay?.setError(
+          `Shared library lookup failed (${err instanceof Error ? err.message : String(err)}). ` +
+            "Not generating a new dub to avoid unexpected charges. Try again later."
+        );
+        return;
+      }
       if (remote && remote.segments.length > 0) {
         fromRemote = true;
         await session.startRemote(remoteToDub(remote));

@@ -1,6 +1,6 @@
-import { getSettings, saveSettings, saveKeys, DEFAULT_SETTINGS } from "../lib/storage";
-import { listProviders, getProvider } from "../lib/providers";
-import type { ProviderId } from "../lib/types";
+import { getSettings, saveSettings, saveKeys, DEFAULT_SETTINGS } from "../lib/storage.ts";
+import { listProviders, getProvider } from "../lib/providers/index.ts";
+import type { ProviderId } from "../lib/types.ts";
 
 function $<T extends HTMLElement>(id: string): T {
   const el = document.getElementById(id);
@@ -96,8 +96,10 @@ async function onSave() {
     openai: ($("openaiKey") as HTMLInputElement).value.trim() || undefined,
     gemini: ($("geminiKey") as HTMLInputElement).value.trim() || undefined
   });
+  const { keys: _keys, ...current } = await getSettings();
   await saveSettings({
     ...DEFAULT_SETTINGS,
+    ...current,
     translateProvider: ($("translateProvider") as HTMLSelectElement).value as ProviderId,
     ttsProvider: ($("ttsProvider") as HTMLSelectElement).value as ProviderId,
     sttProvider: ($("sttProvider") as HTMLSelectElement).value as ProviderId,

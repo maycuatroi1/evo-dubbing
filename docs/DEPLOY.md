@@ -37,6 +37,27 @@ Dashboard: https://supabase.com/dashboard/project/lrypactuodbguwncoomc
 | `DATABASE_URL` | `evo cred get supabase.evo_dubbing.database_url` (pooler 6543) | Settings -> Database -> reset password |
 | Google provider | Authentication -> Sign In/Providers -> Google: Enabled, Client IDs = OAuth client ID trên | Update khi OAuth client đổi |
 
+Redirect URLs (Authentication -> Sign In/Providers -> URL Configuration -> Redirect URLs) phải allowlist `https://ligchebgiheiildjcnndjoalkpiamgko.chromiumapp.org/` để flow `chrome.identity.launchWebAuthFlow` của extension (step 12) hoàn tất.
+
+Extension đọc publishable key lúc build qua env `VITE_SUPABASE_PUBLISHABLE_KEY` (xem `extension/src/lib/managed/config.ts`), KHÔNG commit giá trị thật:
+
+```powershell
+$env:VITE_SUPABASE_PUBLISHABLE_KEY = (evo cred get evo_dubbing.supabase_publishable_key); npm run build:ext
+```
+
+### Live auth check (owner-only, manual, step 12 verify)
+
+Chỉ owner chạy được vì cần Chrome profile thật + tài khoản Google + Supabase project. Điều kiện: redirect URL đã allowlist ở trên, extension build có publishable key.
+
+1. Build extension với publishable key như trên, load unpacked `extension/dist` vào `chrome://extensions` (Developer mode). Kiểm tra Item ID dưới tên extension phải là `ligchebgiheiildjcnndjoalkpiamgko`.
+2. Mở service worker console (chrome://extensions -> evo-dubbing -> "Service worker" -> Inspect) và chạy: `chrome.runtime.sendMessage({ type: "auth.signIn" }, console.log)`.
+3. Popup Google sign-in mở ra; đăng nhập bằng tài khoản Google của owner. Kỳ vọng: `launchWebAuthFlow` redirect về `https://ligchebgiheiildjcnndjoalkpiamgko.chromiumapp.org/#access_token=...`, response `{ ok: true, data: { signedIn: true, expiresAt: ... } }`.
+4. Verify Google ID token đúng Item ID: trong tab Network của service worker, request tới `accounts.google.com` phải mang `client_id=401458936175-sofsattbm8g3t3qcjjgb1c333eo97k9h.apps.googleusercontent.com` (OAuth client gắn với Item ID trên).
+5. Verify Supabase tạo session: `chrome.storage.local.get("evoDubbingManagedSession", console.log)` trong service worker console phải thấy `accessToken`/`refreshToken`/`expiresAt`. Supabase dashboard -> Authentication -> Users phải có user mới (hoặc sign-in mới) với provider `google`.
+6. Verify refresh: chạy `chrome.runtime.sendMessage({ type: "auth.refresh" }, console.log)` -> `{ ok: true, data: { signedIn: true } }` và `expiresAt` tăng.
+7. Verify sign-out: `chrome.runtime.sendMessage({ type: "auth.signOut" }, console.log)` rồi `chrome.storage.local.get("evoDubbingManagedSession", console.log)` phải rỗng.
+8. Boundary: mở youtube.com bất kỳ, DevTools của trang (không phải service worker) chạy `chrome.storage.local.get("evoDubbingManagedSession", console.log)` phải trả về rỗng/undefined vì content script không bao giờ đọc key này (secret-boundary check ép ở mức source).
+
 ## PayOS - CHƯA HOÀN TẤT (external setup thuộc step 9, owner-only)
 
 Dashboard: https://my.payos.vn (cần đăng ký merchant + KYC trước)

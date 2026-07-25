@@ -1,6 +1,8 @@
 import shareApi from "./share-api.mjs";
 import managedApi from "./managed-api.mjs";
 import bridgeProtocol from "./bridge-protocol.mjs";
+import runtimeProtocol from "./runtime-protocol.mjs";
+import secretBoundary from "./secret-boundary.mjs";
 import envContract from "./env-contract.mjs";
 import modelCatalog from "./model-catalog.mjs";
 import workSpec from "./work-spec.mjs";
@@ -10,6 +12,8 @@ const CHECKS = {
   "share-api": shareApi,
   "managed-api": managedApi,
   "bridge-protocol": bridgeProtocol,
+  "runtime-protocol": runtimeProtocol,
+  "secret-boundary": secretBoundary,
   "env-contract": envContract,
   "model-catalog": modelCatalog,
   "work-spec": workSpec,

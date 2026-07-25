@@ -1,4 +1,4 @@
-import type { TranscriptSegment } from "../types";
+import type { TranscriptSegment } from "../types.ts";
 
 const MAX_GAP_MS = 1200;
 const MAX_DURATION_MS = 8000;

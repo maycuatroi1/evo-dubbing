@@ -1,6 +1,6 @@
-import type { ProviderId, Transcript } from "../types";
-import { openaiProvider } from "./openai";
-import { geminiProvider } from "./gemini";
+import type { ProviderId, Transcript } from "../types.ts";
+import { openaiProvider } from "./openai.ts";
+import { geminiProvider } from "./gemini.ts";
 
 export interface TranslateBatch {
   segments: { idx: number; text: string }[];

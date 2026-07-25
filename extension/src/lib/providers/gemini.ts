@@ -1,5 +1,5 @@
-import type { Transcript } from "../types";
-import { fetchJson, base64ToArrayBuffer } from "../net";
+import type { Transcript } from "../types.ts";
+import { fetchJson, base64ToArrayBuffer } from "../net.ts";
 import type {
   Provider,
   TranslateBatch,
@@ -7,7 +7,7 @@ import type {
   TtsRequest,
   TtsResult,
   SttRequest
-} from "./index";
+} from "./index.ts";
 
 const BASE = "https://generativelanguage.googleapis.com/v1beta/models";
 
