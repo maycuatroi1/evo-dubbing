@@ -2,10 +2,10 @@ import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const serverDirectory = fileURLToPath(new URL("..", import.meta.url));
-const filter = process.argv[2];
-const target = filter ? `test/${filter}.test.ts` : "test";
+const filters = process.argv.slice(2);
+const targets = filters.length > 0 ? filters.map((f) => `test/${f}.test.ts`) : ["test/**/*.test.ts"];
 
-const result = spawnSync(process.execPath, ["--experimental-strip-types", "--test", target], {
+const result = spawnSync(process.execPath, ["--experimental-strip-types", "--test", ...targets], {
   cwd: serverDirectory,
   stdio: "inherit"
 });
