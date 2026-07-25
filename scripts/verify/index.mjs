@@ -1,4 +1,5 @@
 import shareApi from "./share-api.mjs";
+import managedApi from "./managed-api.mjs";
 import bridgeProtocol from "./bridge-protocol.mjs";
 import envContract from "./env-contract.mjs";
 import modelCatalog from "./model-catalog.mjs";
@@ -7,6 +8,7 @@ import map from "./map.mjs";
 
 const CHECKS = {
   "share-api": shareApi,
+  "managed-api": managedApi,
   "bridge-protocol": bridgeProtocol,
   "env-contract": envContract,
   "model-catalog": modelCatalog,
