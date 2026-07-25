@@ -20,3 +20,4 @@ drizzle/meta/
 .idea/
 .vscode/*
 !.vscode/extensions.json
+benchmarks/tts-vi/artifacts/

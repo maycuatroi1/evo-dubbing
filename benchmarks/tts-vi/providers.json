@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "priceDate": "2026-07-25",
+  "vndPerUsd": 26000,
+  "acceptance": {
+    "minimumMos": 3.0,
+    "maximumSeverePronunciationErrorRate": 0.05,
+    "maximumP95FirstAudioMs": 8000,
+    "maximumProjectedCogs300Vnd": 130000,
+    "minimumVietnameseReviewers": 1
+  },
+  "translation": [
+    {
+      "id": "gemini-flash-lite",
+      "provider": "gemini",
+      "model": "gemini-3.1-flash-lite",
+      "role": "flash-lite",
+      "credentialPaths": [
+        "google_api_key"
+      ],
+      "environmentVariables": [
+        "GOOGLE_API_KEY"
+      ],
+      "pricing": {
+        "status": "public",
+        "currency": "USD",
+        "inputPerMillionTokens": 0.25,
+        "outputPerMillionTokens": 1.5,
+        "priceDate": "2026-07-25",
+        "sourceUrl": "https://ai.google.dev/gemini-api/docs/pricing"
+      }
+    },
+    {
+      "id": "openai-economy",
+      "provider": "openai",
+      "model": "gpt-5.4-nano",
+      "role": "economy",
+      "credentialPaths": [
+        "openai_api_key"
+      ],
+      "environmentVariables": [
+        "OPENAI_API_KEY"
+      ],
+      "pricing": {
+        "status": "public",
+        "currency": "USD",
+        "inputPerMillionTokens": 0.2,
+        "outputPerMillionTokens": 1.25,
+        "priceDate": "2026-07-25",
+        "sourceUrl": "https://developers.openai.com/api/docs/pricing"
+      }
+    },
+    {
+      "id": "gemini-challenger",
+      "provider": "gemini",
+      "model": "gemini-3.5-flash",
+      "role": "challenger",
+      "credentialPaths": [
+        "google_api_key"
+      ],
+      "environmentVariables": [
+        "GOOGLE_API_KEY"
+      ],
+      "pricing": {
+        "status": "public",
+        "currency": "USD",
+        "inputPerMillionTokens": 1.5,
+        "outputPerMillionTokens": 9,
+        "priceDate": "2026-07-25",
+        "sourceUrl": "https://ai.google.dev/gemini-api/docs/pricing"
+      }
+    }
+  ],
+  "tts": [
+    {
+      "id": "google-wavenet",
+      "provider": "google",
+      "model": "WaveNet",
+      "voice": "vi-VN-Wavenet-A",
+      "credentialPaths": [
+        "google_tts_api_key"
+      ],
+      "environmentVariables": [
+        "GOOGLE_TTS_API_KEY"
+      ],
+      "pricing": {
+        "status": "public",
+        "currency": "USD",
+        "listPrice": 4,
+        "listUnit": "1000000_characters",
+        "freeQuotaCharacters": 4000000,
+        "paidQuotaCharacters": 1000000,
+        "effectivePaidQuotaCharacters": 1000000,
+        "priceDate": "2026-07-25",
+        "sourceUrl": "https://cloud.google.com/text-to-speech/pricing"
+      }
+    },
+    {
+      "id": "google-gemini-tts",
+      "provider": "google-gemini",
+      "model": "gemini-2.5-flash-preview-tts",
+      "voice": "Kore",
+      "credentialPaths": [
+        "google_api_key"
+      ],
+      "environmentVariables": [
+        "GOOGLE_API_KEY"
+      ],
+      "pricing": {
+        "status": "public",
+        "currency": "USD",
+        "listPrice": 10,
+        "listUnit": "1000000_output_audio_tokens",
+        "freeQuotaCharacters": 0,
+        "paidQuotaCharacters": 538408,
+        "effectivePaidQuotaCharacters": 538408,
+        "priceDate": "2026-07-25",
+        "sourceUrl": "https://cloud.google.com/text-to-speech/pricing"
+      }
+    },
+    {
+      "id": "vbee",
+      "provider": "vbee",
+      "model": "Vbee AIVoice API",
+      "voice": "hn_female_ngochuyen_full_48k-fhg",
+      "credentialPaths": [
+        "vbee.app_id",
+        "vbee.token"
+      ],
+      "environmentVariables": [
+        "VBEE_APP_ID",
+        "VBEE_TOKEN"
+      ],
+      "pricing": {
+        "status": "public",
+        "currency": "VND",
+        "listPrice": 599000,
+        "listUnit": "package_year",
+        "freeQuotaCharacters": 0,
+        "paidQuotaCharacters": 1500000,
+        "effectivePaidQuotaCharacters": 1500000,
+        "priceDate": "2026-07-25",
+        "sourceUrl": "https://vbee.vn/pricing"
+      }
+    }
+  ]
+}

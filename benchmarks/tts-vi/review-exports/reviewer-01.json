@@ -1,0 +1,550 @@
+{
+  "schemaVersion": 1,
+  "runId": "20260725T115157533Z",
+  "reviewer_id": "reviewer-01",
+  "createdAt": "2026-07-25T12:13:55.517Z",
+  "sampleCount": 90,
+  "ratings": [
+    {
+      "sample_id": "sample-196f5b30a764",
+      "mos": 5,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-1a009543f0fd",
+      "mos": 1,
+      "severe_pronunciation_error": "true",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-1d2725456aca",
+      "mos": 5,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-1e0bd512bdb4",
+      "mos": 5,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-1eab29ba0af9",
+      "mos": 5,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-271aada8f589",
+      "mos": 5,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-2858d03d2bd2",
+      "mos": 3,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-2a31a50e212a",
+      "mos": 5,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-2b5fae36cbc0",
+      "mos": 5,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-2e117496d6e0",
+      "mos": 5,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-2f3b8d38e7a8",
+      "mos": 1,
+      "severe_pronunciation_error": "true",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-34453987238c",
+      "mos": 5,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-46cbfed3db59",
+      "mos": 5,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-4758bf21388b",
+      "mos": 5,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-4837634844e9",
+      "mos": 5,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-496939559caf",
+      "mos": 1,
+      "severe_pronunciation_error": "true",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-49935ae09ffc",
+      "mos": 3,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-4b2afbeef662",
+      "mos": 5,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-4dc36d2103ec",
+      "mos": 4,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-4f6dd9f9cc86",
+      "mos": 3,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-521b9d1813fb",
+      "mos": 4,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-534adbc3786e",
+      "mos": 5,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-55ea3cd18cba",
+      "mos": 5,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-5af8e530194a",
+      "mos": 5,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-5c8ecf8c5b86",
+      "mos": 5,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-5e3326e03256",
+      "mos": 5,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-64f58bf26c4b",
+      "mos": 5,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-69d0ec7129f7",
+      "mos": 5,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-6b86317e213e",
+      "mos": 4,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-7096ad61940b",
+      "mos": 3,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-7106f467a9aa",
+      "mos": 5,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-737859f42a45",
+      "mos": 1,
+      "severe_pronunciation_error": "true",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-75164f7208ab",
+      "mos": 1,
+      "severe_pronunciation_error": "true",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-788c5980d3a0",
+      "mos": 4,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-8090f19450ed",
+      "mos": 5,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-8131239ed89f",
+      "mos": 2,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-821aa3085d0e",
+      "mos": 5,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-84c860ab7f9b",
+      "mos": 1,
+      "severe_pronunciation_error": "true",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-85b0a3c105ad",
+      "mos": 3,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-8a411fe968cb",
+      "mos": 4,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-8a856f0d92c3",
+      "mos": 3,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-8a89b6443742",
+      "mos": 4,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-8b5c176aca17",
+      "mos": 2,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-9060a0b7995d",
+      "mos": 1,
+      "severe_pronunciation_error": "true",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-96a56012726d",
+      "mos": 5,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-97c55a199df7",
+      "mos": 5,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-99670aceb45c",
+      "mos": 5,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-a5c4ca7fbf76",
+      "mos": 1,
+      "severe_pronunciation_error": "true",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-a9981868ad8b",
+      "mos": 5,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-aa84995b1d35",
+      "mos": 5,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-ac64e4994029",
+      "mos": 4,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-ae539b47b109",
+      "mos": 5,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-af508c87b1a8",
+      "mos": 1,
+      "severe_pronunciation_error": "true",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-b13796135861",
+      "mos": 5,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-b497b91a51f1",
+      "mos": 4,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-b5665fb5e535",
+      "mos": 5,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-b7a2ed7d9fb8",
+      "mos": 5,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-b80b3b6cb280",
+      "mos": 4,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-b9cce166f16d",
+      "mos": 3,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-c5b5b6bfc6f5",
+      "mos": 2,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-ca7d1e6d1ecb",
+      "mos": 4,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-cc4ea3dcf6bf",
+      "mos": 1,
+      "severe_pronunciation_error": "true",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-cd8e88ad9339",
+      "mos": 5,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-d072d2203c0b",
+      "mos": 3,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-d5e3bd372c2d",
+      "mos": 3,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-d8e7d05dc513",
+      "mos": 1,
+      "severe_pronunciation_error": "true",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-d9fb0292cbe7",
+      "mos": 5,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-db7be36ba77c",
+      "mos": 5,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-dca1ff4c2b1e",
+      "mos": 2,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-dca4053b95eb",
+      "mos": 1,
+      "severe_pronunciation_error": "true",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-dfd5570b8bf2",
+      "mos": 2,
+      "severe_pronunciation_error": "true",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-e0fd8acb8a66",
+      "mos": 5,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-e18eee1d8b7a",
+      "mos": 5,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-e1a54e1c9c07",
+      "mos": 4,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-e1af42598360",
+      "mos": 3,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-e3210159a1de",
+      "mos": 5,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-e4eb3b2b4fbf",
+      "mos": 5,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-e55877b69d6e",
+      "mos": 5,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-e771291dabfd",
+      "mos": 5,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-eac128823293",
+      "mos": 2,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-eaf770a13dd0",
+      "mos": 3,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-efbcd3b03d27",
+      "mos": 5,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-f3faa167e2a9",
+      "mos": 3,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-f4bf4955a5ab",
+      "mos": 1,
+      "severe_pronunciation_error": "true",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-f51cfa478d41",
+      "mos": 5,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-f5d93914fc58",
+      "mos": 2,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-f60702bc7dfd",
+      "mos": 5,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-f73b5ccaee57",
+      "mos": 1,
+      "severe_pronunciation_error": "true",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-fa67d5e3457f",
+      "mos": 5,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    },
+    {
+      "sample_id": "sample-fe6b9cc1d243",
+      "mos": 4,
+      "severe_pronunciation_error": "false",
+      "notes": ""
+    }
+  ],
+  "checksum": "f68a7c2a642a9623b67608c1dc94c8699ce64288bb6d1ed135d50211d6a8888e"
+}

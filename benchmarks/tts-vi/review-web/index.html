@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Đánh giá mù chất lượng TTS tiếng Việt</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<main>
+<h1>Đánh giá mù chất lượng giọng nói tổng hợp tiếng Việt</h1>
+
+<section id="intro">
+<h2>Hướng dẫn</h2>
+<ol>
+<li>Bạn sẽ nghe <strong><span class="sample-count">...</span> mẫu âm thanh</strong> tiếng Việt được tổng hợp tự động. Thứ tự mẫu được xáo trộn ngẫu nhiên cho mỗi người đánh giá.</li>
+<li>Bạn <strong>không biết</strong> mẫu nào do hệ thống nào tạo ra. Hãy chấm độc lập, không trao đổi với người khác trong lúc chấm.</li>
+<li>Với mỗi mẫu, hãy nghe toàn bộ âm thanh ít nhất một lần rồi chấm <strong>MOS từ 1 đến 5</strong>:
+<ul>
+<li><strong>1</strong> - Rất kém, khó nghe, không tự nhiên.</li>
+<li><strong>2</strong> - Kém, nhiều lỗi rõ rệt.</li>
+<li><strong>3</strong> - Trung bình, nghe được nhưng còn nhiều điểm gượng.</li>
+<li><strong>4</strong> - Tốt, tự nhiên, chỉ có lỗi nhỏ.</li>
+<li><strong>5</strong> - Rất tự nhiên, gần như giọng người thật.</li>
+</ul>
+</li>
+<li>Đánh dấu <strong>lỗi phát âm nghiêm trọng</strong> khi mẫu đọc sai tên riêng, sai số, sai thuật ngữ, mất chữ hoặc đọc sai đến mức đổi nghĩa câu.</li>
+<li>Ô <strong>nhận xét</strong> là tùy chọn; hãy ghi ngắn gọn lỗi cụ thể nếu có.</li>
+<li>Mã người đánh giá do ban tổ chức cấp, chỉ gồm chữ cái, số, dấu gạch ngang hoặc gạch dưới, <strong>không dùng địa chỉ email</strong>.</li>
+<li>Tiến trình được lưu tự động trên trình duyệt; bạn có thể đóng trang và quay lại tiếp tục.</li>
+<li>Sau khi hoàn tất đủ <span class="sample-count">...</span> mẫu, nhấn <strong>Xuất kết quả</strong> để tải về một tệp JSON và một tệp CSV, rồi gửi cả hai cho ban tổ chức. Mỗi bản nộp có mã kiểm tra chống trùng lặp.</li>
+</ol>
+</section>
+
+<section id="reviewer-gate">
+<h2>Thông tin người đánh giá</h2>
+<label for="reviewer-id">Mã người đánh giá</label>
+<input id="reviewer-id" type="text" autocomplete="off" maxlength="40" placeholder="vi du: reviewer-01">
+<p id="reviewer-error" role="alert"></p>
+<button id="start-button" type="button">Bắt đầu đánh giá</button>
+</section>
+
+<section id="review-area" hidden>
+<div id="progress"><span id="progress-text">0/...</span></div>
+<div id="samples"></div>
+<p id="export-status" role="alert"></p>
+<button id="export-button" type="button" disabled>Xuất kết quả</button>
+<button id="reset-button" type="button">Xóa dữ liệu tạm</button>
+</section>
+</main>
+<script src="app.js"></script>
+</body>
+</html>

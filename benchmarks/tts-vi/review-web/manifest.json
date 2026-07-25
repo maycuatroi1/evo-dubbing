@@ -1,0 +1,638 @@
+{
+  "schemaVersion": 1,
+  "runId": "20260725T115157533Z",
+  "generatedAt": "2026-07-25T11:58:19.230Z",
+  "sampleCount": 90,
+  "samples": [
+    {
+      "sample_id": "sample-496939559caf",
+      "audio": "audio/sample-496939559caf.mp3",
+      "text": "Startup Cần Thơ phục vụ mười lăm nghìn người dùng bằng backend serverless.",
+      "region": "south",
+      "coverage": "south|place-name|large-number|code-switching|technical"
+    },
+    {
+      "sample_id": "sample-e1af42598360",
+      "audio": "audio/sample-e1af42598360.mp3",
+      "text": "Nhà văn Nguyễn Nhật Ánh ký ba trăm cuốn sách trong sự kiện buổi chiều.",
+      "region": "central",
+      "coverage": "central|personal-name|number|literature"
+    },
+    {
+      "sample_id": "sample-f3faa167e2a9",
+      "audio": "audio/sample-f3faa167e2a9.mp3",
+      "text": "Nhiệt độ ở Sa Pa giảm xuống âm hai độ C, nhưng cảm biến vẫn hoạt động.",
+      "region": "north",
+      "coverage": "north|place-name|negative-number|measurement"
+    },
+    {
+      "sample_id": "sample-49935ae09ffc",
+      "audio": "audio/sample-49935ae09ffc.mp3",
+      "text": "Chị Thảo sẽ giới thiệu hệ thống cảnh báo lũ ở Huế lúc bảy giờ bốn mươi lăm tối nay.",
+      "region": "central",
+      "coverage": "central|personal-name|place-name|time"
+    },
+    {
+      "sample_id": "sample-4837634844e9",
+      "audio": "audio/sample-4837634844e9.mp3",
+      "text": "Sáu giờ ba mươi sáng mai, Minh sẽ gặp Giáo sư Nguyễn bên hồ Hoàn Kiếm.",
+      "region": "north",
+      "coverage": "north|personal-name|place-name|time|number"
+    },
+    {
+      "sample_id": "sample-34453987238c",
+      "audio": "audio/sample-34453987238c.mp3",
+      "text": "Chị Vy gọi hai ly cà phê đá và một ổ bánh mì gần chợ Bến Thành.",
+      "region": "south",
+      "coverage": "south|personal-name|place-name|number|food"
+    },
+    {
+      "sample_id": "sample-eac128823293",
+      "audio": "audio/sample-eac128823293.mp3",
+      "text": "Bác sĩ Phạm kê hai trăm năm mươi miligam sau khi khám bệnh nhân ở Đông Anh.",
+      "region": "north",
+      "coverage": "north|personal-name|place-name|number|medical"
+    },
+    {
+      "sample_id": "sample-96a56012726d",
+      "audio": "audio/sample-96a56012726d.mp3",
+      "text": "Nhiệt độ ở Sa Pa giảm xuống âm hai độ C, nhưng cảm biến vẫn hoạt động.",
+      "region": "north",
+      "coverage": "north|place-name|negative-number|measurement"
+    },
+    {
+      "sample_id": "sample-5c8ecf8c5b86",
+      "audio": "audio/sample-5c8ecf8c5b86.mp3",
+      "text": "Lan đã đẩy phiên bản 2.4.1 lên GitHub trước buổi demo thứ Sáu.",
+      "region": "north",
+      "coverage": "north|personal-name|code-switching|version-number|weekday"
+    },
+    {
+      "sample_id": "sample-2e117496d6e0",
+      "audio": "audio/sample-2e117496d6e0.mp3",
+      "text": "Nông dân Quảng Nam dùng drone và mô hình AI để phát hiện bệnh trên lá từ sớm.",
+      "region": "central",
+      "coverage": "central|place-name|ai|code-switching|agriculture"
+    },
+    {
+      "sample_id": "sample-aa84995b1d35",
+      "audio": "audio/sample-aa84995b1d35.mp3",
+      "text": "Mai yêu cầu chatbot tóm tắt chương bảy mà không đổi các ký hiệu toán học.",
+      "region": "north",
+      "coverage": "north|personal-name|ai|code-switching|number"
+    },
+    {
+      "sample_id": "sample-6b86317e213e",
+      "audio": "audio/sample-6b86317e213e.mp3",
+      "text": "Chị Thảo sẽ giới thiệu hệ thống cảnh báo lũ ở Huế lúc bảy giờ bốn mươi lăm tối nay.",
+      "region": "central",
+      "coverage": "central|personal-name|place-name|time"
+    },
+    {
+      "sample_id": "sample-46cbfed3db59",
+      "audio": "audio/sample-46cbfed3db59.mp3",
+      "text": "Kỹ sư Lê Bảo cập nhật function TypeScript và sửa lỗi 404.",
+      "region": "south",
+      "coverage": "south|personal-name|code-switching|programming|number"
+    },
+    {
+      "sample_id": "sample-97c55a199df7",
+      "audio": "audio/sample-97c55a199df7.mp3",
+      "text": "Bác sĩ Phạm kê hai trăm năm mươi miligam sau khi khám bệnh nhân ở Đông Anh.",
+      "region": "north",
+      "coverage": "north|personal-name|place-name|number|medical"
+    },
+    {
+      "sample_id": "sample-d9fb0292cbe7",
+      "audio": "audio/sample-d9fb0292cbe7.mp3",
+      "text": "Hãy bật two-factor authentication trước khi kết nối database production với dashboard.",
+      "region": "south",
+      "coverage": "south|code-switching|security|technical"
+    },
+    {
+      "sample_id": "sample-f4bf4955a5ab",
+      "audio": "audio/sample-f4bf4955a5ab.mp3",
+      "text": "Lúc mười một giờ năm mươi chín tối nay, hệ thống sẽ backup ba mươi gigabyte lên cloud storage.",
+      "region": "south",
+      "coverage": "south|time|number|measurement|code-switching"
+    },
+    {
+      "sample_id": "sample-cd8e88ad9339",
+      "audio": "audio/sample-cd8e88ad9339.mp3",
+      "text": "Ngày 10 tháng 10 năm 2026, tàu rời sân ga số ba lúc chín giờ mười lăm.",
+      "region": "north",
+      "coverage": "north|date|time|number"
+    },
+    {
+      "sample_id": "sample-534adbc3786e",
+      "audio": "audio/sample-534adbc3786e.mp3",
+      "text": "Cô Sáu bán hai mươi lăm ký sầu riêng với giá sáu mươi tám nghìn đồng một ký.",
+      "region": "south",
+      "coverage": "south|personal-name|number|currency|measurement|food"
+    },
+    {
+      "sample_id": "sample-4dc36d2103ec",
+      "audio": "audio/sample-4dc36d2103ec.mp3",
+      "text": "Tổng hóa đơn là chín mươi chín nghìn đồng, đã gồm tám phần trăm thuế giá trị gia tăng.",
+      "region": "north",
+      "coverage": "north|currency|percentage|number"
+    },
+    {
+      "sample_id": "sample-1a009543f0fd",
+      "audio": "audio/sample-1a009543f0fd.mp3",
+      "text": "Kỹ sư Lê Bảo cập nhật function TypeScript và sửa lỗi 404.",
+      "region": "south",
+      "coverage": "south|personal-name|code-switching|programming|number"
+    },
+    {
+      "sample_id": "sample-cc4ea3dcf6bf",
+      "audio": "audio/sample-cc4ea3dcf6bf.mp3",
+      "text": "Chỉ gọi API sau khi Docker báo health check đã đạt yêu cầu.",
+      "region": "north",
+      "coverage": "north|code-switching|technical|abbreviation"
+    },
+    {
+      "sample_id": "sample-ca7d1e6d1ecb",
+      "audio": "audio/sample-ca7d1e6d1ecb.mp3",
+      "text": "Lúc mười một giờ năm mươi chín tối nay, hệ thống sẽ backup ba mươi gigabyte lên cloud storage.",
+      "region": "south",
+      "coverage": "south|time|number|measurement|code-switching"
+    },
+    {
+      "sample_id": "sample-5af8e530194a",
+      "audio": "audio/sample-5af8e530194a.mp3",
+      "text": "Response JSON có access token, vì vậy tuyệt đối không in nó vào debug log.",
+      "region": "central",
+      "coverage": "central|code-switching|security|abbreviation"
+    },
+    {
+      "sample_id": "sample-9060a0b7995d",
+      "audio": "audio/sample-9060a0b7995d.mp3",
+      "text": "Hãy bật two-factor authentication trước khi kết nối database production với dashboard.",
+      "region": "south",
+      "coverage": "south|code-switching|security|technical"
+    },
+    {
+      "sample_id": "sample-4758bf21388b",
+      "audio": "audio/sample-4758bf21388b.mp3",
+      "text": "Ngày 10 tháng 10 năm 2026, tàu rời sân ga số ba lúc chín giờ mười lăm.",
+      "region": "north",
+      "coverage": "north|date|time|number"
+    },
+    {
+      "sample_id": "sample-1d2725456aca",
+      "audio": "audio/sample-1d2725456aca.mp3",
+      "text": "Nông dân Quảng Nam dùng drone và mô hình AI để phát hiện bệnh trên lá từ sớm.",
+      "region": "central",
+      "coverage": "central|place-name|ai|code-switching|agriculture"
+    },
+    {
+      "sample_id": "sample-84c860ab7f9b",
+      "audio": "audio/sample-84c860ab7f9b.mp3",
+      "text": "Lan đã đẩy phiên bản 2.4.1 lên GitHub trước buổi demo thứ Sáu.",
+      "region": "north",
+      "coverage": "north|personal-name|code-switching|version-number|weekday"
+    },
+    {
+      "sample_id": "sample-7106f467a9aa",
+      "audio": "audio/sample-7106f467a9aa.mp3",
+      "text": "Sau khi pull request qua CI, Huy deploy dịch vụ lên môi trường staging.",
+      "region": "central",
+      "coverage": "central|personal-name|code-switching|abbreviation|programming"
+    },
+    {
+      "sample_id": "sample-eaf770a13dd0",
+      "audio": "audio/sample-eaf770a13dd0.mp3",
+      "text": "Xe buýt từ Quy Nhơn đến cột mốc kilômét 1065 trước buổi trưa.",
+      "region": "central",
+      "coverage": "central|place-name|large-number|measurement"
+    },
+    {
+      "sample_id": "sample-8090f19450ed",
+      "audio": "audio/sample-8090f19450ed.mp3",
+      "text": "Tàu cứu hộ đến Lý Sơn sau khi đi hai mươi bảy hải lý.",
+      "region": "central",
+      "coverage": "central|place-name|number|measurement"
+    },
+    {
+      "sample_id": "sample-271aada8f589",
+      "audio": "audio/sample-271aada8f589.mp3",
+      "text": "Phòng khám bảo quản vắc xin từ hai đến tám độ C trong lúc vận chuyển.",
+      "region": "central",
+      "coverage": "central|number-range|measurement|medical"
+    },
+    {
+      "sample_id": "sample-e771291dabfd",
+      "audio": "audio/sample-e771291dabfd.mp3",
+      "text": "Máy chủ Đà Nẵng xử lý một triệu hai trăm nghìn request mà không bị downtime.",
+      "region": "central",
+      "coverage": "central|place-name|large-number|code-switching|technical"
+    },
+    {
+      "sample_id": "sample-f73b5ccaee57",
+      "audio": "audio/sample-f73b5ccaee57.mp3",
+      "text": "Pipeline truy xuất kết hợp embeddings, tìm kiếm vector và RAG để trả lời từng câu hỏi.",
+      "region": "north",
+      "coverage": "north|ai|code-switching|abbreviation"
+    },
+    {
+      "sample_id": "sample-f51cfa478d41",
+      "audio": "audio/sample-f51cfa478d41.mp3",
+      "text": "Vé từ Sài Gòn đi Phú Quốc có giá một triệu bốn mươi nghìn đồng.",
+      "region": "south",
+      "coverage": "south|place-name|currency|large-number"
+    },
+    {
+      "sample_id": "sample-e1a54e1c9c07",
+      "audio": "audio/sample-e1a54e1c9c07.mp3",
+      "text": "Chỉ gọi API sau khi Docker báo health check đã đạt yêu cầu.",
+      "region": "north",
+      "coverage": "north|code-switching|technical|abbreviation"
+    },
+    {
+      "sample_id": "sample-b80b3b6cb280",
+      "audio": "audio/sample-b80b3b6cb280.mp3",
+      "text": "Bác sĩ Phạm kê hai trăm năm mươi miligam sau khi khám bệnh nhân ở Đông Anh.",
+      "region": "north",
+      "coverage": "north|personal-name|place-name|number|medical"
+    },
+    {
+      "sample_id": "sample-fa67d5e3457f",
+      "audio": "audio/sample-fa67d5e3457f.mp3",
+      "text": "Chỉ gọi API sau khi Docker báo health check đã đạt yêu cầu.",
+      "region": "north",
+      "coverage": "north|code-switching|technical|abbreviation"
+    },
+    {
+      "sample_id": "sample-99670aceb45c",
+      "audio": "audio/sample-99670aceb45c.mp3",
+      "text": "Chị Vy gọi hai ly cà phê đá và một ổ bánh mì gần chợ Bến Thành.",
+      "region": "south",
+      "coverage": "south|personal-name|place-name|number|food"
+    },
+    {
+      "sample_id": "sample-d5e3bd372c2d",
+      "audio": "audio/sample-d5e3bd372c2d.mp3",
+      "text": "Lan đã đẩy phiên bản 2.4.1 lên GitHub trước buổi demo thứ Sáu.",
+      "region": "north",
+      "coverage": "north|personal-name|code-switching|version-number|weekday"
+    },
+    {
+      "sample_id": "sample-8a411fe968cb",
+      "audio": "audio/sample-8a411fe968cb.mp3",
+      "text": "Nhóm Hà Nội huấn luyện mô hình transformer có mười hai tỷ tham số trên tám GPU.",
+      "region": "north",
+      "coverage": "north|ai|code-switching|number|abbreviation"
+    },
+    {
+      "sample_id": "sample-e55877b69d6e",
+      "audio": "audio/sample-e55877b69d6e.mp3",
+      "text": "Cô Sáu bán hai mươi lăm ký sầu riêng với giá sáu mươi tám nghìn đồng một ký.",
+      "region": "south",
+      "coverage": "south|personal-name|number|currency|measurement|food"
+    },
+    {
+      "sample_id": "sample-737859f42a45",
+      "audio": "audio/sample-737859f42a45.mp3",
+      "text": "Sau khi pull request qua CI, Huy deploy dịch vụ lên môi trường staging.",
+      "region": "central",
+      "coverage": "central|personal-name|code-switching|abbreviation|programming"
+    },
+    {
+      "sample_id": "sample-85b0a3c105ad",
+      "audio": "audio/sample-85b0a3c105ad.mp3",
+      "text": "Cô Sáu bán hai mươi lăm ký sầu riêng với giá sáu mươi tám nghìn đồng một ký.",
+      "region": "south",
+      "coverage": "south|personal-name|number|currency|measurement|food"
+    },
+    {
+      "sample_id": "sample-2858d03d2bd2",
+      "audio": "audio/sample-2858d03d2bd2.mp3",
+      "text": "Kỹ sư Lê Bảo cập nhật function TypeScript và sửa lỗi 404.",
+      "region": "south",
+      "coverage": "south|personal-name|code-switching|programming|number"
+    },
+    {
+      "sample_id": "sample-1eab29ba0af9",
+      "audio": "audio/sample-1eab29ba0af9.mp3",
+      "text": "Mô hình giọng nói phải đọc đúng Võ Thị Sáu, Rạch Giá và Nguyễn Huệ.",
+      "region": "south",
+      "coverage": "south|personal-name|place-name|ai|pronunciation"
+    },
+    {
+      "sample_id": "sample-d072d2203c0b",
+      "audio": "audio/sample-d072d2203c0b.mp3",
+      "text": "Nhóm Hà Nội huấn luyện mô hình transformer có mười hai tỷ tham số trên tám GPU.",
+      "region": "north",
+      "coverage": "north|ai|code-switching|number|abbreviation"
+    },
+    {
+      "sample_id": "sample-196f5b30a764",
+      "audio": "audio/sample-196f5b30a764.mp3",
+      "text": "Xe buýt từ Quy Nhơn đến cột mốc kilômét 1065 trước buổi trưa.",
+      "region": "central",
+      "coverage": "central|place-name|large-number|measurement"
+    },
+    {
+      "sample_id": "sample-55ea3cd18cba",
+      "audio": "audio/sample-55ea3cd18cba.mp3",
+      "text": "Nhà văn Nguyễn Nhật Ánh ký ba trăm cuốn sách trong sự kiện buổi chiều.",
+      "region": "central",
+      "coverage": "central|personal-name|number|literature"
+    },
+    {
+      "sample_id": "sample-db7be36ba77c",
+      "audio": "audio/sample-db7be36ba77c.mp3",
+      "text": "Xe buýt từ Quy Nhơn đến cột mốc kilômét 1065 trước buổi trưa.",
+      "region": "central",
+      "coverage": "central|place-name|large-number|measurement"
+    },
+    {
+      "sample_id": "sample-f5d93914fc58",
+      "audio": "audio/sample-f5d93914fc58.mp3",
+      "text": "Mai yêu cầu chatbot tóm tắt chương bảy mà không đổi các ký hiệu toán học.",
+      "region": "north",
+      "coverage": "north|personal-name|ai|code-switching|number"
+    },
+    {
+      "sample_id": "sample-8a856f0d92c3",
+      "audio": "audio/sample-8a856f0d92c3.mp3",
+      "text": "Ngày 10 tháng 10 năm 2026, tàu rời sân ga số ba lúc chín giờ mười lăm.",
+      "region": "north",
+      "coverage": "north|date|time|number"
+    },
+    {
+      "sample_id": "sample-5e3326e03256",
+      "audio": "audio/sample-5e3326e03256.mp3",
+      "text": "Vé từ Sài Gòn đi Phú Quốc có giá một triệu bốn mươi nghìn đồng.",
+      "region": "south",
+      "coverage": "south|place-name|currency|large-number"
+    },
+    {
+      "sample_id": "sample-1e0bd512bdb4",
+      "audio": "audio/sample-1e0bd512bdb4.mp3",
+      "text": "Mô hình giọng nói phải đọc đúng Võ Thị Sáu, Rạch Giá và Nguyễn Huệ.",
+      "region": "south",
+      "coverage": "south|personal-name|place-name|ai|pronunciation"
+    },
+    {
+      "sample_id": "sample-8b5c176aca17",
+      "audio": "audio/sample-8b5c176aca17.mp3",
+      "text": "Startup Cần Thơ phục vụ mười lăm nghìn người dùng bằng backend serverless.",
+      "region": "south",
+      "coverage": "south|place-name|large-number|code-switching|technical"
+    },
+    {
+      "sample_id": "sample-b7a2ed7d9fb8",
+      "audio": "audio/sample-b7a2ed7d9fb8.mp3",
+      "text": "Chị Vy gọi hai ly cà phê đá và một ổ bánh mì gần chợ Bến Thành.",
+      "region": "south",
+      "coverage": "south|personal-name|place-name|number|food"
+    },
+    {
+      "sample_id": "sample-7096ad61940b",
+      "audio": "audio/sample-7096ad61940b.mp3",
+      "text": "Hãy bật two-factor authentication trước khi kết nối database production với dashboard.",
+      "region": "south",
+      "coverage": "south|code-switching|security|technical"
+    },
+    {
+      "sample_id": "sample-b5665fb5e535",
+      "audio": "audio/sample-b5665fb5e535.mp3",
+      "text": "Sáu giờ ba mươi sáng mai, Minh sẽ gặp Giáo sư Nguyễn bên hồ Hoàn Kiếm.",
+      "region": "north",
+      "coverage": "north|personal-name|place-name|time|number"
+    },
+    {
+      "sample_id": "sample-2a31a50e212a",
+      "audio": "audio/sample-2a31a50e212a.mp3",
+      "text": "Nhà văn Nguyễn Nhật Ánh ký ba trăm cuốn sách trong sự kiện buổi chiều.",
+      "region": "central",
+      "coverage": "central|personal-name|number|literature"
+    },
+    {
+      "sample_id": "sample-8a89b6443742",
+      "audio": "audio/sample-8a89b6443742.mp3",
+      "text": "Tàu cứu hộ đến Lý Sơn sau khi đi hai mươi bảy hải lý.",
+      "region": "central",
+      "coverage": "central|place-name|number|measurement"
+    },
+    {
+      "sample_id": "sample-8131239ed89f",
+      "audio": "audio/sample-8131239ed89f.mp3",
+      "text": "Recommendation engine dùng cosine similarity để xếp hạng mười video tốt nhất.",
+      "region": "south",
+      "coverage": "south|ai|code-switching|number"
+    },
+    {
+      "sample_id": "sample-4f6dd9f9cc86",
+      "audio": "audio/sample-4f6dd9f9cc86.mp3",
+      "text": "Vé từ Sài Gòn đi Phú Quốc có giá một triệu bốn mươi nghìn đồng.",
+      "region": "south",
+      "coverage": "south|place-name|currency|large-number"
+    },
+    {
+      "sample_id": "sample-efbcd3b03d27",
+      "audio": "audio/sample-efbcd3b03d27.mp3",
+      "text": "Chị Thảo sẽ giới thiệu hệ thống cảnh báo lũ ở Huế lúc bảy giờ bốn mươi lăm tối nay.",
+      "region": "central",
+      "coverage": "central|personal-name|place-name|time"
+    },
+    {
+      "sample_id": "sample-b13796135861",
+      "audio": "audio/sample-b13796135861.mp3",
+      "text": "Đặt learning rate thành 0,001 rồi chạy lại script Python.",
+      "region": "central",
+      "coverage": "central|ai|decimal|code-switching|programming"
+    },
+    {
+      "sample_id": "sample-521b9d1813fb",
+      "audio": "audio/sample-521b9d1813fb.mp3",
+      "text": "Mực nước sông Mê Kông tăng 1,7 mét sau ba ngày mưa.",
+      "region": "south",
+      "coverage": "south|place-name|decimal|measurement|number"
+    },
+    {
+      "sample_id": "sample-fe6b9cc1d243",
+      "audio": "audio/sample-fe6b9cc1d243.mp3",
+      "text": "Đặt learning rate thành 0,001 rồi chạy lại script Python.",
+      "region": "central",
+      "coverage": "central|ai|decimal|code-switching|programming"
+    },
+    {
+      "sample_id": "sample-c5b5b6bfc6f5",
+      "audio": "audio/sample-c5b5b6bfc6f5.mp3",
+      "text": "Pipeline truy xuất kết hợp embeddings, tìm kiếm vector và RAG để trả lời từng câu hỏi.",
+      "region": "north",
+      "coverage": "north|ai|code-switching|abbreviation"
+    },
+    {
+      "sample_id": "sample-b497b91a51f1",
+      "audio": "audio/sample-b497b91a51f1.mp3",
+      "text": "Nông dân Quảng Nam dùng drone và mô hình AI để phát hiện bệnh trên lá từ sớm.",
+      "region": "central",
+      "coverage": "central|place-name|ai|code-switching|agriculture"
+    },
+    {
+      "sample_id": "sample-e3210159a1de",
+      "audio": "audio/sample-e3210159a1de.mp3",
+      "text": "Mực nước sông Mê Kông tăng 1,7 mét sau ba ngày mưa.",
+      "region": "south",
+      "coverage": "south|place-name|decimal|measurement|number"
+    },
+    {
+      "sample_id": "sample-e4eb3b2b4fbf",
+      "audio": "audio/sample-e4eb3b2b4fbf.mp3",
+      "text": "Phòng khám bảo quản vắc xin từ hai đến tám độ C trong lúc vận chuyển.",
+      "region": "central",
+      "coverage": "central|number-range|measurement|medical"
+    },
+    {
+      "sample_id": "sample-dfd5570b8bf2",
+      "audio": "audio/sample-dfd5570b8bf2.mp3",
+      "text": "Mai yêu cầu chatbot tóm tắt chương bảy mà không đổi các ký hiệu toán học.",
+      "region": "north",
+      "coverage": "north|personal-name|ai|code-switching|number"
+    },
+    {
+      "sample_id": "sample-f60702bc7dfd",
+      "audio": "audio/sample-f60702bc7dfd.mp3",
+      "text": "Startup Cần Thơ phục vụ mười lăm nghìn người dùng bằng backend serverless.",
+      "region": "south",
+      "coverage": "south|place-name|large-number|code-switching|technical"
+    },
+    {
+      "sample_id": "sample-ac64e4994029",
+      "audio": "audio/sample-ac64e4994029.mp3",
+      "text": "Sáu giờ ba mươi sáng mai, Minh sẽ gặp Giáo sư Nguyễn bên hồ Hoàn Kiếm.",
+      "region": "north",
+      "coverage": "north|personal-name|place-name|time|number"
+    },
+    {
+      "sample_id": "sample-64f58bf26c4b",
+      "audio": "audio/sample-64f58bf26c4b.mp3",
+      "text": "Recommendation engine dùng cosine similarity để xếp hạng mười video tốt nhất.",
+      "region": "south",
+      "coverage": "south|ai|code-switching|number"
+    },
+    {
+      "sample_id": "sample-ae539b47b109",
+      "audio": "audio/sample-ae539b47b109.mp3",
+      "text": "Nhiệt độ ở Sa Pa giảm xuống âm hai độ C, nhưng cảm biến vẫn hoạt động.",
+      "region": "north",
+      "coverage": "north|place-name|negative-number|measurement"
+    },
+    {
+      "sample_id": "sample-b9cce166f16d",
+      "audio": "audio/sample-b9cce166f16d.mp3",
+      "text": "Mô hình giọng nói phải đọc đúng Võ Thị Sáu, Rạch Giá và Nguyễn Huệ.",
+      "region": "south",
+      "coverage": "south|personal-name|place-name|ai|pronunciation"
+    },
+    {
+      "sample_id": "sample-e18eee1d8b7a",
+      "audio": "audio/sample-e18eee1d8b7a.mp3",
+      "text": "Tàu cứu hộ đến Lý Sơn sau khi đi hai mươi bảy hải lý.",
+      "region": "central",
+      "coverage": "central|place-name|number|measurement"
+    },
+    {
+      "sample_id": "sample-d8e7d05dc513",
+      "audio": "audio/sample-d8e7d05dc513.mp3",
+      "text": "Recommendation engine dùng cosine similarity để xếp hạng mười video tốt nhất.",
+      "region": "south",
+      "coverage": "south|ai|code-switching|number"
+    },
+    {
+      "sample_id": "sample-e0fd8acb8a66",
+      "audio": "audio/sample-e0fd8acb8a66.mp3",
+      "text": "Tổng hóa đơn là chín mươi chín nghìn đồng, đã gồm tám phần trăm thuế giá trị gia tăng.",
+      "region": "north",
+      "coverage": "north|currency|percentage|number"
+    },
+    {
+      "sample_id": "sample-dca4053b95eb",
+      "audio": "audio/sample-dca4053b95eb.mp3",
+      "text": "Response JSON có access token, vì vậy tuyệt đối không in nó vào debug log.",
+      "region": "central",
+      "coverage": "central|code-switching|security|abbreviation"
+    },
+    {
+      "sample_id": "sample-788c5980d3a0",
+      "audio": "audio/sample-788c5980d3a0.mp3",
+      "text": "Mực nước sông Mê Kông tăng 1,7 mét sau ba ngày mưa.",
+      "region": "south",
+      "coverage": "south|place-name|decimal|measurement|number"
+    },
+    {
+      "sample_id": "sample-821aa3085d0e",
+      "audio": "audio/sample-821aa3085d0e.mp3",
+      "text": "Sau khi pull request qua CI, Huy deploy dịch vụ lên môi trường staging.",
+      "region": "central",
+      "coverage": "central|personal-name|code-switching|abbreviation|programming"
+    },
+    {
+      "sample_id": "sample-2b5fae36cbc0",
+      "audio": "audio/sample-2b5fae36cbc0.mp3",
+      "text": "Phòng khám bảo quản vắc xin từ hai đến tám độ C trong lúc vận chuyển.",
+      "region": "central",
+      "coverage": "central|number-range|measurement|medical"
+    },
+    {
+      "sample_id": "sample-69d0ec7129f7",
+      "audio": "audio/sample-69d0ec7129f7.mp3",
+      "text": "Tổng hóa đơn là chín mươi chín nghìn đồng, đã gồm tám phần trăm thuế giá trị gia tăng.",
+      "region": "north",
+      "coverage": "north|currency|percentage|number"
+    },
+    {
+      "sample_id": "sample-a9981868ad8b",
+      "audio": "audio/sample-a9981868ad8b.mp3",
+      "text": "Lúc mười một giờ năm mươi chín tối nay, hệ thống sẽ backup ba mươi gigabyte lên cloud storage.",
+      "region": "south",
+      "coverage": "south|time|number|measurement|code-switching"
+    },
+    {
+      "sample_id": "sample-2f3b8d38e7a8",
+      "audio": "audio/sample-2f3b8d38e7a8.mp3",
+      "text": "Máy chủ Đà Nẵng xử lý một triệu hai trăm nghìn request mà không bị downtime.",
+      "region": "central",
+      "coverage": "central|place-name|large-number|code-switching|technical"
+    },
+    {
+      "sample_id": "sample-75164f7208ab",
+      "audio": "audio/sample-75164f7208ab.mp3",
+      "text": "Đặt learning rate thành 0,001 rồi chạy lại script Python.",
+      "region": "central",
+      "coverage": "central|ai|decimal|code-switching|programming"
+    },
+    {
+      "sample_id": "sample-dca1ff4c2b1e",
+      "audio": "audio/sample-dca1ff4c2b1e.mp3",
+      "text": "Máy chủ Đà Nẵng xử lý một triệu hai trăm nghìn request mà không bị downtime.",
+      "region": "central",
+      "coverage": "central|place-name|large-number|code-switching|technical"
+    },
+    {
+      "sample_id": "sample-4b2afbeef662",
+      "audio": "audio/sample-4b2afbeef662.mp3",
+      "text": "Nhóm Hà Nội huấn luyện mô hình transformer có mười hai tỷ tham số trên tám GPU.",
+      "region": "north",
+      "coverage": "north|ai|code-switching|number|abbreviation"
+    },
+    {
+      "sample_id": "sample-af508c87b1a8",
+      "audio": "audio/sample-af508c87b1a8.mp3",
+      "text": "Pipeline truy xuất kết hợp embeddings, tìm kiếm vector và RAG để trả lời từng câu hỏi.",
+      "region": "north",
+      "coverage": "north|ai|code-switching|abbreviation"
+    },
+    {
+      "sample_id": "sample-a5c4ca7fbf76",
+      "audio": "audio/sample-a5c4ca7fbf76.mp3",
+      "text": "Response JSON có access token, vì vậy tuyệt đối không in nó vào debug log.",
+      "region": "central",
+      "coverage": "central|code-switching|security|abbreviation"
+    }
+  ]
+}
