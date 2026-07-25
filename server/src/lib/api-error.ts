@@ -3,6 +3,13 @@ export const V1_ERROR_CODES = {
   invalidToken: "invalid_token",
   tokenExpired: "token_expired",
   rateLimited: "rate_limited",
+  checkoutDisabled: "checkout_disabled",
+  checkoutUnavailable: "checkout_unavailable",
+  checkoutFailed: "checkout_failed",
+  unknownPlan: "unknown_plan",
+  redirectNotAllowed: "redirect_not_allowed",
+  invalidPayload: "invalid_payload",
+  invalidSignature: "invalid_signature",
   internal: "internal_error"
 } as const;
 

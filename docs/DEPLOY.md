@@ -37,16 +37,28 @@ Dashboard: https://supabase.com/dashboard/project/lrypactuodbguwncoomc
 | `DATABASE_URL` | `evo cred get supabase.evo_dubbing.database_url` (pooler 6543) | Settings -> Database -> reset password |
 | Google provider | Authentication -> Sign In/Providers -> Google: Enabled, Client IDs = OAuth client ID trên | Update khi OAuth client đổi |
 
-## PayOS - CHƯA HOÀN TẤT
+## PayOS - CHƯA HOÀN TẤT (external setup thuộc step 9, owner-only)
 
 Dashboard: https://my.payos.vn (cần đăng ký merchant + KYC trước)
 
+Code đã xong (step 9): `POST /api/v1/billing/checkout` (tạo payment link, chỉ plan `vi_monthly_300` = 199.000 VND) và `POST /api/v1/billing/webhooks/payos` (verify HMAC_SHA256 bằng checksum key, activate 1 subscription period 30 ngày, dedupe retry). Subscription MVP là entitlement 30 ngày theo payment-link model, KHÔNG phải auto-debit; Options UI (step 13) tạo payment link mới mỗi lần ngưới dùng chủ động gia hạn.
+
 | Biến | Trạng thái |
 |------|-----------|
-| `PAYOS_CLIENT_ID` | Pending - sau khi tạo payment channel |
+| `PAYOS_CLIENT_ID` | Pending - sau khi tạo payment channel; nạp vào `evo cred` rồi deployment env |
 | `PAYOS_API_KEY` | Pending |
-| `PAYOS_CHECKSUM_KEY` | Pending (verify webhook HMAC) |
-| Webhook URL | Pending - cần server production URL (step 18): `POST {server}/api/v1/billing/payos/webhook`, sau đó chạy confirm-webhook |
+| `PAYOS_CHECKSUM_KEY` | Pending (ký create-payment-link + verify webhook HMAC) |
+| `PAYOS_RETURN_URL_ALLOWLIST` | Đặt khi có production URL, dạng CSV origin/path, ví dụ `https://<domain>/billing,chrome-extension://ligchebgiheiildjcnndjoalkpiamgko` |
+| `PAYOS_CHECKOUT_EXPIRY_SEC` | Mặc định 900 (15 phút) |
+| Webhook URL | Pending - cần server production URL (step 18): `POST {server}/api/v1/billing/webhooks/payos` |
+
+Các bước owner còn phải làm (không làm được từ repo):
+
+1. Đăng ký merchant PayOS + hoàn tất KYC tại https://my.payos.vn.
+2. Tạo payment channel (kênh thanh toán), lấy `PAYOS_CLIENT_ID` / `PAYOS_API_KEY` / `PAYOS_CHECKSUM_KEY` vào credential store (`evo cred`) và deployment env. KHÔNG commit giá trị thật.
+3. Sau khi server có production URL: đăng ký webhook `https://<domain>/api/v1/billing/webhooks/payos` trong PayOS dashboard rồi gọi confirm-webhook để PayOS chấp nhận URL.
+4. Bật `MANAGED_CHECKOUT_ENABLED=1` và đặt `PAYOS_RETURN_URL_ALLOWLIST` đúng domain production trước khi mở checkout.
+5. Verify bằng một live payment do owner kiểm soát: đối chiếu PayOS dashboard, webhook log server và `GET /api/v1/account` (periods phải có đúng 1 period 30 ngày).
 
 ## Mailgun - HOÃN ĐẾN STEP 15
 
