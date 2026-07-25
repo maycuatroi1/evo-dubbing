@@ -1,0 +1,400 @@
+[
+  {
+    "at": "2026-07-25T06:17:58.527Z",
+    "event": "extension-loaded",
+    "extensionId": "fjnboegjkmpngcngpoiopmilmijiggep",
+    "workerUrl": "chrome-extension://fjnboegjkmpngcngpoiopmilmijiggep/service-worker-loader.js"
+  },
+  {
+    "at": "2026-07-25T06:17:58.967Z",
+    "event": "settings-saved",
+    "targetLang": "vi",
+    "translateProvider": "openai",
+    "ttsProvider": "openai"
+  },
+  {
+    "at": "2026-07-25T06:18:00.878Z",
+    "videoId": "aircAruvnKk",
+    "event": "video-opened",
+    "title": "But what is a neural network?",
+    "duration": 1119.961,
+    "webdriver": false
+  },
+  {
+    "at": "2026-07-25T06:18:07.751Z",
+    "videoId": "aircAruvnKk",
+    "event": "captions-extracted-and-first-tts-ready",
+    "status": "Dubbing live (1/194)",
+    "readyCount": 1,
+    "cueCount": 194
+  },
+  {
+    "at": "2026-07-25T06:18:08.914Z",
+    "videoId": "aircAruvnKk",
+    "event": "voice-playback-observed",
+    "paused": false,
+    "currentTime": 9.781543,
+    "volume": 0.18,
+    "subtitle": "Nó được vẽ rất cẩu thả và chỉ có 28 x 28 pixel. Nhưng tôi muốn bạn thử hình dung xem bộ não của mình",
+    "duckObserved": true,
+    "subtitleObserved": true
+  },
+  {
+    "at": "2026-07-25T06:18:08.918Z",
+    "videoId": "aircAruvnKk",
+    "event": "voice-playback-observed",
+    "paused": false,
+    "currentTime": 9.785702,
+    "volume": 0.18,
+    "subtitle": "Nó được vẽ rất cẩu thả và chỉ có 28 x 28 pixel. Nhưng tôi muốn bạn thử hình dung xem bộ não của mình",
+    "duckObserved": true,
+    "subtitleObserved": true
+  },
+  {
+    "at": "2026-07-25T06:18:10.054Z",
+    "videoId": "aircAruvnKk",
+    "event": "voice-playback-observed",
+    "paused": false,
+    "currentTime": 10.07358,
+    "volume": 0.18,
+    "subtitle": "Nó được vẽ rất cẩu thả và chỉ có 28 x 28 pixel. Nhưng tôi muốn bạn thử hình dung xem bộ não của mình",
+    "duckObserved": true,
+    "subtitleObserved": true
+  },
+  {
+    "at": "2026-07-25T06:18:18.922Z",
+    "videoId": "aircAruvnKk",
+    "event": "voice-playback-observed",
+    "paused": false,
+    "currentTime": 53.342451,
+    "volume": 0.18,
+    "subtitle": "Thế nhưng, nếu tôi bảo bạn ngồi xuống và viết một chương trình máy tính đọc một lưới pixel",
+    "duckObserved": true,
+    "subtitleObserved": true
+  },
+  {
+    "at": "2026-07-25T06:18:19.190Z",
+    "videoId": "aircAruvnKk",
+    "event": "voice-playback-observed",
+    "paused": false,
+    "currentTime": 33.369599,
+    "volume": 0.18,
+    "subtitle": "vào bức này, sẽ khác với những tế bào hoạt động khi bạn nhìn bức kia.",
+    "duckObserved": true,
+    "subtitleObserved": true
+  },
+  {
+    "at": "2026-07-25T06:18:19.190Z",
+    "videoId": "aircAruvnKk",
+    "event": "pause-resume-seek-observed",
+    "before": {
+      "paused": false,
+      "currentTime": 9.785702,
+      "volume": 0.18,
+      "subtitle": "Nó được vẽ rất cẩu thả và chỉ có 28 x 28 pixel. Nhưng tôi muốn bạn thử hình dung xem bộ não của mình",
+      "duckObserved": true,
+      "subtitleObserved": true
+    },
+    "paused": {
+      "paused": true,
+      "currentTime": 9.797414,
+      "volume": 1
+    },
+    "resumed": {
+      "paused": false,
+      "currentTime": 10.07358,
+      "volume": 0.18,
+      "subtitle": "Nó được vẽ rất cẩu thả và chỉ có 28 x 28 pixel. Nhưng tôi muốn bạn thử hình dung xem bộ não của mình",
+      "duckObserved": true,
+      "subtitleObserved": true
+    },
+    "forward": {
+      "paused": false,
+      "currentTime": 53.342451,
+      "volume": 0.18,
+      "subtitle": "Thế nhưng, nếu tôi bảo bạn ngồi xuống và viết một chương trình máy tính đọc một lưới pixel",
+      "duckObserved": true,
+      "subtitleObserved": true
+    },
+    "backward": {
+      "paused": false,
+      "currentTime": 33.369599,
+      "volume": 0.18,
+      "subtitle": "vào bức này, sẽ khác với những tế bào hoạt động khi bạn nhìn bức kia.",
+      "duckObserved": true,
+      "subtitleObserved": true
+    }
+  },
+  {
+    "at": "2026-07-25T06:18:46.916Z",
+    "videoId": "aircAruvnKk",
+    "event": "same-session-cache-observed",
+    "before": 15,
+    "after": 15,
+    "newTtsRequests": 0
+  },
+  {
+    "at": "2026-07-25T06:19:06.067Z",
+    "videoId": "aircAruvnKk",
+    "event": "captions-extracted-and-first-tts-ready",
+    "status": "Dubbing live (5/194)",
+    "readyCount": 5,
+    "cueCount": 194
+  },
+  {
+    "at": "2026-07-25T06:19:07.608Z",
+    "videoId": "aircAruvnKk",
+    "event": "voice-playback-observed",
+    "paused": false,
+    "currentTime": 4.26438,
+    "volume": 0.18,
+    "subtitle": "Đây là một hình của số ba.",
+    "duckObserved": true,
+    "subtitleObserved": true
+  },
+  {
+    "at": "2026-07-25T06:19:20.846Z",
+    "videoId": "aircAruvnKk",
+    "event": "reload-cache-observed",
+    "before": 15,
+    "after": 15,
+    "newTtsRequests": 0
+  },
+  {
+    "at": "2026-07-25T06:21:52.339Z",
+    "videoId": "aircAruvnKk",
+    "event": "lazy-generation-idle-observed",
+    "sourceStart": 2,
+    "sourceEnd": 122.293444,
+    "watchedSourceSeconds": 120.293444,
+    "beforeIdleWait": 30,
+    "afterIdleWait": 30,
+    "newProviderRequestsWhilePaused": 0
+  },
+  {
+    "at": "2026-07-25T06:21:54.183Z",
+    "videoId": "IHZwWFHWa-w",
+    "event": "video-opened",
+    "title": "Gradient descent, how neural networks learn",
+    "duration": 1233.021,
+    "webdriver": false
+  },
+  {
+    "at": "2026-07-25T06:22:00.721Z",
+    "videoId": "IHZwWFHWa-w",
+    "event": "captions-extracted-and-first-tts-ready",
+    "status": "Dubbing live (1/208)",
+    "readyCount": 1,
+    "cueCount": 208
+  },
+  {
+    "at": "2026-07-25T06:22:00.724Z",
+    "videoId": "IHZwWFHWa-w",
+    "event": "voice-playback-observed",
+    "paused": false,
+    "currentTime": 8.478225,
+    "volume": 0.18,
+    "subtitle": "Tôi sẽ tóm tắt nhanh để ôn lại, rồi sau đó tôi có hai mục tiêu trong video này.",
+    "duckObserved": true,
+    "subtitleObserved": true
+  },
+  {
+    "at": "2026-07-25T06:22:00.730Z",
+    "videoId": "IHZwWFHWa-w",
+    "event": "voice-playback-observed",
+    "paused": false,
+    "currentTime": 8.485092,
+    "volume": 0.18,
+    "subtitle": "Tôi sẽ tóm tắt nhanh để ôn lại, rồi sau đó tôi có hai mục tiêu trong video này.",
+    "duckObserved": true,
+    "subtitleObserved": true
+  },
+  {
+    "at": "2026-07-25T06:22:01.999Z",
+    "videoId": "IHZwWFHWa-w",
+    "event": "voice-playback-observed",
+    "paused": false,
+    "currentTime": 8.734142,
+    "volume": 0.18,
+    "subtitle": "Tôi sẽ tóm tắt nhanh để ôn lại, rồi sau đó tôi có hai mục tiêu trong video này.",
+    "duckObserved": true,
+    "subtitleObserved": true
+  },
+  {
+    "at": "2026-07-25T06:22:08.190Z",
+    "videoId": "IHZwWFHWa-w",
+    "event": "voice-playback-observed",
+    "paused": false,
+    "currentTime": 49.80653,
+    "volume": 0.18,
+    "subtitle": "Các giá trị này xác định kích hoạt của 784 nơ-ron ở lớp đầu tiên của mạng.",
+    "duckObserved": true,
+    "subtitleObserved": true
+  },
+  {
+    "at": "2026-07-25T06:22:08.467Z",
+    "videoId": "IHZwWFHWa-w",
+    "event": "voice-playback-observed",
+    "paused": false,
+    "currentTime": 30.00099,
+    "volume": 0.18,
+    "subtitle": "Nhắc lại, mục tiêu của chúng ta ở đây là một mạng nhận dạng các chữ số viết tay, đây là ví dụ kinh điển trong mạng nơ-ron.",
+    "duckObserved": true,
+    "subtitleObserved": true
+  },
+  {
+    "at": "2026-07-25T06:22:08.467Z",
+    "videoId": "IHZwWFHWa-w",
+    "event": "pause-resume-seek-observed",
+    "before": {
+      "paused": false,
+      "currentTime": 8.485092,
+      "volume": 0.18,
+      "subtitle": "Tôi sẽ tóm tắt nhanh để ôn lại, rồi sau đó tôi có hai mục tiêu trong video này.",
+      "duckObserved": true,
+      "subtitleObserved": true
+    },
+    "paused": {
+      "paused": true,
+      "currentTime": 8.619752,
+      "volume": 1
+    },
+    "resumed": {
+      "paused": false,
+      "currentTime": 8.734142,
+      "volume": 0.18,
+      "subtitle": "Tôi sẽ tóm tắt nhanh để ôn lại, rồi sau đó tôi có hai mục tiêu trong video này.",
+      "duckObserved": true,
+      "subtitleObserved": true
+    },
+    "forward": {
+      "paused": false,
+      "currentTime": 49.80653,
+      "volume": 0.18,
+      "subtitle": "Các giá trị này xác định kích hoạt của 784 nơ-ron ở lớp đầu tiên của mạng.",
+      "duckObserved": true,
+      "subtitleObserved": true
+    },
+    "backward": {
+      "paused": false,
+      "currentTime": 30.00099,
+      "volume": 0.18,
+      "subtitle": "Nhắc lại, mục tiêu của chúng ta ở đây là một mạng nhận dạng các chữ số viết tay, đây là ví dụ kinh điển trong mạng nơ-ron.",
+      "duckObserved": true,
+      "subtitleObserved": true
+    }
+  },
+  {
+    "at": "2026-07-25T06:22:31.869Z",
+    "videoId": "Ilg3gGewQ5U",
+    "event": "video-opened",
+    "title": "Backpropagation, intuitively",
+    "duration": 766.761,
+    "webdriver": false
+  },
+  {
+    "at": "2026-07-25T06:22:36.550Z",
+    "videoId": "Ilg3gGewQ5U",
+    "event": "captions-extracted-and-first-tts-ready",
+    "status": "Dubbing live (1/120)",
+    "readyCount": 1,
+    "cueCount": 120
+  },
+  {
+    "at": "2026-07-25T06:22:37.291Z",
+    "videoId": "Ilg3gGewQ5U",
+    "event": "voice-playback-observed",
+    "paused": false,
+    "currentTime": 7.362828,
+    "volume": 0.18,
+    "subtitle": "Ở đây, ta sẽ nói về backpropagation, thuật toán cơ bản để huấn luyện mạng nơ-ron.",
+    "duckObserved": true,
+    "subtitleObserved": true
+  },
+  {
+    "at": "2026-07-25T06:22:37.293Z",
+    "videoId": "Ilg3gGewQ5U",
+    "event": "voice-playback-observed",
+    "paused": false,
+    "currentTime": 7.36422,
+    "volume": 0.18,
+    "subtitle": "Ở đây, ta sẽ nói về backpropagation, thuật toán cơ bản để huấn luyện mạng nơ-ron.",
+    "duckObserved": true,
+    "subtitleObserved": true
+  },
+  {
+    "at": "2026-07-25T06:22:38.428Z",
+    "videoId": "Ilg3gGewQ5U",
+    "event": "voice-playback-observed",
+    "paused": false,
+    "currentTime": 7.499458,
+    "volume": 0.18,
+    "subtitle": "Ở đây, ta sẽ nói về backpropagation, thuật toán cơ bản để huấn luyện mạng nơ-ron.",
+    "duckObserved": true,
+    "subtitleObserved": true
+  },
+  {
+    "at": "2026-07-25T06:22:42.757Z",
+    "videoId": "Ilg3gGewQ5U",
+    "event": "voice-playback-observed",
+    "paused": false,
+    "currentTime": 46.657638,
+    "volume": 0.18,
+    "subtitle": "chỉ 16 nút, và lớp đầu ra gồm 10 nút, ứng với câu trả lời của mạng.",
+    "duckObserved": true,
+    "subtitleObserved": true
+  },
+  {
+    "at": "2026-07-25T06:22:43.028Z",
+    "videoId": "Ilg3gGewQ5U",
+    "event": "voice-playback-observed",
+    "paused": false,
+    "currentTime": 26.846033,
+    "volume": 0.18,
+    "subtitle": "Nếu bạn đã xem hai video cuối, hoặc có nền tảng phù hợp, thì bạn đã biết mạng nơ-ron là gì và thông tin chảy qua chúng thế nào.",
+    "duckObserved": true,
+    "subtitleObserved": true
+  },
+  {
+    "at": "2026-07-25T06:22:43.028Z",
+    "videoId": "Ilg3gGewQ5U",
+    "event": "pause-resume-seek-observed",
+    "before": {
+      "paused": false,
+      "currentTime": 7.36422,
+      "volume": 0.18,
+      "subtitle": "Ở đây, ta sẽ nói về backpropagation, thuật toán cơ bản để huấn luyện mạng nơ-ron.",
+      "duckObserved": true,
+      "subtitleObserved": true
+    },
+    "paused": {
+      "paused": true,
+      "currentTime": 7.371577,
+      "volume": 1
+    },
+    "resumed": {
+      "paused": false,
+      "currentTime": 7.499458,
+      "volume": 0.18,
+      "subtitle": "Ở đây, ta sẽ nói về backpropagation, thuật toán cơ bản để huấn luyện mạng nơ-ron.",
+      "duckObserved": true,
+      "subtitleObserved": true
+    },
+    "forward": {
+      "paused": false,
+      "currentTime": 46.657638,
+      "volume": 0.18,
+      "subtitle": "chỉ 16 nút, và lớp đầu ra gồm 10 nút, ứng với câu trả lời của mạng.",
+      "duckObserved": true,
+      "subtitleObserved": true
+    },
+    "backward": {
+      "paused": false,
+      "currentTime": 26.846033,
+      "volume": 0.18,
+      "subtitle": "Nếu bạn đã xem hai video cuối, hoặc có nền tảng phù hợp, thì bạn đã biết mạng nơ-ron là gì và thông tin chảy qua chúng thế nào.",
+      "duckObserved": true,
+      "subtitleObserved": true
+    }
+  }
+]

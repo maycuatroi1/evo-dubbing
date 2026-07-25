@@ -1,0 +1,233 @@
+{
+  "startedAt": "2026-07-25T06:17:57.938Z",
+  "finishedAt": "2026-07-25T06:22:59.319Z",
+  "extensionId": "fjnboegjkmpngcngpoiopmilmijiggep",
+  "extensionPath": "C:\\Users\\somet\\github\\evo-dubbing\\extension\\dist",
+  "browserExecutable": "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe",
+  "videos": [
+    {
+      "video": {
+        "id": "aircAruvnKk",
+        "title": "But what is a neural network?",
+        "expectedDuration": 1120
+      },
+      "observedDuration": 1119.961,
+      "ready": {
+        "status": "Dubbing live (1/194)",
+        "readyCount": 1,
+        "cueCount": 194
+      },
+      "playback": {
+        "paused": false,
+        "currentTime": 9.781543,
+        "volume": 0.18,
+        "subtitle": "Nó được vẽ rất cẩu thả và chỉ có 28 x 28 pixel. Nhưng tôi muốn bạn thử hình dung xem bộ não của mình",
+        "duckObserved": true,
+        "subtitleObserved": true
+      },
+      "sync": {
+        "before": {
+          "paused": false,
+          "currentTime": 9.785702,
+          "volume": 0.18,
+          "subtitle": "Nó được vẽ rất cẩu thả và chỉ có 28 x 28 pixel. Nhưng tôi muốn bạn thử hình dung xem bộ não của mình",
+          "duckObserved": true,
+          "subtitleObserved": true
+        },
+        "paused": {
+          "paused": true,
+          "currentTime": 9.797414,
+          "volume": 1
+        },
+        "resumed": {
+          "paused": false,
+          "currentTime": 10.07358,
+          "volume": 0.18,
+          "subtitle": "Nó được vẽ rất cẩu thả và chỉ có 28 x 28 pixel. Nhưng tôi muốn bạn thử hình dung xem bộ não của mình",
+          "duckObserved": true,
+          "subtitleObserved": true
+        },
+        "forward": {
+          "paused": false,
+          "currentTime": 53.342451,
+          "volume": 0.18,
+          "subtitle": "Thế nhưng, nếu tôi bảo bạn ngồi xuống và viết một chương trình máy tính đọc một lưới pixel",
+          "duckObserved": true,
+          "subtitleObserved": true
+        },
+        "backward": {
+          "paused": false,
+          "currentTime": 33.369599,
+          "volume": 0.18,
+          "subtitle": "vào bức này, sẽ khác với những tế bào hoạt động khi bạn nhìn bức kia.",
+          "duckObserved": true,
+          "subtitleObserved": true
+        }
+      },
+      "sameSessionCache": {
+        "before": 15,
+        "after": 15,
+        "newTtsRequests": 0
+      },
+      "reloadCache": {
+        "before": 15,
+        "after": 15,
+        "newTtsRequests": 0
+      },
+      "lazy": {
+        "sourceStart": 2,
+        "sourceEnd": 122.293444,
+        "watchedSourceSeconds": 120.293444,
+        "beforeIdleWait": 30,
+        "afterIdleWait": 30,
+        "newProviderRequestsWhilePaused": 0
+      }
+    },
+    {
+      "video": {
+        "id": "IHZwWFHWa-w",
+        "title": "Gradient descent, how neural networks learn",
+        "expectedDuration": 1233
+      },
+      "observedDuration": 1233.021,
+      "ready": {
+        "status": "Dubbing live (1/208)",
+        "readyCount": 1,
+        "cueCount": 208
+      },
+      "playback": {
+        "paused": false,
+        "currentTime": 8.478225,
+        "volume": 0.18,
+        "subtitle": "Tôi sẽ tóm tắt nhanh để ôn lại, rồi sau đó tôi có hai mục tiêu trong video này.",
+        "duckObserved": true,
+        "subtitleObserved": true
+      },
+      "sync": {
+        "before": {
+          "paused": false,
+          "currentTime": 8.485092,
+          "volume": 0.18,
+          "subtitle": "Tôi sẽ tóm tắt nhanh để ôn lại, rồi sau đó tôi có hai mục tiêu trong video này.",
+          "duckObserved": true,
+          "subtitleObserved": true
+        },
+        "paused": {
+          "paused": true,
+          "currentTime": 8.619752,
+          "volume": 1
+        },
+        "resumed": {
+          "paused": false,
+          "currentTime": 8.734142,
+          "volume": 0.18,
+          "subtitle": "Tôi sẽ tóm tắt nhanh để ôn lại, rồi sau đó tôi có hai mục tiêu trong video này.",
+          "duckObserved": true,
+          "subtitleObserved": true
+        },
+        "forward": {
+          "paused": false,
+          "currentTime": 49.80653,
+          "volume": 0.18,
+          "subtitle": "Các giá trị này xác định kích hoạt của 784 nơ-ron ở lớp đầu tiên của mạng.",
+          "duckObserved": true,
+          "subtitleObserved": true
+        },
+        "backward": {
+          "paused": false,
+          "currentTime": 30.00099,
+          "volume": 0.18,
+          "subtitle": "Nhắc lại, mục tiêu của chúng ta ở đây là một mạng nhận dạng các chữ số viết tay, đây là ví dụ kinh điển trong mạng nơ-ron.",
+          "duckObserved": true,
+          "subtitleObserved": true
+        }
+      }
+    },
+    {
+      "video": {
+        "id": "Ilg3gGewQ5U",
+        "title": "Backpropagation, intuitively",
+        "expectedDuration": 767
+      },
+      "observedDuration": 766.761,
+      "ready": {
+        "status": "Dubbing live (1/120)",
+        "readyCount": 1,
+        "cueCount": 120
+      },
+      "playback": {
+        "paused": false,
+        "currentTime": 7.362828,
+        "volume": 0.18,
+        "subtitle": "Ở đây, ta sẽ nói về backpropagation, thuật toán cơ bản để huấn luyện mạng nơ-ron.",
+        "duckObserved": true,
+        "subtitleObserved": true
+      },
+      "sync": {
+        "before": {
+          "paused": false,
+          "currentTime": 7.36422,
+          "volume": 0.18,
+          "subtitle": "Ở đây, ta sẽ nói về backpropagation, thuật toán cơ bản để huấn luyện mạng nơ-ron.",
+          "duckObserved": true,
+          "subtitleObserved": true
+        },
+        "paused": {
+          "paused": true,
+          "currentTime": 7.371577,
+          "volume": 1
+        },
+        "resumed": {
+          "paused": false,
+          "currentTime": 7.499458,
+          "volume": 0.18,
+          "subtitle": "Ở đây, ta sẽ nói về backpropagation, thuật toán cơ bản để huấn luyện mạng nơ-ron.",
+          "duckObserved": true,
+          "subtitleObserved": true
+        },
+        "forward": {
+          "paused": false,
+          "currentTime": 46.657638,
+          "volume": 0.18,
+          "subtitle": "chỉ 16 nút, và lớp đầu ra gồm 10 nút, ứng với câu trả lời của mạng.",
+          "duckObserved": true,
+          "subtitleObserved": true
+        },
+        "backward": {
+          "paused": false,
+          "currentTime": 26.846033,
+          "volume": 0.18,
+          "subtitle": "Nếu bạn đã xem hai video cuối, hoặc có nền tảng phù hợp, thì bạn đã biết mạng nơ-ron là gì và thông tin chảy qua chúng thế nào.",
+          "duckObserved": true,
+          "subtitleObserved": true
+        }
+      }
+    }
+  ],
+  "testedVideoCount": 3,
+  "totalDurationSeconds": 3119.743,
+  "totalDurationMinutes": 51.99571666666667,
+  "apiRequestCounts": {
+    "translation": 7,
+    "tts": 52
+  },
+  "audioEvidence": [
+    {
+      "videoId": "aircAruvnKk",
+      "filename": "aircAruvnKk-first-tts.mp3",
+      "bytes": 60288
+    },
+    {
+      "videoId": "IHZwWFHWa-w",
+      "filename": "IHZwWFHWa-w-first-tts.mp3",
+      "bytes": 96768
+    },
+    {
+      "videoId": "Ilg3gGewQ5U",
+      "filename": "Ilg3gGewQ5U-first-tts.mp3",
+      "bytes": 103296
+    }
+  ],
+  "videoEvidence": "docs/evidence/2026-07-25-step-2/manual-core-acceptance.mp4",
+  "failure": null
+}
