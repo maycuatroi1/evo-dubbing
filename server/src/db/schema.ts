@@ -133,6 +133,9 @@ export const inferenceRequests = pgTable(
     provider: text("provider").notNull(),
     model: text("model").notNull(),
     status: text("status").notNull().default("pending"),
+    periodId: uuid("period_id").references(() => subscriptionPeriods.id, { onDelete: "set null" }),
+    reservedMs: bigint("reserved_ms", { mode: "number" }).notNull().default(0),
+    result: text("result").notNull().default(""),
     inputChars: integer("input_chars").notNull().default(0),
     outputChars: integer("output_chars").notNull().default(0),
     latencyMs: integer("latency_ms").notNull().default(0),
@@ -142,8 +145,10 @@ export const inferenceRequests = pgTable(
   (t) => ({
     requestKeyUnique: uniqueIndex("inference_requests_request_key_idx").on(t.requestKey),
     accountIdx: index("inference_requests_account_idx").on(t.accountId, t.createdAt),
+    periodIdx: index("inference_requests_period_idx").on(t.periodId),
     latencyNonNegative: check("inference_requests_latency_non_negative", sql`${t.latencyMs} >= 0`),
-    costNonNegative: check("inference_requests_cost_non_negative", sql`${t.costMicrousd} >= 0`)
+    costNonNegative: check("inference_requests_cost_non_negative", sql`${t.costMicrousd} >= 0`),
+    reservedNonNegative: check("inference_requests_reserved_non_negative", sql`${t.reservedMs} >= 0`)
   })
 );
 
