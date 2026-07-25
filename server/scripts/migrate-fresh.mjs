@@ -1,5 +1,6 @@
 import { spawnSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
+import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import postgres from "postgres";
 import {
@@ -12,6 +13,9 @@ import {
 
 const serverDirectory = fileURLToPath(new URL("..", import.meta.url));
 const migrateScript = fileURLToPath(new URL("./migrate.mjs", import.meta.url));
+const integrationScript = fileURLToPath(new URL("./schema-integration.mjs", import.meta.url));
+const journalPath = fileURLToPath(new URL("../drizzle/meta/_journal.json", import.meta.url));
+const expectedMigrationCount = JSON.parse(readFileSync(journalPath, "utf8")).entries.length;
 const containerName = `evo-dubbing-migration-${randomUUID()}`;
 const docker = process.platform === "win32" ? "docker.exe" : "docker";
 
@@ -32,6 +36,19 @@ function run(command, args, options = {}) {
 let sql;
 
 try {
+  const [nodeMajor] = process.versions.node.split(".").map(Number);
+  if (nodeMajor >= 23 || (nodeMajor === 22 && Number(process.versions.node.split(".")[1]) >= 6)) {
+    run(process.execPath, [
+      "--experimental-strip-types",
+      "--no-warnings",
+      "--test",
+      "src/lib/subscription.test.ts"
+    ]);
+    console.log("subscription helper unit tests: ok");
+  } else {
+    console.log("subscription helper unit tests: skipped (needs node >= 22.6)");
+  }
+
   run(docker, [
     "run",
     "--rm",
@@ -110,9 +127,11 @@ try {
   if (JSON.stringify(countsBefore) !== JSON.stringify(countsAfter)) {
     throw new Error("Second migration changed row counts");
   }
-  if (migrationCount !== 1) {
-    throw new Error(`Expected one migration history entry, received ${migrationCount}`);
+  if (migrationCount !== expectedMigrationCount) {
+    throw new Error(`Expected ${expectedMigrationCount} migration history entries, received ${migrationCount}`);
   }
+
+  run(process.execPath, [integrationScript], { env: { ...process.env, DATABASE_URL: databaseUrl } });
 
   console.log("fresh PostgreSQL connection: ok");
   console.log("first migration: ok");
@@ -121,6 +140,7 @@ try {
   console.log(`rows after first migration: ${formatRowCounts(countsBefore)}`);
   console.log(`rows after second migration: ${formatRowCounts(countsAfter)}`);
   console.log(`migration history entries: ${migrationCount}`);
+  console.log("schema integration tests: ok");
   console.log("fresh database migration test: ok");
 } finally {
   if (sql) {
