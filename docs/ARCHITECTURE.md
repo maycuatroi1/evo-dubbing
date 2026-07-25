@@ -29,10 +29,12 @@ evo-dubbing is split into a Chrome extension that does all the heavy lifting cli
                              v
 +-------------------------------------------------------------+
 |  Share server (Next.js, App Router)                         |
-|    /api/dubs            list public dubs, create dub         |
-|    /api/dubs/[id]       get, patch visibility, delete        |
-|    /api/dubs/lookup     find dub by platform+video+lang      |
-|    /api/upload          presigned PUT to R2                  |
+|    /api/dubs                  list public dubs               |
+|    /api/dubs/init             create dub + presigned R2 PUTs  |
+|    /api/dubs/[id]/complete    finalise after uploads land     |
+|    /api/dubs/[id]             get, patch visibility, delete   |
+|    /api/dubs/lookup           find dub by platform+video+lang |
+|    /api/health                liveness                        |
 |                                                             |
 |  Postgres (Supabase)  dub + segment metadata                |
 |  Cloudflare R2        per-segment audio + manifest          |

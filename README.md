@@ -41,6 +41,13 @@ API keys never leave the browser. All provider calls are made client side from t
 
 Prerequisites: Node 20+, Docker (for local Postgres), a Cloudflare R2 bucket, an OpenAI and/or Gemini API key.
 
+One command does all of the below:
+
+```
+./init.ps1        # Windows
+./init.sh         # POSIX
+```
+
 ### Extension
 
 ```
@@ -62,4 +69,9 @@ npm run db:push
 npm run dev
 ```
 
-See `docs/ARCHITECTURE.md` for the full design and `docs/ROADMAP.md` for what is built and what is next.
+See `docs/ARCHITECTURE.md` for the full design and `docs/ROADMAP.md` for the milestones.
+`feature_list.json` is the one that says what is actually verified to work.
+
+Working on this with a coding agent? Start at `AGENTS.md`, and run `npm run verify` before and
+after: it checks the four seams that break silently (extension/server API, the MAIN-world bridge
+protocol, the server env contract, the provider model catalog).

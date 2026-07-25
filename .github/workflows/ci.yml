@@ -20,8 +20,11 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
 
-      - name: Typecheck extension
-        run: npm run typecheck --workspace extension
+      - name: Typecheck both workspaces
+        run: npm run type:all
+
+      - name: Verify seams and harness artifacts
+        run: npm run verify
 
       - name: Build extension
         run: npm run build:ext

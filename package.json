@@ -13,7 +13,23 @@
     "dev:server": "npm run dev --workspace server",
     "build:server": "npm run build --workspace server",
     "db:push": "npm run db:push --workspace server",
-    "db:generate": "npm run db:generate --workspace server"
+    "db:generate": "npm run db:generate --workspace server",
+    "db:migrate": "npm run db:migrate --workspace server",
+    "db:migrate:test": "npm run db:migrate:test --workspace server",
+    "type:ext": "tsc --noEmit -p extension/tsconfig.json",
+    "type:server": "tsc --noEmit -p server/tsconfig.json",
+    "type:all": "npm run type:ext && npm run type:server",
+    "verify": "node scripts/verify/index.mjs",
+    "check": "npm run type:all && npm run verify",
+    "benchmark:providers": "node scripts/benchmark/providers.mjs",
+    "benchmark:translation": "node scripts/benchmark/providers.mjs --kind translation",
+    "benchmark:tts": "node scripts/benchmark/providers.mjs --kind tts",
+    "benchmark:review": "node scripts/benchmark/review.mjs",
+    "benchmark:review:web": "node scripts/benchmark/review-web.mjs",
+    "benchmark:review:web:serve": "node scripts/benchmark/review-web-server.mjs",
+    "benchmark:review:web:import": "node scripts/benchmark/review-web-import.mjs",
+    "benchmark:report": "node scripts/benchmark/report.mjs",
+    "benchmark:report:test": "node --test scripts/benchmark/report-validator.test.mjs"
   },
   "engines": {
     "node": ">=20"

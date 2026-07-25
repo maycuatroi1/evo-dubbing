@@ -1,0 +1,187 @@
+{
+  "spec_version": 1,
+  "rules": [
+    "You may only change \"status\" and write \"evidence\". Never edit, reword, delete, or add a behavior without the repo owner asking for it.",
+    "\"status\": \"passing\" requires \"evidence\": what you ran and what you observed. An empty evidence field with a passing status fails npm run verify.",
+    "Statuses are about verified behavior, not about code existing. Code on disk that nobody has watched work end to end is \"in_progress\"."
+  ],
+  "statuses": ["not_started", "in_progress", "passing", "blocked"],
+  "features": [
+    {
+      "id": "dub-youtube-with-captions",
+      "behavior": "A viewer on a YouTube video that has captions presses Dub in the overlay and hears Vietnamese voice-over over the ducked original within a few seconds.",
+      "verify": "npm run build:ext, load extension/dist unpacked, open a YouTube video with captions, set an OpenAI key, press Dub, listen.",
+      "status": "passing",
+      "evidence": "2026-07-25: Loaded extension/dist unpacked in Edge and dubbed 3 captioned videos totaling 52.00 minutes. Each produced HTTP 200 TTS audio, Vietnamese subtitles, and volume ducking to 0.18. Saved 3 MP3 samples, transcribed them back to intelligible Vietnamese, and the owner heard the direct extension replay.",
+      "notes": "Pipeline exists end to end in extension/src/lib/dubbing/session.ts; never verified in a recorded session."
+    },
+    {
+      "id": "caption-extraction-survives-potoken",
+      "behavior": "Caption extraction returns cues for a normal YouTube video without the viewer doing anything, including when timedtext requires a pot.",
+      "verify": "Dub a video and confirm the overlay leaves the 'Reading captions' phase with a non-zero cue count. YouTube changes this mechanism; re-verify after any dubbing-stuck-at-0 report.",
+      "status": "passing",
+      "evidence": "2026-07-25: Without manually enabling CC, the unpacked extension left Reading captions with 194, 208, and 120 merged cues on aircAruvnKk, IHZwWFHWa-w, and Ilg3gGewQ5U. Sanitized timedtext request and response evidence is in docs/evidence/2026-07-25-step-2/network-log.json.",
+      "notes": "MAIN-world bridge captures pot from the player's own request (content/page-bridge.ts). Broke twice on 2026-06-29."
+    },
+    {
+      "id": "stt-fallback-no-captions",
+      "behavior": "A viewer on a video with no caption track still gets a dub, because the extension transcribes the audio instead.",
+      "verify": "Open a video with captions disabled and confirm the dub still produces segments.",
+      "status": "not_started",
+      "evidence": "",
+      "notes": "Provider stt() adapters exist; nothing calls them from the session."
+    },
+    {
+      "id": "lazy-generation-costs-only-what-is-watched",
+      "behavior": "Watching two minutes of a long video generates TTS only for those two minutes; leaving the tab idle generates nothing further.",
+      "verify": "Dub a long video, watch 2 minutes, pause, and confirm no further provider calls in the network log.",
+      "status": "passing",
+      "evidence": "2026-07-25: Played 120.29 source seconds of aircAruvnKk, paused, waited for API idle, then observed for 20 more seconds. Provider request count remained 30 to 30 while paused.",
+      "notes": "Sliding window in lib/dubbing/session.ts."
+    },
+    {
+      "id": "audio-cache-avoids-repaying",
+      "behavior": "Seeking back over an already-dubbed stretch, or reloading the page, replays cached audio without calling a provider again.",
+      "verify": "Dub a stretch, seek back over it, confirm no new TTS request in the network log.",
+      "status": "passing",
+      "evidence": "2026-07-25: Reproduced a reload miss before the fix at 13 to 21 TTS requests because translation changed, then cached translation batches and rebuilt. Final run held same-session seek at 15 to 15 and full reload at 15 to 15 TTS requests.",
+      "notes": "IndexedDB cache keyed by provider|model|voice|hash(text) in lib/dubbing/cache.ts."
+    },
+    {
+      "id": "voiceover-stays-in-sync-on-seek-and-pause",
+      "behavior": "Pausing, resuming, and seeking keep the voice-over aligned with the picture, and no segment is left playing over the wrong scene.",
+      "verify": "Dub a video, then pause/resume and seek forwards and backwards several times while listening.",
+      "status": "passing",
+      "evidence": "2026-07-25: On all 3 videos, pause restored volume from 0.18 to 1, resume re-ducked to 0.18, and forward/backward seeks produced distinct translated lines at the new playhead. The owner confirmed the direct replay stopped on pause and did not leave the old sentence over the seeked scene.",
+      "notes": "Known weak spot; timing is approximate when translated speech overruns its slot."
+    },
+    {
+      "id": "long-translation-is-not-cut-off",
+      "behavior": "A translated line longer than its source slot is time-stretched to fit without turning into a chipmunk, and is never truncated mid-word.",
+      "verify": "Dub a dense-dialogue video and listen to lines whose Vietnamese is clearly longer than the English.",
+      "status": "passing",
+      "evidence": "2026-07-25: Dense-dialogue playback produced long Vietnamese lines through the unpacked extension. The owner listened to the direct 1x replay after time compression and confirmed the long lines were complete, not cut mid-word, and did not sound chipmunked.",
+      "notes": "lib/dubbing/stretch.ts preserves pitch when compressing."
+    },
+    {
+      "id": "subtitles-overlay-toggle",
+      "behavior": "Translated subtitles can be shown over the video, synced to the playhead, and turned off from options.",
+      "verify": "Toggle showSubtitles in options and confirm the overlay follows the playhead.",
+      "status": "in_progress",
+      "evidence": "",
+      "notes": ""
+    },
+    {
+      "id": "keys-never-leave-the-client",
+      "behavior": "A provider key entered in options is never sent anywhere except the provider's own API, and never to the share server.",
+      "verify": "Dub and upload a video with the network log open; confirm no request to the share server carries a key, and that keys live only in chrome.storage.local.",
+      "status": "in_progress",
+      "evidence": "",
+      "notes": "Security claim in docs/ARCHITECTURE.md. Deserves a mechanical check, not just a read-through."
+    },
+    {
+      "id": "lookup-before-dubbing",
+      "behavior": "When a share server is configured and someone already dubbed this video into the same language and voice, playback streams that dub instead of paying to regenerate it.",
+      "verify": "Upload a dub, clear the local cache, reload, and confirm the overlay reports it found a shared dub.",
+      "status": "in_progress",
+      "evidence": "",
+      "notes": "lookupDub is wired in shareClient.ts; docs/ROADMAP.md still lists this as unchecked."
+    },
+    {
+      "id": "upload-a-finished-dub",
+      "behavior": "A viewer can upload a finished dub and get back a link that a second person can play without any API key.",
+      "verify": "Run the server locally with real R2 credentials, upload from the overlay, then open the link in a clean profile.",
+      "status": "in_progress",
+      "evidence": "",
+      "notes": "uploadDub + /api/dubs/init + presigned PUT + /complete exist; never exercised against real R2."
+    },
+    {
+      "id": "public-private-toggle",
+      "behavior": "The uploader can flip a dub between public and private from the overlay, and a private dub is not listed publicly.",
+      "verify": "Upload, flip visibility via the overlay, and confirm GET /api/dubs no longer lists it.",
+      "status": "not_started",
+      "evidence": "",
+      "notes": "setVisibility exists in shareClient.ts; no overlay control calls it."
+    },
+    {
+      "id": "browse-public-dubs",
+      "behavior": "Someone with no extension can open the server and browse public dubs.",
+      "verify": "Open http://localhost:3000 with at least one public dub and confirm it is listed and playable.",
+      "status": "not_started",
+      "evidence": "",
+      "notes": "GET /api/dubs is served; server/src/app/page.tsx does not consume it."
+    },
+    {
+      "id": "server-refuses-oversized-uploads",
+      "behavior": "The server rejects an upload that exceeds MAX_SEGMENTS or MAX_SEGMENT_BYTES instead of accepting unbounded data.",
+      "verify": "POST /api/dubs/init with more segments than MAX_SEGMENTS and confirm a 4xx with a message naming the limit.",
+      "status": "in_progress",
+      "evidence": "",
+      "notes": "Limits read in server/src/lib/http.ts; no test exercises the rejection path."
+    },
+    {
+      "id": "second-platform",
+      "behavior": "A viewer on a non-YouTube page with a plain <video> element can dub it.",
+      "verify": "Open a page with a bare <video> and confirm the overlay appears and dubs.",
+      "status": "not_started",
+      "evidence": "",
+      "notes": "lib/platforms/index.ts is the seam a second adapter plugs into."
+    },
+    {
+      "id": "byok-remains-compatible",
+      "behavior": "A viewer with existing BYOK provider settings can keep dubbing through the provider directly after managed mode launches, without payment, managed trial consumption, server-side key handling, or changed settings.",
+      "verify": "Save BYOK settings in the current release, upgrade to a managed-mode build, dub a video, and confirm the same settings remain, provider calls stay direct, and managed entitlement and usage records are unchanged.",
+      "status": "not_started",
+      "evidence": "",
+      "notes": "Immutable commercial compatibility contract in docs/BUSINESS_MODEL.md."
+    },
+    {
+      "id": "managed-trial-only-once",
+      "behavior": "A managed-mode viewer can receive one lifetime trial of exactly 15 source minutes, or 900,000 source milliseconds, and cannot receive another trial after using or claiming it.",
+      "verify": "Claim the trial, exhaust it with successful managed cues, then sign out, sign back in, reinstall the extension, and retry the claim; confirm total lifetime trial credit remains 900,000 source milliseconds.",
+      "status": "not_started",
+      "evidence": "",
+      "notes": "Immutable commercial contract in docs/BUSINESS_MODEL.md."
+    },
+    {
+      "id": "payos-activates-one-paid-period",
+      "behavior": "One verified PayOS payment of 99,000 VND creates exactly one 30-day period with 18,000,000 source milliseconds; retries create nothing extra, unused quota never rolls over, and renewal is manual.",
+      "verify": "Complete one 99,000 VND PayOS payment, replay its success webhook at least twice, advance beyond 30 days, and confirm there is one period, one 18,000,000 millisecond grant, no carried quota, and no automatic renewal.",
+      "status": "not_started",
+      "evidence": "",
+      "notes": "Immutable commercial contract in docs/BUSINESS_MODEL.md."
+    },
+    {
+      "id": "managed-usage-is-idempotent",
+      "behavior": "Managed quota is debited once by source duration only after a cue is generated successfully; failed generation, retries with the same idempotency key, local cache hits, and shared lookup hits consume no additional quota.",
+      "verify": "Generate one managed cue, retry its idempotency key, force one failed cue, replay from local cache, and fetch one shared dub; confirm usage increases once by only the successful cue's sourceEndMs minus sourceStartMs.",
+      "status": "not_started",
+      "evidence": "",
+      "notes": "Immutable source-time accounting contract in docs/BUSINESS_MODEL.md."
+    },
+    {
+      "id": "managed-beta-budget-cap",
+      "behavior": "Managed provider generation stops before global service-funded spend can exceed USD 100 in a UTC calendar month, while BYOK, local cache, and shared lookup remain available.",
+      "verify": "Bring recorded or reserved managed provider spend to the monthly limit, request another managed generation, and confirm it is rejected before a provider call while BYOK, local cache, and shared lookup still work.",
+      "status": "not_started",
+      "evidence": "",
+      "notes": "Immutable beta risk limit in docs/BUSINESS_MODEL.md."
+    },
+    {
+      "id": "public-dub-requires-rights-and-disclosure",
+      "behavior": "An uploader cannot make a dub public without explicitly asserting publication rights, and every public listing and playback page identifies the dub as AI-generated.",
+      "verify": "Try to publish without the rights assertion and confirm rejection, then assert rights, publish, and confirm the AI disclosure appears in both the public listing and playback page.",
+      "status": "not_started",
+      "evidence": "",
+      "notes": "Immutable public distribution contract in docs/BUSINESS_MODEL.md."
+    },
+    {
+      "id": "signed-public-dub-takedown",
+      "behavior": "A valid signed takedown makes a public dub unavailable from listing, lookup, and playback, is safe to retry, and an unsigned or invalidly signed request cannot remove it.",
+      "verify": "Send invalid and valid signed takedown requests for a public dub, retry the valid request, and confirm only the valid request removes listing, lookup, and playback access without retry errors.",
+      "status": "not_started",
+      "evidence": "",
+      "notes": "Immutable public distribution contract in docs/BUSINESS_MODEL.md."
+    }
+  ]
+}
