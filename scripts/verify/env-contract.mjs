@@ -27,10 +27,18 @@ export default function envContract() {
   }
 
   const readBy = new Map();
-  for (const file of files) {
-    for (const m of read(file).matchAll(/process\.env\.([A-Z][A-Z0-9_]*)/g)) {
+  const contents = files.map((file) => ({ file, content: read(file) }));
+  const envEscapes = contents.some(({ content }) => /process\.env(?!\.\w)/.test(content));
+  for (const { file, content } of contents) {
+    for (const m of content.matchAll(/process\.env\.([A-Z][A-Z0-9_]*)/g)) {
       if (!readBy.has(m[1])) readBy.set(m[1], new Set());
       readBy.get(m[1]).add(file);
+    }
+    if (envEscapes) {
+      for (const m of content.matchAll(/\benv\.([A-Z][A-Z0-9_]*)/g)) {
+        if (!readBy.has(m[1])) readBy.set(m[1], new Set());
+        readBy.get(m[1]).add(file);
+      }
     }
   }
 
