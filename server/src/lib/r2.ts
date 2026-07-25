@@ -46,6 +46,10 @@ export async function headObject(key: string): Promise<{ size: number } | null> 
   }
 }
 
+export async function putObject(key: string, body: Uint8Array, mime: string): Promise<void> {
+  await getClient().send(new PutObjectCommand({ Bucket: bucket, Key: key, Body: body, ContentType: mime }));
+}
+
 export async function deleteKeys(keys: string[]): Promise<void> {
   if (keys.length === 0) return;
   await getClient().send(
