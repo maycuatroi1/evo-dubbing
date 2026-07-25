@@ -9,7 +9,14 @@ import type {
 import type { Platform } from "../platforms";
 import { getProvider, type Provider } from "../providers";
 import { mergeCues } from "./merge";
-import { ttsCacheKey, getCachedAudio, putCachedAudio } from "./cache";
+import {
+  ttsCacheKey,
+  getCachedAudio,
+  putCachedAudio,
+  translationCacheKey,
+  getCachedTranslation,
+  putCachedTranslation
+} from "./cache";
 import { timeCompress } from "./stretch";
 import { fetchArrayBuffer } from "../net";
 
@@ -348,15 +355,27 @@ export class DubSession {
     const promise = (async () => {
       const start = chunkIdx * TRANSLATE_CHUNK;
       const batch = this.cues.slice(start, start + TRANSLATE_CHUNK);
-      const result = await this.translateProvider.translate(
-        {
-          segments: batch.map((c) => ({ idx: c.idx, text: c.text })),
-          sourceLang: this.sourceLang,
-          targetLang: this.settings.targetLang,
-          model: this.settings.translateModel
-        },
-        this.translateKey
+      const segments = batch.map((c) => ({ idx: c.idx, text: c.text }));
+      const key = translationCacheKey(
+        this.settings.translateProvider,
+        this.settings.translateModel,
+        this.sourceLang,
+        this.settings.targetLang,
+        segments
       );
+      let result = await getCachedTranslation(key);
+      if (!result) {
+        result = await this.translateProvider.translate(
+          {
+            segments,
+            sourceLang: this.sourceLang,
+            targetLang: this.settings.targetLang,
+            model: this.settings.translateModel
+          },
+          this.translateKey
+        );
+        await putCachedTranslation(key, result);
+      }
       const map = new Map(result.map((r) => [r.idx, r.text]));
       for (const cue of batch) {
         this.states[cue.idx].translated = (map.get(cue.idx) ?? "").trim();
