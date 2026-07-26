@@ -19,6 +19,7 @@ import {
 } from "./cache.ts";
 import { timeCompress } from "./stretch.ts";
 import { fetchArrayBuffer } from "../net.ts";
+import { isQuotaInsufficient, quotaBlockMessage } from "../managed/onboarding.ts";
 
 const LOOKAHEAD_MS = 30000;
 const BEHIND_MS = 2000;
@@ -44,6 +45,7 @@ export interface SessionOptions {
   settings: Settings;
   onProgress: ProgressHandler;
   onReady: () => void;
+  getRemainingSourceMs?: () => Promise<number | null>;
 }
 
 export class DubSession {
@@ -52,6 +54,7 @@ export class DubSession {
   private settings: Settings;
   private onProgress: ProgressHandler;
   private onReady: () => void;
+  private getRemainingSourceMs?: () => Promise<number | null>;
 
   private cues: TranscriptSegment[] = [];
   private states: CueState[] = [];
@@ -86,6 +89,7 @@ export class DubSession {
     this.settings = opts.settings;
     this.onProgress = opts.onProgress;
     this.onReady = opts.onReady;
+    this.getRemainingSourceMs = opts.getRemainingSourceMs;
     this.ctx = new AudioContext();
     this.gain = this.ctx.createGain();
     this.gain.connect(this.ctx.destination);
@@ -449,18 +453,19 @@ export class DubSession {
           if (other.status === "pending") other.status = "idle";
         }
       }
-      this.reportError(msg);
+      this.reportError(msg, typeof status === "number" ? status : undefined);
     }
   }
 
-  private reportError(message: string): void {
+  private reportError(message: string, status?: number): void {
     if (this.firstError) return;
     this.firstError = message;
     this.onProgress({
       phase: "error",
       current: this.readyCount,
       total: this.cues.length,
-      message: `Dubbing failed: ${message}`
+      message: `Dubbing failed: ${message}`,
+      status
     });
   }
 
@@ -480,6 +485,8 @@ export class DubSession {
       if (this.settings.billingMode !== "managed") {
         this.requireKey(this.settings.translateProvider);
         this.requireKey(this.settings.ttsProvider);
+      } else {
+        await this.assertQuotaForExport();
       }
     }
 
@@ -518,6 +525,28 @@ export class DubSession {
       visibility: this.settings.defaultVisibility,
       segments
     };
+  }
+
+  estimateExportSourceMs(): number {
+    let total = 0;
+    for (let i = 0; i < this.cues.length; i++) {
+      const st = this.states[i];
+      if (st.data || st.status === "empty" || !this.cues[i].text.trim()) continue;
+      total += Math.max(0, this.cues[i].endMs - this.cues[i].startMs);
+    }
+    return total;
+  }
+
+  private async assertQuotaForExport(): Promise<void> {
+    if (!this.getRemainingSourceMs) return;
+    const neededMs = this.estimateExportSourceMs();
+    if (neededMs <= 0) return;
+    const remainingMs = await this.getRemainingSourceMs();
+    if (isQuotaInsufficient(neededMs, remainingMs)) {
+      const err = new Error(quotaBlockMessage(neededMs, remainingMs as number)) as Error & { code: string };
+      err.code = "insufficient_quota";
+      throw err;
+    }
   }
 
   private async generateCueForExport(idx: number): Promise<void> {

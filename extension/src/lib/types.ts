@@ -94,6 +94,7 @@ export interface DubbingProgress {
   current: number;
   total: number;
   message: string;
+  status?: number;
 }
 
 export type ProgressHandler = (progress: DubbingProgress) => void;

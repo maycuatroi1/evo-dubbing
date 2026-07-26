@@ -1,8 +1,15 @@
-import { EvoOverlay } from "./overlay.ts";
+import { EvoOverlay, type OverlayAction } from "./overlay.ts";
 import { getSettings, saveOwnerToken, getOwnerToken } from "../lib/storage.ts";
 import { resolvePlatform } from "../lib/platforms/index.ts";
 import { DubSession } from "../lib/dubbing/session.ts";
 import { lookupDub, uploadDub, setVisibility, type RemoteDub } from "../lib/api/shareClient.ts";
+import {
+  ManagedClientError,
+  managedAccount,
+  managedCheckout,
+  managedSignIn
+} from "../lib/managed/messages.ts";
+import { MANAGED_ACTION_COPY, MANAGED_ERROR_COPY } from "../lib/managed/onboarding.ts";
 import type { Dub, Settings, VideoContext } from "../lib/types.ts";
 
 const platform = resolvePlatform(location.href);
@@ -44,6 +51,68 @@ function cleanupSession(): void {
   }
 }
 
+function openOptionsPage(): void {
+  void chrome.runtime.sendMessage({ type: "openOptionsPage" });
+}
+
+async function openPayosCheckout(settings: Settings): Promise<void> {
+  overlay?.setShareStatus("Đang tạo link thanh toán PayOS...");
+  try {
+    const result = await managedCheckout(settings.managedBaseUrl);
+    window.open(result.checkoutUrl, "_blank");
+    overlay?.setShareStatus("Đã mở link thanh toán PayOS trong tab mới. Sau khi thanh toán, nhấn Re-dub.");
+  } catch (err) {
+    overlay?.setError(err instanceof Error ? err.message : String(err));
+  }
+}
+
+function managedRecoveryActions(settings: Settings, status: number): OverlayAction[] {
+  if (status === 401) {
+    return [
+      {
+        label: MANAGED_ACTION_COPY.signInAgain,
+        onClick: () => {
+          void managedSignIn()
+            .then(() => overlay?.setShareStatus("Đã đăng nhập lại. Nhấn Re-dub để thử lại."))
+            .catch((err) => overlay?.setError(err instanceof Error ? err.message : String(err)));
+        }
+      }
+    ];
+  }
+  if (status === 402) {
+    return [
+      { label: MANAGED_ACTION_COPY.checkout, onClick: () => void openPayosCheckout(settings) },
+      { label: MANAGED_ACTION_COPY.openByok, onClick: openOptionsPage }
+    ];
+  }
+  if (status === 503) {
+    return [{ label: MANAGED_ACTION_COPY.openByok, onClick: openOptionsPage }];
+  }
+  return [];
+}
+
+function showSessionError(settings: Settings, message: string, status?: number): void {
+  if (settings.billingMode !== "managed" || !status || !(status in MANAGED_ERROR_COPY)) {
+    overlay?.setError(message);
+    return;
+  }
+  overlay?.setActionError(MANAGED_ERROR_COPY[status], managedRecoveryActions(settings, status));
+}
+
+function handleExportError(settings: Settings, err: unknown): void {
+  const code = (err as { code?: unknown }).code;
+  const message = err instanceof Error ? err.message : String(err);
+  if (settings.billingMode === "managed" && code === "insufficient_quota") {
+    overlay?.setActionError(message, [
+      { label: MANAGED_ACTION_COPY.checkout, onClick: () => void openPayosCheckout(settings) },
+      { label: MANAGED_ACTION_COPY.openByok, onClick: openOptionsPage }
+    ]);
+    return;
+  }
+  const status = err instanceof ManagedClientError ? err.status : undefined;
+  showSessionError(settings, message, status);
+}
+
 async function onDub(targetLang: string): Promise<void> {
   if (!platform || !context) return;
 
@@ -63,13 +132,24 @@ async function onDub(targetLang: string): Promise<void> {
     context,
     settings,
     onProgress: (p) => {
-      if (p.phase === "error") overlay?.setError(p.message);
+      if (p.phase === "error") showSessionError(settings, p.message, p.status);
       else overlay?.setProgress(p);
     },
     onReady: () => {
       overlay?.setReady();
       overlay?.setPlaying(true);
-    }
+    },
+    getRemainingSourceMs:
+      settings.billingMode === "managed"
+        ? async () => {
+            try {
+              const account = await managedAccount(settings.managedBaseUrl);
+              return account.remainingSourceMs;
+            } catch {
+              return null;
+            }
+          }
+        : undefined
   });
 
   try {
@@ -103,7 +183,7 @@ async function onDub(targetLang: string): Promise<void> {
     fromRemote = false;
     await session.startGenerated(platform);
   } catch (err) {
-    overlay?.setError(err instanceof Error ? err.message : String(err));
+    handleExportError(settings, err);
   }
 }
 
@@ -141,7 +221,7 @@ async function shareCurrent(visibility: "public" | "private", settings: Settings
     await saveOwnerToken(result.id, result.ownerToken);
     overlay?.setShareStatus(`Shared (${result.visibility})`);
   } catch (err) {
-    overlay?.setError(err instanceof Error ? err.message : String(err));
+    handleExportError(settings, err);
   }
 }
 

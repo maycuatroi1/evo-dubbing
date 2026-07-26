@@ -10,10 +10,10 @@ async function ensureHostPermission(baseUrl: string): Promise<void> {
   }
 }
 
-async function managedFetch(
+export async function managedAuthedFetch(
   baseUrl: string,
   path: string,
-  body: Record<string, unknown>
+  init: { method: "GET" | "POST"; body?: Record<string, unknown> }
 ): Promise<RuntimeResponse> {
   const base = normalizeBaseUrl(baseUrl);
   if (!base) {
@@ -27,12 +27,12 @@ async function managedFetch(
   let res: Response;
   try {
     res = await fetch(`${base}${path}`, {
-      method: "POST",
+      method: init.method,
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`
       },
-      body: JSON.stringify(body)
+      body: init.body ? JSON.stringify(init.body) : undefined
     });
   } catch (err) {
     return { ok: false, status: 0, code: "network_error", error: err instanceof Error ? err.message : String(err) };
@@ -51,6 +51,10 @@ async function managedFetch(
     return { ok: false, status: res.status, code, error: message || `HTTP ${res.status}` };
   }
   return { ok: true, data: parsed };
+}
+
+async function managedFetch(baseUrl: string, path: string, body: Record<string, unknown>): Promise<RuntimeResponse> {
+  return managedAuthedFetch(baseUrl, path, { method: "POST", body });
 }
 
 const SEGMENT_ID_PATTERN = /[^A-Za-z0-9_-]/g;

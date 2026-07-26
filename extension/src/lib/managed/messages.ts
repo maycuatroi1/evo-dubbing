@@ -1,3 +1,4 @@
+import type { ManagedAccount, ManagedCheckoutResult } from "./account.ts";
 import type {
   AuthMessage,
   ManagedMessage,
@@ -45,6 +46,14 @@ export async function managedRefresh(): Promise<ManagedAuthState> {
 
 export async function managedAuthState(): Promise<ManagedAuthState> {
   return (await send({ type: "auth.getState" })) as ManagedAuthState;
+}
+
+export async function managedAccount(baseUrl: string): Promise<ManagedAccount> {
+  return (await send({ type: "managed.account", payload: { baseUrl } })) as ManagedAccount;
+}
+
+export async function managedCheckout(baseUrl: string, planId?: string): Promise<ManagedCheckoutResult> {
+  return (await send({ type: "managed.checkout", payload: { baseUrl, planId } })) as ManagedCheckoutResult;
 }
 
 interface ServerTranslateResponse {

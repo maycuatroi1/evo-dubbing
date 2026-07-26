@@ -5,6 +5,7 @@ interface FormFileDescriptor {
   base64: string;
 }
 
+import { createManagedCheckout, fetchManagedAccount } from "../lib/managed/account.ts";
 import { getAuthState, refreshSession, signInWithGoogle, signOut } from "../lib/managed/auth.ts";
 import { handleManagedTranslate, handleManagedTts } from "../lib/managed/client.ts";
 import {
@@ -39,6 +40,10 @@ async function handleRuntimeMessage(message: RuntimeMessage): Promise<RuntimeRes
         return await handleManagedTranslate(message.payload);
       case "managed.tts":
         return await handleManagedTts(message.payload);
+      case "managed.account":
+        return await fetchManagedAccount(message.payload.baseUrl);
+      case "managed.checkout":
+        return await createManagedCheckout(message.payload.baseUrl, message.payload.planId);
     }
   } catch (err) {
     return { ok: false, status: 0, code: "internal_error", error: err instanceof Error ? err.message : String(err) };
@@ -128,6 +133,11 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (message?.type === "fetchProxy") {
     handleFetchProxy(message as FetchProxyRequest).then(sendResponse);
     return true;
+  }
+  if (message?.type === "openOptionsPage") {
+    chrome.runtime.openOptionsPage();
+    sendResponse({ ok: true });
+    return false;
   }
   if (isRuntimeMessage(message)) {
     handleRuntimeMessage(message).then(sendResponse);

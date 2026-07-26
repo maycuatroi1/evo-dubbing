@@ -31,7 +31,18 @@ export type AuthMessage =
 
 export type ManagedMessage =
   | { type: "managed.translate"; payload: ManagedTranslatePayload }
-  | { type: "managed.tts"; payload: ManagedTtsPayload };
+  | { type: "managed.tts"; payload: ManagedTtsPayload }
+  | { type: "managed.account"; payload: ManagedAccountPayload }
+  | { type: "managed.checkout"; payload: ManagedCheckoutPayload };
+
+export interface ManagedAccountPayload {
+  baseUrl: string;
+}
+
+export interface ManagedCheckoutPayload {
+  baseUrl: string;
+  planId?: string;
+}
 
 export type RuntimeMessage = AuthMessage | ManagedMessage;
 
@@ -43,7 +54,9 @@ export const RUNTIME_MESSAGE_TYPES: RuntimeMessageType[] = [
   "auth.refresh",
   "auth.getState",
   "managed.translate",
-  "managed.tts"
+  "managed.tts",
+  "managed.account",
+  "managed.checkout"
 ];
 
 export type RuntimeResponse =

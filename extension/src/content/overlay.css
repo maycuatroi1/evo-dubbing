@@ -144,6 +144,19 @@
   color: #ff8a8a;
 }
 
+.evo-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.evo-disclosure {
+  font-size: 11px;
+  color: #7d86a5;
+  border-top: 1px solid #232a47;
+  padding-top: 10px;
+}
+
 .evo-share {
   display: flex;
   flex-direction: column;

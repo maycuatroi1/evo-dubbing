@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -15,6 +15,29 @@
           <p class="muted">Your API keys stay in this browser and are never sent to the share server.</p>
         </div>
       </header>
+
+      <section class="card">
+        <h2>Chế độ sử dụng</h2>
+        <label class="field checkbox">
+          <input id="modeByok" type="radio" name="billingMode" value="byok" />
+          <span>BYOK miễn phí, không cần đăng nhập</span>
+        </label>
+        <p class="muted">Dùng API key của riêng bạn (phần API keys bên dưới). Không cần tài khoản, không gửi key lên server managed.</p>
+        <label class="field checkbox">
+          <input id="modeManaged" type="radio" name="billingMode" value="managed" />
+          <span>Managed - không cần API key</span>
+        </label>
+        <p class="muted">Gói 199.000 VND cho khoảng 300 phút nguồn trong 30 ngày. Tùy chọn, không bắt buộc cho người dùng BYOK.</p>
+      </section>
+
+      <section class="card" id="managedCard">
+        <h2>Managed dubbing</h2>
+        <label class="field">
+          <span>Managed server URL</span>
+          <input id="managedBaseUrl" type="text" placeholder="https://managed.example.com" />
+        </label>
+        <div id="managedState"></div>
+      </section>
 
       <section class="card">
         <h2>API keys</h2>

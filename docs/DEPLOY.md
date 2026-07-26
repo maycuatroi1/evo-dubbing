@@ -1,4 +1,4 @@
-# DEPLOY - external services, credentials, rotation
+﻿# DEPLOY - external services, credentials, rotation
 
 Mọi secret thật đi qua credential store (`evo cred`, `~/.omelet.d/credentials/`) và deployment env.
 Git chỉ chứa tên biến và dashboard location. Owner mọi mục: Bình (sometimesocrazy@gmail.com) trừ khi ghi khác.
@@ -80,6 +80,26 @@ Các bước owner còn phải làm (không làm được từ repo):
 3. Sau khi server có production URL: đăng ký webhook `https://<domain>/api/v1/billing/webhooks/payos` trong PayOS dashboard rồi gọi confirm-webhook để PayOS chấp nhận URL.
 4. Bật `MANAGED_CHECKOUT_ENABLED=1` và đặt `PAYOS_RETURN_URL_ALLOWLIST` đúng domain production trước khi mở checkout.
 5. Verify bằng một live payment do owner kiểm soát: đối chiếu PayOS dashboard, webhook log server và `GET /api/v1/account` (periods phải có đúng 1 period 30 ngày).
+
+## Manual UX matrix (owner-only, step 13 verify)
+
+Chỉ owner chạy được vì cần Chrome profile thật + Supabase + PayOS. Điều kiện: extension build có publishable key, server có `MANAGED_INFERENCE_ENABLED=1`, `MANAGED_TRIAL_ENABLED=1`, `MANAGED_CHECKOUT_ENABLED=1` (trừ case kiểm tra flag tắt). Mọi state phải hiển thị tiếng Việt đúng commercial contract (docs/BUSINESS_MODEL.md) và TUYỆT ĐỐI không có chữ auto-renew / tự động gia hạn / tự động trừ tiền.
+
+| # | State | Cách dựng | Kỳ vọng |
+|---|-------|-----------|---------|
+| 1 | Fresh install | Load unpacked lần đầu | Options mở, mặc định BYOK, managed card hiển thị nút "Đăng nhập bằng Google" + note BYOK không cần tài khoản |
+| 2 | Existing BYOK settings | Cài đè lên profile đã có API key + provider settings | API key, provider, model, voice giữ nguyên; managed card chỉ là tùy chọn, không ép đăng nhập |
+| 3 | Trial | Sign in Google, chưa mua gói | Managed card: "Đang dùng thử miễn phí", còn X/15 phút nguồn, nút PayOS |
+| 4 | Active | Tài khoản có period active | Card hiển thị phút còn lại, ngày kết thúc chu kỳ, copy gia hạn thủ công |
+| 5 | Queued renewal | Tài khoản đã trả thêm 1 lần khi còn active | Card hiển thị "Đã xếp lịch gia hạn", ngày bắt đầu chu kỳ mới, note không cộng dồn |
+| 6 | Expired | Trial hết + không còn period | Card hiển thị "Đã hết quota managed" + CTA PayOS + gợi ý BYOK |
+| 7 | Insufficient quota | Tài khoản sắp hết phút, Share full dub dài | Overlay chặn completeAll với ước tính phút nguồn cần vs còn, CTA PayOS + BYOK |
+| 8 | Budget disabled | Tắt `MANAGED_INFERENCE_ENABLED` | Card hiển thị "Managed đang tạm tắt" + hướng dẫn dùng BYOK; overlay lỗi 503 có nút mở cài đặt BYOK |
+| 9 | Provider outage | Server trả 503 cho inference | Overlay hiển thị "Dịch vụ managed tạm thời gián đoạn" + nút mở cài đặt BYOK |
+| 10 | Session expired | Token hết hạn, dub managed | Overlay lỗi 401 + nút "Đăng nhập lại", đăng nhập xong Re-dub được |
+| 11 | PayOS checkout | Bấm "Tạo link thanh toán PayOS" | Tab mới mở checkoutUrl PayOS, amount 199.000 VND; sau thanh toán "Làm mới trạng thái" phản ánh period mới |
+
+Mọi màn hình managed phải có: giá 199.000 VND, khoảng 300 phút nguồn / 30 ngày, gia hạn thủ công, không cộng dồn, đo theo phút nguồn, disclosure "Giọng đọc do AI tạo ra".
 
 ## Mailgun - HOÃN ĐẾN STEP 15
 

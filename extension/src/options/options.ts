@@ -1,6 +1,15 @@
 import { getSettings, saveSettings, saveKeys, DEFAULT_SETTINGS } from "../lib/storage.ts";
 import { listProviders, getProvider } from "../lib/providers/index.ts";
 import type { ProviderId } from "../lib/types.ts";
+import {
+  ManagedClientError,
+  managedAccount,
+  managedAuthState,
+  managedCheckout,
+  managedSignIn,
+  managedSignOut
+} from "../lib/managed/messages.ts";
+import { renderManagedCard, type ManagedCardHandlers } from "../lib/managed/onboarding.ts";
 
 function $<T extends HTMLElement>(id: string): T {
   const el = document.getElementById(id);
@@ -55,6 +64,9 @@ async function init() {
   ($("shareServerUrl") as HTMLInputElement).value = settings.shareServerUrl;
   ($("autoUpload") as HTMLInputElement).checked = settings.autoUpload;
   ($("defaultVisibility") as HTMLSelectElement).value = settings.defaultVisibility;
+  ($("managedBaseUrl") as HTMLInputElement).value = settings.managedBaseUrl;
+  ($("modeByok") as HTMLInputElement).checked = settings.billingMode !== "managed";
+  ($("modeManaged") as HTMLInputElement).checked = settings.billingMode === "managed";
 
   const duck = $("duckVolume") as HTMLInputElement;
   duck.value = String(settings.duckVolume);
@@ -73,12 +85,12 @@ async function init() {
     settings.sttProvider
   );
 
+  fillProviderModels(settings.translateProvider, "translate");
+  fillProviderModels(settings.ttsProvider, "tts");
+
   ($("translateModel") as HTMLSelectElement).value = settings.translateModel;
   ($("ttsModel") as HTMLSelectElement).value = settings.ttsModel;
   ($("voice") as HTMLSelectElement).value = settings.voice;
-
-  fillProviderModels(settings.translateProvider, "translate");
-  fillProviderModels(settings.ttsProvider, "tts");
 
   ($("translateProvider") as HTMLSelectElement).addEventListener("change", (e) => {
     fillProviderModels((e.target as HTMLSelectElement).value as ProviderId, "translate");
@@ -88,6 +100,79 @@ async function init() {
   });
 
   $("save").addEventListener("click", onSave);
+  $("managedBaseUrl").addEventListener("change", () => void refreshManagedCard());
+  await refreshManagedCard();
+}
+
+function managedBaseUrl(): string {
+  return ($("managedBaseUrl") as HTMLInputElement).value.trim();
+}
+
+const managedHandlers: ManagedCardHandlers = {
+  onSignIn() {
+    void (async () => {
+      try {
+        await managedSignIn();
+        await refreshManagedCard();
+      } catch (err) {
+        renderManagedCard($("managedState"), {
+          signedIn: false,
+          account: null,
+          error: err instanceof Error ? err.message : String(err)
+        }, managedHandlers);
+      }
+    })();
+  },
+  onSignOut() {
+    void (async () => {
+      await managedSignOut().catch(() => undefined);
+      await refreshManagedCard();
+    })();
+  },
+  onCheckout() {
+    void (async () => {
+      const root = $("managedState");
+      try {
+        const result = await managedCheckout(managedBaseUrl());
+        window.open(result.checkoutUrl, "_blank");
+      } catch (err) {
+        renderManagedCard(root, {
+          signedIn: true,
+          account: null,
+          error: err instanceof Error ? err.message : String(err)
+        }, managedHandlers);
+        return;
+      }
+      await refreshManagedCard();
+    })();
+  },
+  onRefresh() {
+    void refreshManagedCard();
+  }
+};
+
+async function refreshManagedCard(): Promise<void> {
+  const root = $("managedState");
+  try {
+    const auth = await managedAuthState();
+    if (!auth.signedIn) {
+      renderManagedCard(root, { signedIn: false, account: null }, managedHandlers);
+      return;
+    }
+    const account = await managedAccount(managedBaseUrl());
+    renderManagedCard(root, { signedIn: true, account }, managedHandlers);
+  } catch (err) {
+    const status = err instanceof ManagedClientError ? err.status : 0;
+    if (status === 401) {
+      renderManagedCard(root, { signedIn: false, account: null }, managedHandlers);
+    } else {
+      renderManagedCard(root, {
+        signedIn: true,
+        account: null,
+        error: err instanceof Error ? err.message : String(err)
+      }, managedHandlers);
+    }
+  }
 }
 
 async function onSave() {
@@ -111,7 +196,9 @@ async function onSave() {
     translateModel: ($("translateModel") as HTMLSelectElement).value,
     shareServerUrl: ($("shareServerUrl") as HTMLInputElement).value.trim().replace(/\/$/, ""),
     autoUpload: ($("autoUpload") as HTMLInputElement).checked,
-    defaultVisibility: ($("defaultVisibility") as HTMLSelectElement).value as "public" | "private"
+    defaultVisibility: ($("defaultVisibility") as HTMLSelectElement).value as "public" | "private",
+    billingMode: ($("modeManaged") as HTMLInputElement).checked ? "managed" : "byok",
+    managedBaseUrl: ($("managedBaseUrl") as HTMLInputElement).value.trim().replace(/\/+$/, "")
   });
   status.textContent = "Saved";
   setTimeout(() => (status.textContent = ""), 1500);

@@ -1,10 +1,16 @@
 import type { DubbingProgress, VideoContext } from "../lib/types.ts";
+import { AI_VOICE_DISCLOSURE } from "../lib/managed/onboarding.ts";
 
 export interface OverlayHandlers {
   onDub: (targetLang: string) => void;
   onTogglePlay: () => void;
   onRedub: () => void;
   onShare: (visibility: "public" | "private") => void;
+}
+
+export interface OverlayAction {
+  label: string;
+  onClick: () => void;
 }
 
 function h<K extends keyof HTMLElementTagNameMap>(
@@ -31,6 +37,7 @@ export class EvoOverlay {
   private dubBtn!: HTMLButtonElement;
   private progressBar!: HTMLSpanElement;
   private statusEl!: HTMLDivElement;
+  private statusActions!: HTMLDivElement;
   private readyControls!: HTMLDivElement;
   private playBtn!: HTMLButtonElement;
   private shareSection!: HTMLDivElement;
@@ -58,6 +65,7 @@ export class EvoOverlay {
     this.progressBar = h("span");
     const progressWrap = h("div", { class: "evo-progress evo-hidden" }, [this.progressBar]);
     this.statusEl = h("div", { class: "evo-status" });
+    this.statusActions = h("div", { class: "evo-actions evo-hidden" });
 
     this.playBtn = h("button", { class: "evo-btn", textContent: "Pause dub" });
     this.playBtn.addEventListener("click", () => this.handlers.onTogglePlay());
@@ -93,8 +101,10 @@ export class EvoOverlay {
       this.dubBtn,
       progressWrap,
       this.statusEl,
+      this.statusActions,
       this.readyControls,
-      this.shareSection
+      this.shareSection,
+      h("div", { class: "evo-disclosure", textContent: AI_VOICE_DISCLOSURE })
     ]);
 
     this.panel = h("div", { id: "evo-dub-panel", class: "evo-hidden" }, [head, body]);
@@ -119,6 +129,7 @@ export class EvoOverlay {
     this.dubBtn.disabled = busy;
     const pct = progress.total > 0 ? Math.round((progress.current / progress.total) * 100) : 0;
     this.progressBar.style.width = `${pct}%`;
+    this.clearActions();
     this.statusEl.classList.remove("error");
     this.statusEl.textContent = progress.total > 1 ? `${progress.message} (${progress.current}/${progress.total})` : progress.message;
   }
@@ -148,7 +159,24 @@ export class EvoOverlay {
     this.statusEl.textContent = message;
   }
 
+  setActionError(message: string, actions: OverlayAction[]): void {
+    this.setError(message);
+    this.statusActions.innerHTML = "";
+    for (const action of actions) {
+      const btn = h("button", { class: "evo-btn secondary", textContent: action.label });
+      btn.addEventListener("click", () => action.onClick());
+      this.statusActions.append(btn);
+    }
+    this.statusActions.classList.remove("evo-hidden");
+  }
+
+  private clearActions(): void {
+    this.statusActions.classList.add("evo-hidden");
+    this.statusActions.innerHTML = "";
+  }
+
   setShareStatus(message: string): void {
+    this.clearActions();
     this.statusEl.classList.remove("error");
     this.statusEl.textContent = message;
   }
@@ -166,6 +194,7 @@ export class EvoOverlay {
     this.shareSection.classList.add("evo-hidden");
     (this.progressBar.parentElement as HTMLElement).classList.add("evo-hidden");
     this.progressBar.style.width = "0%";
+    this.clearActions();
     this.statusEl.classList.remove("error");
     this.statusEl.textContent = "";
   }
