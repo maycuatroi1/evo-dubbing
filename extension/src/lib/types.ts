@@ -51,6 +51,8 @@ export interface VideoContext {
   title: string;
   url: string;
   durationMs: number;
+  channelId?: string;
+  channelName?: string;
 }
 
 export interface ProviderKeys {

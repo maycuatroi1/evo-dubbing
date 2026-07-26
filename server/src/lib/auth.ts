@@ -30,6 +30,10 @@ export type VerifyResult =
   | { ok: true; userId: string }
   | { ok: false; code: string; message: string };
 
+export type VerifyIdentityResult =
+  | { ok: true; userId: string; email: string }
+  | { ok: false; code: string; message: string };
+
 export class SupabaseAuthenticator {
   private config: AuthConfig;
   private jwks: JWTVerifyGetKey;
@@ -49,6 +53,25 @@ export class SupabaseAuthenticator {
         return { ok: false, code: V1_ERROR_CODES.invalidToken, message: "token subject missing" };
       }
       return { ok: true, userId: payload.sub };
+    } catch (err) {
+      if (err instanceof joseErrors.JWTExpired) {
+        return { ok: false, code: V1_ERROR_CODES.tokenExpired, message: "access token expired" };
+      }
+      return { ok: false, code: V1_ERROR_CODES.invalidToken, message: "invalid access token" };
+    }
+  }
+
+  async verifyIdentity(token: string): Promise<VerifyIdentityResult> {
+    try {
+      const { payload } = await jwtVerify(token, this.jwks, {
+        issuer: this.config.issuer,
+        audience: this.config.audience
+      });
+      if (typeof payload.sub !== "string" || !payload.sub) {
+        return { ok: false, code: V1_ERROR_CODES.invalidToken, message: "token subject missing" };
+      }
+      const email = typeof payload.email === "string" ? payload.email.toLowerCase() : "";
+      return { ok: true, userId: payload.sub, email };
     } catch (err) {
       if (err instanceof joseErrors.JWTExpired) {
         return { ok: false, code: V1_ERROR_CODES.tokenExpired, message: "access token expired" };

@@ -212,6 +212,9 @@ export const creatorOutreach = pgTable(
     platform: text("platform").notNull(),
     handle: text("handle").notNull(),
     channelUrl: text("channel_url").notNull().default(""),
+    videoId: text("video_id").notNull().default(""),
+    channelId: text("channel_id").notNull().default(""),
+    creatorEmail: text("creator_email").notNull().default(""),
     status: text("status").notNull().default("new"),
     notes: text("notes").notNull().default(""),
     lastContactedAt: timestamp("last_contacted_at", { withTimezone: true }),
@@ -219,7 +222,8 @@ export const creatorOutreach = pgTable(
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
   },
   (t) => ({
-    creatorUnique: uniqueIndex("creator_outreach_creator_idx").on(t.platform, t.handle)
+    creatorUnique: uniqueIndex("creator_outreach_creator_idx").on(t.platform, t.handle),
+    videoUnique: uniqueIndex("creator_outreach_video_idx").on(t.platform, t.videoId)
   })
 );
 
@@ -230,6 +234,9 @@ export const takedownRequests = pgTable(
     dubId: uuid("dub_id").references(() => dubs.id, { onDelete: "set null" }),
     idempotencyKey: text("idempotency_key").notNull(),
     reporterEmail: text("reporter_email").notNull(),
+    platform: text("platform").notNull().default(""),
+    videoId: text("video_id").notNull().default(""),
+    previousVisibility: text("previous_visibility").notNull().default(""),
     reason: text("reason").notNull().default(""),
     status: text("status").notNull().default("open"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
@@ -248,3 +255,36 @@ export type UsageEventRow = typeof usageEvents.$inferSelect;
 export type DailyProductEventRow = typeof dailyProductEvents.$inferSelect;
 export type CreatorOutreachRow = typeof creatorOutreach.$inferSelect;
 export type TakedownRequestRow = typeof takedownRequests.$inferSelect;
+
+export const playbackEventDedupe = pgTable(
+  "playback_event_dedupe",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    platform: text("platform").notNull(),
+    videoId: text("video_id").notNull(),
+    day: date("day").notNull(),
+    installHash: text("install_hash").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow()
+  },
+  (t) => ({
+    dedupeUnique: uniqueIndex("playback_event_dedupe_idx").on(t.platform, t.videoId, t.day, t.installHash)
+  })
+);
+
+export const playbackDailyTotals = pgTable(
+  "playback_daily_totals",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    platform: text("platform").notNull(),
+    videoId: text("video_id").notNull(),
+    day: date("day").notNull(),
+    starts: integer("starts").notNull().default(0)
+  },
+  (t) => ({
+    rollupUnique: uniqueIndex("playback_daily_totals_rollup_idx").on(t.platform, t.videoId, t.day),
+    startsNonNegative: check("playback_daily_totals_starts_non_negative", sql`${t.starts} >= 0`)
+  })
+);
+
+export type PlaybackEventDedupeRow = typeof playbackEventDedupe.$inferSelect;
+export type PlaybackDailyTotalRow = typeof playbackDailyTotals.$inferSelect;

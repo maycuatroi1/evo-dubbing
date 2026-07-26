@@ -50,6 +50,18 @@ function videoIdFromUrl(url: string): string | null {
   }
 }
 
+function channelFromDom(): { channelId: string; channelName: string } {
+  const link = document.querySelector<HTMLAnchorElement>(
+    "ytd-video-owner-renderer ytd-channel-name a, #owner ytd-channel-name a"
+  );
+  const href = link?.getAttribute("href") ?? "";
+  const match = /^\/(channel\/[A-Za-z0-9_-]+|@[A-Za-z0-9_.-]+)/.exec(href);
+  return {
+    channelId: match ? match[1].replace(/^channel\//, "") : "",
+    channelName: link?.textContent?.trim() ?? ""
+  };
+}
+
 export const youtubePlatform: Platform = {
   id: "youtube",
 
@@ -63,12 +75,15 @@ export const youtubePlatform: Platform = {
       const fallbackId = videoIdFromUrl(location.href);
       if (!fallbackId) return null;
       const video = this.getVideoElement();
+      const dom = channelFromDom();
       return {
         platform: "youtube",
         videoId: fallbackId,
         title: document.title.replace(/ - YouTube$/, ""),
         url: location.href,
-        durationMs: video ? Math.round(video.duration * 1000) : 0
+        durationMs: video ? Math.round(video.duration * 1000) : 0,
+        channelId: dom.channelId,
+        channelName: dom.channelName
       };
     }
     return {
@@ -76,7 +91,9 @@ export const youtubePlatform: Platform = {
       videoId: res.info.videoId,
       title: res.info.title,
       url: location.href,
-      durationMs: res.info.durationMs
+      durationMs: res.info.durationMs,
+      channelId: res.info.channelId ?? "",
+      channelName: res.info.channelName ?? ""
     };
   },
 

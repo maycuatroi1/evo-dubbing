@@ -101,15 +101,38 @@ Chỉ owner chạy được vì cần Chrome profile thật + Supabase + PayOS. 
 
 Mọi màn hình managed phải có: giá 199.000 VND, khoảng 300 phút nguồn / 30 ngày, gia hạn thủ công, không cộng dồn, đo theo phút nguồn, disclosure "Giọng đọc do AI tạo ra".
 
-## Mailgun - HOÃN ĐẾN STEP 15
+## Mailgun - creator outreach (step 15, owner-only)
 
-Dashboard: https://app.mailgun.com (chưa có tài khoản). Chỉ phục vụ creator outreach (step 15), không chặn auth/billing.
+Dashboard: https://app.mailgun.com. Chỉ phục vụ creator outreach, không chặn auth/billing.
+
+Code đã xong (step 15): extension gửi `POST /api/v1/events/playback` (không auth, chỉ random installation ID; server HMAC install ID với key xoay theo ngày `PRODUCT_EVENT_HMAC_SECRET`, dedupe per (video, day, hashed install), chỉ giữ daily aggregate `playback_daily_totals` lâu dài). Video đạt 1.000 deduped playback starts tạo đúng 1 `creator_outreach` pending. Admin page `/admin` (yêu cầu Supabase access token có email trong `ADMIN_EMAIL_ALLOWLIST`) cho operator tự mở trang Business Inquiry của kênh, nhập email creator đang công khai (YouTube Data API không cung cấp email và plan cấm scrape), duyệt template rồi gửi qua Mailgun; email notice nói rõ video vẫn phát bình thường trên YouTube kèm signed takedown URL (HMAC `TAKEDOWN_TOKEN_SECRET`, TTL `TAKEDOWN_TOKEN_TTL_HOURS`). `GET /api/v1/takedown?token=...` unpublish ngay mọi public dub của source video + ghi audit `takedown_requests`; restore thủ công qua `POST /api/v1/admin/takedown/restore` (admin, audited).
 
 | Biến | Trạng thái |
 |------|-----------|
 | `MAILGUN_API_KEY` | Pending |
 | `MAILGUN_DOMAIN` | Pending |
 | `MAILGUN_FROM` | Pending |
+| `PRODUCT_EVENT_HMAC_SECRET` | Pending - random 32+ bytes, `evo cred` + deployment env |
+| `TAKEDOWN_TOKEN_SECRET` | Pending - random 32+ bytes, `evo cred` + deployment env |
+| `TAKEDOWN_TOKEN_TTL_HOURS` | Mặc định 720 (30 ngày) |
+| `ADMIN_EMAIL_ALLOWLIST` | CSV email admin, ví dụ `sometimesocrazy@gmail.com` |
+| `OUTREACH_BASE_URL` | Production URL của server (dùng build takedown link trong email) |
+
+Các bước owner còn phải làm (không làm được từ repo):
+
+1. Tạo tài khoản Mailgun tại https://signup.mailgun.com (free tier đủ cho outreach volume thấp).
+2. Thêm sending domain (khuyến nghị subdomain dạng `mg.<domain>`), trỏ DNS records (TXT/MX/CNAME) theo Mailgun dashboard và chờ verify xanh.
+3. Lấy `MAILGUN_API_KEY` (Settings -> API Keys -> Private API key), đặt `MAILGUN_DOMAIN` và `MAILGUN_FROM` (ví dụ `evo-dubbing <outreach@mg.<domain>>`) vào credential store (`evo cred`) và deployment env. KHÔNG commit giá trị thật.
+4. Sinh `PRODUCT_EVENT_HMAC_SECRET` và `TAKEDOWN_TOKEN_SECRET` (ví dụ `openssl rand -hex 32`), nạp vào credential store và deployment env.
+5. Đặt `ADMIN_EMAIL_ALLOWLIST` = email Google của owner (khớp claim `email` trong Supabase access token) và `OUTREACH_BASE_URL` = production URL.
+6. Gửi test tới owner để verify DNS + key trước khi outreach thật:
+
+```powershell
+$key = evo cred get evo_dubbing.mailgun_api_key
+curl.exe -s --user "api:$key" https://api.mailgun.net/v3/<MAILGUN_DOMAIN>/messages -F from="evo-dubbing <outreach@<MAILGUN_DOMAIN>>" -F to="sometimesocrazy@gmail.com" -F subject="evo-dubbing mailgun test" -F text="Mailgun sending domain OK."
+```
+
+Kỳ vọng: response JSON có `id`, email tới hộp thư owner (kiểm tra cả spam), Mailgun dashboard -> Logs hiện delivered.
 
 ## Provider thắng benchmark (server credentials, nạp qua deployment env ở step 18)
 

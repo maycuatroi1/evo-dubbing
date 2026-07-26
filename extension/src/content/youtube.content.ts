@@ -9,6 +9,7 @@ import {
   managedCheckout,
   managedLookupDub,
   managedSignIn,
+  reportPlaybackStarted,
   type ManagedSharedDub
 } from "../lib/managed/messages.ts";
 import { MANAGED_ACTION_COPY, MANAGED_ERROR_COPY } from "../lib/managed/onboarding.ts";
@@ -188,6 +189,14 @@ async function onDub(targetLang: string): Promise<void> {
         await session.startRemote(remoteToDub(remote));
         overlay?.setVisibility(remote.visibility);
         overlay?.setShareStatus("Playing a shared dub (free)");
+        const eventsBaseUrl = settings.billingMode === "managed" ? settings.managedBaseUrl : settings.shareServerUrl;
+        void reportPlaybackStarted({
+          baseUrl: eventsBaseUrl,
+          platform: context.platform,
+          videoId: context.videoId,
+          channelId: context.channelId,
+          channelName: context.channelName
+        }).catch(() => undefined);
         return;
       }
     }

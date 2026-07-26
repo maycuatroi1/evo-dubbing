@@ -1,6 +1,7 @@
 import type { ManagedAccount, ManagedCheckoutResult } from "./account.ts";
 import type {
   AuthMessage,
+  EventsPlaybackPayload,
   ManagedLookupDubPayload,
   ManagedMessage,
   ManagedTranslatePayload,
@@ -92,6 +93,10 @@ export async function managedLookupDub(payload: ManagedLookupDubPayload): Promis
     if (err instanceof ManagedClientError && err.status === 404) return null;
     throw err;
   }
+}
+
+export async function reportPlaybackStarted(payload: EventsPlaybackPayload): Promise<void> {
+  await send({ type: "events.playback", payload });
 }
 
 interface ServerTranslateResponse {

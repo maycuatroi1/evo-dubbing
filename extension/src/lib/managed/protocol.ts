@@ -34,7 +34,16 @@ export type ManagedMessage =
   | { type: "managed.tts"; payload: ManagedTtsPayload }
   | { type: "managed.account"; payload: ManagedAccountPayload }
   | { type: "managed.checkout"; payload: ManagedCheckoutPayload }
-  | { type: "managed.lookupDub"; payload: ManagedLookupDubPayload };
+  | { type: "managed.lookupDub"; payload: ManagedLookupDubPayload }
+  | { type: "events.playback"; payload: EventsPlaybackPayload };
+
+export interface EventsPlaybackPayload {
+  baseUrl: string;
+  platform: string;
+  videoId: string;
+  channelId?: string;
+  channelName?: string;
+}
 
 export interface ManagedLookupDubPayload {
   baseUrl: string;
@@ -66,7 +75,8 @@ export const RUNTIME_MESSAGE_TYPES: RuntimeMessageType[] = [
   "managed.tts",
   "managed.account",
   "managed.checkout",
-  "managed.lookupDub"
+  "managed.lookupDub",
+  "events.playback"
 ];
 
 export type RuntimeResponse =
