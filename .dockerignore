@@ -1,0 +1,12 @@
+**/node_modules
+**/.next
+**/dist
+**/coverage
+benchmarks
+web
+docs
+.github
+.git
+*.md
+!server/README.md
+server/.env*

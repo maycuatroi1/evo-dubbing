@@ -5,6 +5,7 @@ import runtimeProtocol from "./runtime-protocol.mjs";
 import secretBoundary from "./secret-boundary.mjs";
 import envContract from "./env-contract.mjs";
 import modelCatalog from "./model-catalog.mjs";
+import costCatalog from "./cost-catalog.mjs";
 import workSpec from "./work-spec.mjs";
 import map from "./map.mjs";
 
@@ -16,6 +17,7 @@ const CHECKS = {
   "secret-boundary": secretBoundary,
   "env-contract": envContract,
   "model-catalog": modelCatalog,
+  "cost-catalog": costCatalog,
   "work-spec": workSpec,
   map
 };

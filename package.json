@@ -19,6 +19,8 @@
     "type:ext": "tsc --noEmit -p extension/tsconfig.json",
     "type:server": "tsc --noEmit -p server/tsconfig.json",
     "type:all": "npm run type:ext && npm run type:server",
+    "test": "npm test --workspace server && npm test --workspace extension",
+    "test:integration": "npm run db:migrate:test --workspace server",
     "verify": "node scripts/verify/index.mjs",
     "check": "npm run type:all && npm run verify",
     "benchmark:providers": "node scripts/benchmark/providers.mjs",

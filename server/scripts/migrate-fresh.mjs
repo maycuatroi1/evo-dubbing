@@ -34,21 +34,9 @@ function run(command, args, options = {}) {
 }
 
 let sql;
+let containerStarted = false;
 
-try {
-  const [nodeMajor] = process.versions.node.split(".").map(Number);
-  if (nodeMajor >= 23 || (nodeMajor === 22 && Number(process.versions.node.split(".")[1]) >= 6)) {
-    run(process.execPath, [
-      "--experimental-strip-types",
-      "--no-warnings",
-      "--test",
-      "src/lib/subscription.test.ts"
-    ]);
-    console.log("subscription helper unit tests: ok");
-  } else {
-    console.log("subscription helper unit tests: skipped (needs node >= 22.6)");
-  }
-
+function databaseUrlFromDocker() {
   run(docker, [
     "run",
     "--rm",
@@ -65,13 +53,30 @@ try {
     "127.0.0.1::5432",
     "postgres:16-alpine"
   ]);
+  containerStarted = true;
   const portOutput = run(docker, ["port", containerName, "5432/tcp"]);
   const port = portOutput.match(/:(\d+)\s*$/)?.[1];
   if (!port) {
     throw new Error("Docker did not publish the PostgreSQL port");
   }
+  return `postgres://evo:evo_test@127.0.0.1:${port}/evo_dubbing`;
+}
 
-  const databaseUrl = `postgres://evo:evo_test@127.0.0.1:${port}/evo_dubbing`;
+try {
+  const [nodeMajor] = process.versions.node.split(".").map(Number);
+  if (nodeMajor >= 23 || (nodeMajor === 22 && Number(process.versions.node.split(".")[1]) >= 6)) {
+    run(process.execPath, [
+      "--experimental-strip-types",
+      "--no-warnings",
+      "--test",
+      "src/lib/subscription.test.ts"
+    ]);
+    console.log("subscription helper unit tests: ok");
+  } else {
+    console.log("subscription helper unit tests: skipped (needs node >= 22.6)");
+  }
+
+  const databaseUrl = process.env.DATABASE_URL || databaseUrlFromDocker();
   sql = postgres(databaseUrl, { max: 1, connect_timeout: 1, onnotice: () => {} });
   let connected = false;
   for (let attempt = 0; attempt < 60; attempt += 1) {
@@ -146,5 +151,7 @@ try {
   if (sql) {
     await sql.end().catch(() => {});
   }
-  spawnSync(docker, ["stop", containerName], { encoding: "utf8" });
+  if (containerStarted) {
+    spawnSync(docker, ["stop", containerName], { encoding: "utf8" });
+  }
 }
