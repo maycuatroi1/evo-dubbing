@@ -7,9 +7,12 @@ import {
   ManagedClientError,
   managedAccount,
   managedCheckout,
-  managedSignIn
+  managedLookupDub,
+  managedSignIn,
+  type ManagedSharedDub
 } from "../lib/managed/messages.ts";
 import { MANAGED_ACTION_COPY, MANAGED_ERROR_COPY } from "../lib/managed/onboarding.ts";
+import { performShare } from "../lib/managed/share.ts";
 import type { Dub, Settings, VideoContext } from "../lib/types.ts";
 
 const platform = resolvePlatform(location.href);
@@ -20,7 +23,7 @@ let session: DubSession | null = null;
 let fromRemote = false;
 let uploadedDubId: string | null = null;
 
-function remoteToDub(remote: RemoteDub): Dub {
+function remoteToDub(remote: RemoteDub | ManagedSharedDub): Dub {
   return {
     id: remote.id,
     platform: remote.platform,
@@ -28,7 +31,7 @@ function remoteToDub(remote: RemoteDub): Dub {
     sourceLang: remote.sourceLang,
     targetLang: remote.targetLang,
     voice: remote.voice,
-    provider: remote.provider,
+    provider: remote.provider as Dub["provider"],
     title: remote.title,
     durationMs: remote.durationMs,
     visibility: remote.visibility,
@@ -155,15 +158,24 @@ async function onDub(targetLang: string): Promise<void> {
   try {
     if (settings.shareServerUrl) {
       overlay?.setProgress({ phase: "transcript", current: 0, total: 1, message: "Checking shared library" });
-      let remote: RemoteDub | null;
+      let remote: RemoteDub | ManagedSharedDub | null;
       try {
-        remote = await lookupDub(settings.shareServerUrl, {
-          platform: context.platform,
-          videoId: context.videoId,
-          targetLang,
-          voice: settings.voice,
-          provider: settings.ttsProvider
-        });
+        remote =
+          settings.billingMode === "managed"
+            ? await managedLookupDub({
+                baseUrl: settings.managedBaseUrl,
+                platform: context.platform,
+                videoId: context.videoId,
+                targetLang,
+                voiceProfileId: settings.managedVoiceProfileId
+              })
+            : await lookupDub(settings.shareServerUrl, {
+                platform: context.platform,
+                videoId: context.videoId,
+                targetLang,
+                voice: settings.voice,
+                provider: settings.ttsProvider
+              });
       } catch (err) {
         overlay?.setError(
           `Shared library lookup failed (${err instanceof Error ? err.message : String(err)}). ` +
@@ -182,6 +194,29 @@ async function onDub(targetLang: string): Promise<void> {
 
     fromRemote = false;
     await session.startGenerated(platform);
+  } catch (err) {
+    handleExportError(settings, err);
+  }
+}
+
+async function runShare(visibility: "public" | "private", settings: Settings, rightsAssertion: boolean): Promise<void> {
+  if (!session) return;
+  try {
+    const result = await performShare({
+      visibility,
+      billingMode: settings.billingMode,
+      rightsAssertion,
+      voiceProfileId: settings.managedVoiceProfileId,
+      completeAll: () => session!.completeAll((p) => overlay?.setProgress(p)),
+      upload: async (dub, meta) => {
+        dub.visibility = visibility;
+        overlay?.setShareStatus("Uploading dub...");
+        return uploadDub(settings.shareServerUrl, dub, meta);
+      }
+    });
+    uploadedDubId = result.id;
+    await saveOwnerToken(result.id, result.ownerToken);
+    overlay?.setShareStatus(`Shared (${result.visibility})`);
   } catch (err) {
     handleExportError(settings, err);
   }
@@ -212,17 +247,29 @@ async function shareCurrent(visibility: "public" | "private", settings: Settings
     }
   }
 
-  try {
-    const dub = await session.completeAll((p) => overlay?.setProgress(p));
-    dub.visibility = visibility;
-    overlay?.setShareStatus("Uploading dub...");
-    const result = await uploadDub(settings.shareServerUrl, dub);
-    uploadedDubId = result.id;
-    await saveOwnerToken(result.id, result.ownerToken);
-    overlay?.setShareStatus(`Shared (${result.visibility})`);
-  } catch (err) {
-    handleExportError(settings, err);
+  if (visibility === "public" && settings.billingMode === "managed") {
+    const estimateMs = session.estimateExportSourceMs();
+    let remainingMs: number | null = null;
+    try {
+      const account = await managedAccount(settings.managedBaseUrl);
+      remainingMs = account.remainingSourceMs;
+    } catch {
+      remainingMs = null;
+    }
+    overlay?.showShareConfirmation(
+      { estimateMs, remainingMs },
+      {
+        onConfirm: () => {
+          overlay?.hideShareConfirmation();
+          void runShare("public", settings, true);
+        },
+        onCancel: () => overlay?.hideShareConfirmation()
+      }
+    );
+    return;
   }
+
+  await runShare(visibility, settings, false);
 }
 
 function onTogglePlay(): void {

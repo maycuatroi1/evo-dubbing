@@ -33,7 +33,16 @@ export type ManagedMessage =
   | { type: "managed.translate"; payload: ManagedTranslatePayload }
   | { type: "managed.tts"; payload: ManagedTtsPayload }
   | { type: "managed.account"; payload: ManagedAccountPayload }
-  | { type: "managed.checkout"; payload: ManagedCheckoutPayload };
+  | { type: "managed.checkout"; payload: ManagedCheckoutPayload }
+  | { type: "managed.lookupDub"; payload: ManagedLookupDubPayload };
+
+export interface ManagedLookupDubPayload {
+  baseUrl: string;
+  platform: string;
+  videoId: string;
+  targetLang: string;
+  voiceProfileId: string;
+}
 
 export interface ManagedAccountPayload {
   baseUrl: string;
@@ -56,7 +65,8 @@ export const RUNTIME_MESSAGE_TYPES: RuntimeMessageType[] = [
   "managed.translate",
   "managed.tts",
   "managed.account",
-  "managed.checkout"
+  "managed.checkout",
+  "managed.lookupDub"
 ];
 
 export type RuntimeResponse =

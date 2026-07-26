@@ -31,6 +31,9 @@ export const dubs = pgTable(
     ownerTokenHash: text("owner_token_hash").notNull(),
     durationMs: integer("duration_ms").notNull().default(0),
     segmentCount: integer("segment_count").notNull().default(0),
+    generationProfile: text("generation_profile"),
+    voiceProfile: text("voice_profile"),
+    rightsAssertedAt: timestamp("rights_asserted_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
   },

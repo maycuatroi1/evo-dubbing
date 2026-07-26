@@ -2,6 +2,7 @@ import { eq, asc } from "drizzle-orm";
 import { db } from "@/db";
 import { dubs, dubSegments } from "@/db/schema";
 import { json, error, preflight, hashToken } from "@/lib/http";
+import { shapeDubResponse } from "@/lib/dubResponse";
 import { presignGet, deleteKeys } from "@/lib/r2";
 import { authorizeGet } from "@/lib/shareSecurity";
 
@@ -37,19 +38,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
     }))
   );
 
-  return json({
-    id: dub.id,
-    platform: dub.platform,
-    videoId: dub.videoId,
-    sourceLang: dub.sourceLang,
-    targetLang: dub.targetLang,
-    voice: dub.voice,
-    provider: dub.provider,
-    title: dub.title,
-    durationMs: dub.durationMs,
-    visibility: dub.visibility,
-    segments
-  });
+  return json(shapeDubResponse(dub, segments));
 }
 
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {

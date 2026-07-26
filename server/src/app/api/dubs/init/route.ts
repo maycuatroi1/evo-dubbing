@@ -8,6 +8,7 @@ import {
   validateInit,
   decideInit,
   pendingCutoff,
+  profileMetadataFromInit,
   RateLimiter,
   type InitInput
 } from "@/lib/shareSecurity";
@@ -77,6 +78,7 @@ export async function POST(request: Request) {
   const ownerToken = newOwnerToken();
   const visibility = body.visibility === "private" ? "private" : "public";
   const segments = body.segments!;
+  const profiles = profileMetadataFromInit(body);
 
   let dubId: string;
   try {
@@ -94,7 +96,10 @@ export async function POST(request: Request) {
         status: "pending",
         ownerTokenHash: hashToken(ownerToken),
         durationMs: body.durationMs ?? 0,
-        segmentCount: segments.length
+        segmentCount: segments.length,
+        generationProfile: profiles.generationProfile,
+        voiceProfile: profiles.voiceProfile,
+        rightsAssertedAt: profiles.rightsAssertedAt
       })
       .returning({ id: dubs.id });
     dubId = row.id;

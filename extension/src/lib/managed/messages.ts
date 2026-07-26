@@ -1,6 +1,7 @@
 import type { ManagedAccount, ManagedCheckoutResult } from "./account.ts";
 import type {
   AuthMessage,
+  ManagedLookupDubPayload,
   ManagedMessage,
   ManagedTranslatePayload,
   ManagedTranslateResult,
@@ -54,6 +55,43 @@ export async function managedAccount(baseUrl: string): Promise<ManagedAccount> {
 
 export async function managedCheckout(baseUrl: string, planId?: string): Promise<ManagedCheckoutResult> {
   return (await send({ type: "managed.checkout", payload: { baseUrl, planId } })) as ManagedCheckoutResult;
+}
+
+export interface ManagedSharedSegment {
+  idx: number;
+  startMs: number;
+  endMs: number;
+  originalText: string;
+  text: string;
+  audioUrl: string;
+  mime: string;
+}
+
+export interface ManagedSharedDub {
+  id: string;
+  platform: string;
+  videoId: string;
+  sourceLang: string;
+  targetLang: string;
+  voice: string;
+  provider: string;
+  title: string;
+  durationMs: number;
+  visibility: "public" | "private";
+  generationProfile: string | null;
+  voiceProfile: string | null;
+  rightsAssertedAt: string | null;
+  aiVoiceDisclosure: string;
+  segments: ManagedSharedSegment[];
+}
+
+export async function managedLookupDub(payload: ManagedLookupDubPayload): Promise<ManagedSharedDub | null> {
+  try {
+    return (await send({ type: "managed.lookupDub", payload })) as ManagedSharedDub;
+  } catch (err) {
+    if (err instanceof ManagedClientError && err.status === 404) return null;
+    throw err;
+  }
 }
 
 interface ServerTranslateResponse {

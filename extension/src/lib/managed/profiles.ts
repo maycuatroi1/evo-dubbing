@@ -10,6 +10,8 @@ export const MANAGED_VOICE_PROFILES: ManagedVoiceProfile[] = [
 
 export const DEFAULT_MANAGED_VOICE_PROFILE_ID = "vi-standard-female";
 
+export const MANAGED_GENERATION_PROFILE = "managed.gen.v1";
+
 export function getManagedVoiceProfile(id: string): ManagedVoiceProfile {
   return (
     MANAGED_VOICE_PROFILES.find((p) => p.id === id) ??

@@ -1,4 +1,5 @@
 import type { Dub, DubSegment } from "../types.ts";
+import type { ShareUploadMeta } from "../managed/share.ts";
 import { fetchJson, putBinary, HttpError } from "../net.ts";
 
 export interface RemoteSegment {
@@ -55,7 +56,8 @@ export async function lookupDub(serverUrl: string, q: LookupQuery): Promise<Remo
 
 export async function uploadDub(
   serverUrl: string,
-  dub: Dub
+  dub: Dub,
+  meta: ShareUploadMeta = {}
 ): Promise<{ id: string; ownerToken: string; visibility: "public" | "private" }> {
   const voiced = dub.segments.filter((s) => s.audio && s.text);
   const init = await fetchJson<InitResponse>(`${base(serverUrl)}/api/dubs/init`, {
@@ -71,6 +73,9 @@ export async function uploadDub(
       title: dub.title,
       durationMs: dub.durationMs,
       visibility: dub.visibility,
+      ...(meta.generationProfile ? { generationProfile: meta.generationProfile } : {}),
+      ...(meta.voiceProfile ? { voiceProfile: meta.voiceProfile } : {}),
+      ...(meta.rightsAssertion !== undefined ? { rightsAssertion: meta.rightsAssertion } : {}),
       segments: voiced.map((s) => ({
         idx: s.idx,
         startMs: s.startMs,

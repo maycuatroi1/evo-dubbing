@@ -25,7 +25,10 @@ const expectedSchema = {
     ["dubs", 12, "duration_ms", "integer", true, "0"],
     ["dubs", 13, "segment_count", "integer", true, "0"],
     ["dubs", 14, "created_at", "timestamp with time zone", true, "now()"],
-    ["dubs", 15, "updated_at", "timestamp with time zone", true, "now()"]
+    ["dubs", 15, "updated_at", "timestamp with time zone", true, "now()"],
+    ["dubs", 16, "generation_profile", "text", false, ""],
+    ["dubs", 17, "voice_profile", "text", false, ""],
+    ["dubs", 18, "rights_asserted_at", "timestamp with time zone", false, ""]
   ],
   constraints: [
     ["dub_segments", "dub_segments_dub_id_dubs_id_fk", "f", "FOREIGN KEY (dub_id) REFERENCES dubs(id) ON DELETE CASCADE"],

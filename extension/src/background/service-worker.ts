@@ -7,7 +7,7 @@ interface FormFileDescriptor {
 
 import { createManagedCheckout, fetchManagedAccount } from "../lib/managed/account.ts";
 import { getAuthState, refreshSession, signInWithGoogle, signOut } from "../lib/managed/auth.ts";
-import { handleManagedTranslate, handleManagedTts } from "../lib/managed/client.ts";
+import { handleManagedLookupDub, handleManagedTranslate, handleManagedTts } from "../lib/managed/client.ts";
 import {
   RUNTIME_MESSAGE_TYPES,
   type RuntimeMessage,
@@ -44,6 +44,8 @@ async function handleRuntimeMessage(message: RuntimeMessage): Promise<RuntimeRes
         return await fetchManagedAccount(message.payload.baseUrl);
       case "managed.checkout":
         return await createManagedCheckout(message.payload.baseUrl, message.payload.planId);
+      case "managed.lookupDub":
+        return await handleManagedLookupDub(message.payload);
     }
   } catch (err) {
     return { ok: false, status: 0, code: "internal_error", error: err instanceof Error ? err.message : String(err) };

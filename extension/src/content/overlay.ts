@@ -1,5 +1,10 @@
 import type { DubbingProgress, VideoContext } from "../lib/types.ts";
 import { AI_VOICE_DISCLOSURE } from "../lib/managed/onboarding.ts";
+import {
+  renderShareConfirmation,
+  type ShareConfirmationHandlers,
+  type ShareConfirmationView
+} from "../lib/managed/share.ts";
 
 export interface OverlayHandlers {
   onDub: (targetLang: string) => void;
@@ -41,6 +46,7 @@ export class EvoOverlay {
   private readyControls!: HTMLDivElement;
   private playBtn!: HTMLButtonElement;
   private shareSection!: HTMLDivElement;
+  private shareConfirm!: HTMLDivElement;
   private visibilitySelect!: HTMLSelectElement;
   private shareBtn!: HTMLButtonElement;
   private mounted = false;
@@ -85,6 +91,7 @@ export class EvoOverlay {
       h("div", { class: "evo-row" }, [h("label", { textContent: "Visibility" }), this.visibilitySelect]),
       this.shareBtn
     ]);
+    this.shareConfirm = h("div", { class: "evo-share-confirm evo-hidden" });
 
     const collapseBtn = h("button", { class: "evo-icon-btn", textContent: "-", title: "Collapse" });
     collapseBtn.addEventListener("click", () => this.togglePanel(false));
@@ -104,6 +111,7 @@ export class EvoOverlay {
       this.statusActions,
       this.readyControls,
       this.shareSection,
+      this.shareConfirm,
       h("div", { class: "evo-disclosure", textContent: AI_VOICE_DISCLOSURE })
     ]);
 
@@ -185,6 +193,16 @@ export class EvoOverlay {
     this.visibilitySelect.value = visibility;
   }
 
+  showShareConfirmation(view: ShareConfirmationView, handlers: ShareConfirmationHandlers): void {
+    this.shareConfirm.classList.remove("evo-hidden");
+    renderShareConfirmation(this.shareConfirm, view, handlers);
+  }
+
+  hideShareConfirmation(): void {
+    this.shareConfirm.classList.add("evo-hidden");
+    this.shareConfirm.innerHTML = "";
+  }
+
   reset(defaultLang: string): void {
     this.playing = false;
     this.langInput.value = defaultLang;
@@ -192,6 +210,7 @@ export class EvoOverlay {
     this.dubBtn.disabled = false;
     this.readyControls.classList.add("evo-hidden");
     this.shareSection.classList.add("evo-hidden");
+    this.hideShareConfirmation();
     (this.progressBar.parentElement as HTMLElement).classList.add("evo-hidden");
     this.progressBar.style.width = "0%";
     this.clearActions();

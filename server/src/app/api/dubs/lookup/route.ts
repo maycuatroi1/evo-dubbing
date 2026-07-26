@@ -2,6 +2,7 @@ import { and, eq, asc } from "drizzle-orm";
 import { db } from "@/db";
 import { dubs, dubSegments } from "@/db/schema";
 import { json, error, preflight } from "@/lib/http";
+import { shapeDubResponse } from "@/lib/dubResponse";
 import { presignGet } from "@/lib/r2";
 
 export const runtime = "nodejs";
@@ -53,17 +54,5 @@ export async function GET(request: Request) {
     }))
   );
 
-  return json({
-    id: dub.id,
-    platform: dub.platform,
-    videoId: dub.videoId,
-    sourceLang: dub.sourceLang,
-    targetLang: dub.targetLang,
-    voice: dub.voice,
-    provider: dub.provider,
-    title: dub.title,
-    durationMs: dub.durationMs,
-    visibility: dub.visibility,
-    segments
-  });
+  return json(shapeDubResponse(dub, segments));
 }

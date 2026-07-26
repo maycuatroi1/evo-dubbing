@@ -1,6 +1,7 @@
 import { getValidAccessToken } from "./auth.ts";
 import { normalizeBaseUrl } from "./config.ts";
-import type { ManagedTranslatePayload, ManagedTtsPayload, RuntimeResponse } from "./protocol.ts";
+import { MANAGED_GENERATION_PROFILE, getManagedVoiceProfile } from "./profiles.ts";
+import type { ManagedLookupDubPayload, ManagedTranslatePayload, ManagedTtsPayload, RuntimeResponse } from "./protocol.ts";
 
 async function ensureHostPermission(baseUrl: string): Promise<void> {
   const origin = new URL(baseUrl).origin + "/*";
@@ -88,4 +89,16 @@ export async function handleManagedTts(payload: ManagedTtsPayload): Promise<Runt
     text: payload.text,
     cue: { startMs, endMs }
   });
+}
+
+export async function handleManagedLookupDub(payload: ManagedLookupDubPayload): Promise<RuntimeResponse> {
+  const profile = getManagedVoiceProfile(payload.voiceProfileId);
+  const params = new URLSearchParams({
+    platform: payload.platform,
+    videoId: payload.videoId,
+    targetLang: payload.targetLang,
+    generationProfile: MANAGED_GENERATION_PROFILE,
+    voiceProfile: profile.version
+  });
+  return managedAuthedFetch(payload.baseUrl, `/api/v1/dubs/lookup?${params.toString()}`, { method: "GET" });
 }

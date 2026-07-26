@@ -22,6 +22,13 @@
                         "when":  1785024000000,
                         "tag":  "0002_managed_ledger",
                         "breakpoints":  true
+                    },
+                    {
+                        "idx":  3,
+                        "version":  "7",
+                        "when":  1785100800000,
+                        "tag":  "0003_shared_v1",
+                        "breakpoints":  true
                     }
                 ]
 }

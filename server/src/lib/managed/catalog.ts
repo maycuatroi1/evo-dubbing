@@ -41,6 +41,7 @@ export interface CatalogEntry {
 
 export const CATALOG_PRICE_DATE = "2026-07-25";
 export const MANAGED_CACHE_VERSION = 1;
+export const MANAGED_GENERATION_PROFILE = "managed.gen.v1";
 export const SPEECH_CHARS_PER_SECOND = 15;
 export const LENGTH_GUARD_TOLERANCE = 1.2;
 export const CHARS_PER_TOKEN = 3;

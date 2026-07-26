@@ -58,8 +58,13 @@ export interface InitInput {
   durationMs?: number;
   visibility?: string;
   ownerToken?: string;
+  generationProfile?: string;
+  voiceProfile?: string;
+  rightsAssertion?: boolean;
   segments?: InitSegmentInput[];
 }
+
+const PROFILE_PATTERN = /^[A-Za-z0-9_.:@-]{1,128}$/;
 
 export function validateInit(body: InitInput, maxSegments: number): CheckResult {
   const required = [body.platform, body.videoId, body.sourceLang, body.targetLang, body.voice, body.provider];
@@ -83,7 +88,44 @@ export function validateInit(body: InitInput, maxSegments: number): CheckResult 
     if (typeof s.text !== "string") return { ok: false, status: 400, message: "invalid segment text" };
     if (typeof s.mime !== "string" || !s.mime) return { ok: false, status: 400, message: "invalid segment mime" };
   }
+  if (
+    body.generationProfile !== undefined &&
+    (typeof body.generationProfile !== "string" || !PROFILE_PATTERN.test(body.generationProfile))
+  ) {
+    return { ok: false, status: 400, message: "invalid generationProfile" };
+  }
+  if (
+    body.voiceProfile !== undefined &&
+    (typeof body.voiceProfile !== "string" || !PROFILE_PATTERN.test(body.voiceProfile))
+  ) {
+    return { ok: false, status: 400, message: "invalid voiceProfile" };
+  }
+  if (body.rightsAssertion !== undefined && typeof body.rightsAssertion !== "boolean") {
+    return { ok: false, status: 400, message: "invalid rightsAssertion" };
+  }
+  const profiledShare = body.generationProfile !== undefined || body.voiceProfile !== undefined;
+  if (profiledShare && body.visibility !== "private" && body.rightsAssertion !== true) {
+    return {
+      ok: false,
+      status: 400,
+      message: "rights assertion required for public profiled shares"
+    };
+  }
   return { ok: true };
+}
+
+export interface InitProfileMetadata {
+  generationProfile: string | null;
+  voiceProfile: string | null;
+  rightsAssertedAt: Date | null;
+}
+
+export function profileMetadataFromInit(body: InitInput, now: Date = new Date()): InitProfileMetadata {
+  return {
+    generationProfile: typeof body.generationProfile === "string" ? body.generationProfile : null,
+    voiceProfile: typeof body.voiceProfile === "string" ? body.voiceProfile : null,
+    rightsAssertedAt: body.rightsAssertion === true ? now : null
+  };
 }
 
 export interface ExistingDubRef {
