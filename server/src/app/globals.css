@@ -758,3 +758,33 @@ a.card:hover {
   border: 0;
   border-top: 1px solid var(--evo-border);
 }
+
+.banner {
+  border: 1px solid var(--evo-border-strong);
+  border-left: 3px solid var(--evo-fg);
+  border-radius: var(--evo-radius-sm);
+  background: var(--evo-bg-muted);
+  padding: var(--evo-space-3);
+  font-size: var(--evo-text-body);
+  margin-bottom: var(--evo-space-4);
+}
+
+.banner--success {
+  border-left-color: var(--evo-fg);
+}
+
+.account-card {
+  margin-top: var(--evo-space-4);
+}
+
+.account-big {
+  margin: 0 0 var(--evo-space-2);
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.account-actions {
+  display: flex;
+  gap: var(--evo-space-2);
+  margin-top: var(--evo-space-4);
+}
