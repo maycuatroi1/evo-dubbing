@@ -21,3 +21,5 @@ drizzle/meta/
 .vscode/*
 !.vscode/extensions.json
 benchmarks/tts-vi/artifacts/
+test-results/
+playwright-report/

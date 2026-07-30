@@ -3,6 +3,48 @@
 Mọi secret thật đi qua credential store (`evo cred`, `~/.omelet.d/credentials/`) và deployment env.
 Git chỉ chứa tên biến và dashboard location. Owner mọi mục: Bình (sometimesocrazy@gmail.com) trừ khi ghi khác.
 
+## Production runbook (nghe.omelet.tech)
+
+Hạ tầng thật (verify tay 2026-07-30): VPS `42.96.16.233` (ssh alias `LongVan-Personal`), Caddy
+systemd reverse_proxy `nghe.omelet.tech -> 127.0.0.1:3000`, container docker `evo-dubbing-server`
+publish `127.0.0.1:3000:3000`, restart policy `unless-stopped`. Repo clone tại
+`/opt/evo-dubbing/repo`, env file tại `/opt/evo-dubbing/server.env` (chmod 600). Env chỉ nạp lại
+khi recreate container (đo thật: ~2.9s downtime mỗi lần recreate). Dokploy swarm KHÔNG dùng được
+trên VPS này ("node is not a swarm manager") - deploy thủ công bằng docker.
+
+### Deploy một bản mới
+
+```bash
+ssh LongVan-Personal
+cd /opt/evo-dubbing/repo
+git fetch origin main && git checkout main && git pull --ff-only
+SHA=$(git rev-parse --short HEAD)
+docker build -f server/Dockerfile -t evo-dubbing-server-$SHA .
+docker stop evo-dubbing-server && docker rm evo-dubbing-server
+docker run -d --name evo-dubbing-server --restart unless-stopped \
+  --env-file /opt/evo-dubbing/server.env \
+  -p 127.0.0.1:3000:3000 \
+  evo-dubbing-server-$SHA
+docker image prune -f
+```
+
+Smoke sau deploy (chạy từ máy local, không cần ssh):
+
+```powershell
+npm run test:e2e:prod
+```
+
+### Đổi env
+
+Sửa `/opt/evo-dubbing/server.env` (backup trước: `cp server.env server.env.bak-<label>`), rồi
+recreate container bằng đúng lệnh `docker stop/rm/run` ở trên với cùng image tag đang chạy.
+`docker restart` KHÔNG reload env.
+
+### Rollback
+
+Image tag trước đó vẫn còn trên VPS (`docker images | grep evo-dubbing-server`). Chạy lại lệnh
+`docker stop/rm/run` với tag cũ. Caddy phục vụ trở lại ngay vì port không đổi.
+
 ## Chrome Extension
 
 | Mục | Giá trị | Ghi chú |
