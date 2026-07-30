@@ -155,44 +155,49 @@ export function renderManagedCard(root: HTMLElement, view: ManagedCardView, hand
 
   if (!view.signedIn) {
     root.append(
-      el("p", "managed-line", MANAGED_TRIAL_COPY),
-      el("p", "managed-line", MANAGED_PLAN_COPY),
-      el("p", "managed-line muted", MANAGED_SIGNED_OUT_NOTE)
+      el("p", "evo-managed-line", MANAGED_TRIAL_COPY),
+      el("p", "evo-managed-line", MANAGED_PLAN_COPY),
+      el("p", "evo-managed-line evo-muted", MANAGED_SIGNED_OUT_NOTE)
     );
-    const signInBtn = el("button", "managed-btn", "Đăng nhập bằng Google");
+    const signInBtn = el("button", "evo-btn evo-btn--solid", "Đăng nhập bằng Google");
+    signInBtn.type = "button";
     signInBtn.addEventListener("click", () => handlers.onSignIn());
     root.append(signInBtn);
   } else if (!view.account) {
-    root.append(el("p", "managed-line error", view.error ?? "Không đọc được thông tin tài khoản managed."));
-    const retryBtn = el("button", "managed-btn secondary", "Thử lại");
+    root.append(el("p", "evo-managed-line evo-managed-line--error", view.error ?? "Không đọc được thông tin tài khoản managed."));
+    const retryBtn = el("button", "evo-btn evo-btn--outline", "Thử lại");
+    retryBtn.type = "button";
     retryBtn.addEventListener("click", () => handlers.onRefresh());
     root.append(retryBtn);
   } else {
     const state = classifyAccount(view.account, nowMs);
     const copy = managedStateCopy(state, view.account, nowMs);
-    root.append(el("p", "managed-state", copy.title));
+    root.append(el("p", "evo-managed-state", copy.title));
     for (const line of copy.lines) {
-      root.append(el("p", "managed-line", line));
+      root.append(el("p", "evo-managed-line", line));
     }
-    root.append(el("p", "managed-line muted", MANAGED_PLAN_COPY));
+    root.append(el("p", "evo-managed-line evo-muted", MANAGED_PLAN_COPY));
 
-    const actions = el("div", "managed-actions", null);
-    const checkoutBtn = el("button", "managed-btn", `${MANAGED_ACTION_COPY.checkout} - 199.000 VND`);
+    const actions = el("div", "evo-managed-actions", null);
+    const checkoutBtn = el("button", "evo-btn evo-btn--solid", `${MANAGED_ACTION_COPY.checkout} - 199.000 VND`);
+    checkoutBtn.type = "button";
     checkoutBtn.disabled = !view.account.flags.managedCheckout;
     checkoutBtn.addEventListener("click", () => handlers.onCheckout());
     actions.append(checkoutBtn);
     if (!view.account.flags.managedCheckout) {
-      actions.append(el("p", "managed-line muted", "Thanh toán chưa mở, vui lòng quay lại sau."));
+      actions.append(el("p", "evo-managed-line evo-muted", "Thanh toán chưa mở, vui lòng quay lại sau."));
     }
-    const refreshBtn = el("button", "managed-btn secondary", "Làm mới trạng thái");
+    const refreshBtn = el("button", "evo-btn evo-btn--outline", "Làm mới trạng thái");
+    refreshBtn.type = "button";
     refreshBtn.addEventListener("click", () => handlers.onRefresh());
-    const signOutBtn = el("button", "managed-btn secondary", "Đăng xuất");
+    const signOutBtn = el("button", "evo-btn evo-btn--outline", "Đăng xuất");
+    signOutBtn.type = "button";
     signOutBtn.addEventListener("click", () => handlers.onSignOut());
     actions.append(refreshBtn, signOutBtn);
     root.append(actions);
   }
 
-  const list = el("ul", "managed-disclosures", null);
+  const list = el("ul", "evo-managed-disclosures", null);
   for (const item of MANAGED_DISCLOSURES) {
     list.append(el("li", null, item));
   }

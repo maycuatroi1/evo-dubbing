@@ -4,6 +4,20 @@ Append at the end of every session. Newest first. Keep entries short: what chang
 verified, what the next session should pick up. This file is the only thing that survives a
 context window.
 
+## 2026-07-30 - extension UI redesign mono minimal + single-branch decision
+
+- Redesigned the extension UI to a light monochrome system (tokens.css, base.css primitives,
+  icon-mask SVGs, new icons rendered by `extension/scripts/render-icons.mjs`, popup/options/
+  overlay restyled, i18n module added, `web/privacy.html` and CWS listing copy drafted).
+- Owner decision: develop on a single branch. The whole WIP lands as one commit on
+  `feat/managed-dubbing-business-mvp`, merged `--no-ff` into `main`; the feature branch is
+  deleted afterwards. Every later step of plan `nghe-site-mvp` commits straight to `main`.
+- **Verified:** `npm run check`, `npm test` (126 server + 37 extension), `npm run
+  test:integration`, `npm run build:ext` all green; dist manifest keeps the `key` field so the
+  CWS Item ID `ligchebgiheiildjcnndjoalkpiamgko` is unchanged.
+- **Not verified:** no live dubbing run after the redesign; popup/options visuals checked only
+  via build and unit tests.
+
 ## 2026-07-25 - manual core acceptance
 
 - Built and loaded `extension/dist` unpacked in Microsoft Edge, then dubbed `aircAruvnKk`,

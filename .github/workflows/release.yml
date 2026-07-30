@@ -23,17 +23,21 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
 
-      - name: Build extension
-        run: npm run build:ext
-
       - name: Resolve version
         id: ver
         run: |
           if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
             echo "name=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+            echo "manifest=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
           else
             echo "name=manual-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+            echo "manifest=" >> "$GITHUB_OUTPUT"
           fi
+
+      - name: Build extension
+        env:
+          EXT_VERSION: ${{ steps.ver.outputs.manifest }}
+        run: npm run build:ext
 
       - name: Package extension
         run: |
@@ -59,3 +63,76 @@ jobs:
         with:
           name: evo-dubbing-extension-${{ steps.ver.outputs.name }}
           path: evo-dubbing-extension-${{ steps.ver.outputs.name }}.zip
+
+  chrome-web-store:
+    needs: release
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    environment: chrome-web-store
+    steps:
+      - name: Download package
+        uses: actions/download-artifact@v4
+        with:
+          name: evo-dubbing-extension-${{ github.ref_name }}
+
+      - name: Exchange refresh token for access token
+        id: token
+        env:
+          CLIENT_ID: ${{ secrets.CWS_CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CWS_CLIENT_SECRET }}
+          REFRESH_TOKEN: ${{ secrets.CWS_REFRESH_TOKEN }}
+        run: |
+          set -euo pipefail
+          response=$(curl -sS --fail-with-body "https://oauth2.googleapis.com/token" \
+            -d "client_id=${CLIENT_ID}" \
+            -d "client_secret=${CLIENT_SECRET}" \
+            -d "refresh_token=${REFRESH_TOKEN}" \
+            -d "grant_type=refresh_token")
+          token=$(echo "$response" | jq -r '.access_token // empty')
+          if [ -z "$token" ]; then
+            echo "No access_token in response. If this says invalid_grant, the refresh token was revoked or expired."
+            echo "$response" | jq -r 'del(.access_token)'
+            exit 1
+          fi
+          echo "::add-mask::$token"
+          echo "value=$token" >> "$GITHUB_OUTPUT"
+
+      - name: Upload package to Chrome Web Store
+        env:
+          TOKEN: ${{ steps.token.outputs.value }}
+          PUBLISHER_ID: ${{ secrets.CWS_PUBLISHER_ID }}
+          ITEM_ID: ${{ secrets.CWS_ITEM_ID }}
+        run: |
+          set -euo pipefail
+          zip_file=$(ls evo-dubbing-extension-*.zip)
+          response=$(curl -sS --fail-with-body -X POST \
+            -H "Authorization: Bearer ${TOKEN}" \
+            -T "$zip_file" \
+            "https://chromewebstore.googleapis.com/upload/v2/publishers/${PUBLISHER_ID}/items/${ITEM_ID}:upload")
+          echo "$response" | jq .
+          state=$(echo "$response" | jq -r '.uploadState // "UNKNOWN"')
+          if [ "$state" != "SUCCESS" ]; then
+            echo "Upload finished in state $state. A FAILURE here is usually the manifest version not being higher than the published one."
+            exit 1
+          fi
+
+      - name: Submit for review
+        if: vars.CWS_AUTO_PUBLISH == 'true'
+        env:
+          TOKEN: ${{ steps.token.outputs.value }}
+          PUBLISHER_ID: ${{ secrets.CWS_PUBLISHER_ID }}
+          ITEM_ID: ${{ secrets.CWS_ITEM_ID }}
+        run: |
+          set -euo pipefail
+          curl -sS --fail-with-body -X POST \
+            -H "Authorization: Bearer ${TOKEN}" \
+            -H "Content-Length: 0" \
+            "https://chromewebstore.googleapis.com/v2/publishers/${PUBLISHER_ID}/items/${ITEM_ID}:publish" | jq .
+
+      - name: Report
+        run: |
+          if [ "${{ vars.CWS_AUTO_PUBLISH }}" = "true" ]; then
+            echo "Uploaded and submitted for review." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Uploaded as a draft. Publish it from the Developer Dashboard, or set the CWS_AUTO_PUBLISH repo variable to true." >> "$GITHUB_STEP_SUMMARY"
+          fi

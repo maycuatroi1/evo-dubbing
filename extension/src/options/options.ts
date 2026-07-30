@@ -1,5 +1,7 @@
 import { getSettings, saveSettings, saveKeys, DEFAULT_SETTINGS } from "../lib/storage.ts";
 import { listProviders, getProvider } from "../lib/providers/index.ts";
+import { hydrate, t } from "../lib/i18n/index.ts";
+import { targetLanguageOptions } from "../lib/i18n/languages.ts";
 import type { ProviderId } from "../lib/types.ts";
 import {
   ManagedClientError,
@@ -55,11 +57,16 @@ function fillProviderModels(providerId: ProviderId, kind: "translate" | "tts") {
 }
 
 async function init() {
+  hydrate(document);
   const settings = await getSettings();
 
   ($("openaiKey") as HTMLInputElement).value = settings.keys.openai ?? "";
   ($("geminiKey") as HTMLInputElement).value = settings.keys.gemini ?? "";
-  ($("targetLang") as HTMLInputElement).value = settings.targetLang;
+  fillOptions(
+    $("targetLang"),
+    targetLanguageOptions(settings.targetLang).map((l) => ({ value: l.code, label: l.label })),
+    settings.targetLang
+  );
   ($("showSubtitles") as HTMLInputElement).checked = settings.showSubtitles;
   ($("shareServerUrl") as HTMLInputElement).value = settings.shareServerUrl;
   ($("autoUpload") as HTMLInputElement).checked = settings.autoUpload;
@@ -71,7 +78,10 @@ async function init() {
   const duck = $("duckVolume") as HTMLInputElement;
   duck.value = String(settings.duckVolume);
   const duckValue = $("duckValue");
-  const showDuck = () => (duckValue.textContent = `${Math.round(Number(duck.value) * 100)}% original volume`);
+  const showDuck = () =>
+    (duckValue.textContent = t("options.dubbing.duckValue", {
+      percent: Math.round(Number(duck.value) * 100)
+    }));
   duck.addEventListener("input", showDuck);
   showDuck();
 
@@ -188,7 +198,7 @@ async function onSave() {
     translateProvider: ($("translateProvider") as HTMLSelectElement).value as ProviderId,
     ttsProvider: ($("ttsProvider") as HTMLSelectElement).value as ProviderId,
     sttProvider: ($("sttProvider") as HTMLSelectElement).value as ProviderId,
-    targetLang: ($("targetLang") as HTMLInputElement).value.trim() || "vi",
+    targetLang: ($("targetLang") as HTMLSelectElement).value.trim() || "vi",
     voice: ($("voice") as HTMLSelectElement).value,
     duckVolume: Number(($("duckVolume") as HTMLInputElement).value),
     showSubtitles: ($("showSubtitles") as HTMLInputElement).checked,
@@ -200,8 +210,8 @@ async function onSave() {
     billingMode: ($("modeManaged") as HTMLInputElement).checked ? "managed" : "byok",
     managedBaseUrl: ($("managedBaseUrl") as HTMLInputElement).value.trim().replace(/\/+$/, "")
   });
-  status.textContent = "Saved";
-  setTimeout(() => (status.textContent = ""), 1500);
+  status.textContent = t("options.saved");
+  setTimeout(() => (status.textContent = ""), 2000);
 }
 
 init();

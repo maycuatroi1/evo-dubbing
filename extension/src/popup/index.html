@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,20 +7,46 @@
     <link rel="stylesheet" href="./popup.css" />
   </head>
   <body>
-    <div class="head">
-      <div class="logo">E</div>
-      <div class="title">evo-dubbing</div>
-    </div>
-    <div class="body">
-      <p class="hint">Open a YouTube video and use the floating panel to dub it.</p>
-      <div class="status">
-        <div class="row"><span>OpenAI key</span><b id="openaiState">-</b></div>
-        <div class="row"><span>Gemini key</span><b id="geminiState">-</b></div>
-        <div class="row"><span>Target language</span><b id="langState">-</b></div>
-        <div class="row"><span>Share server</span><b id="serverState">-</b></div>
-      </div>
-      <button id="openOptions" class="btn">Open settings</button>
-    </div>
+    <header class="evo-head">
+      <span class="evo-logo" aria-hidden="true"></span>
+      <h1 class="evo-brand" data-i18n="app.name">evo-dubbing</h1>
+    </header>
+
+    <main class="evo-body">
+      <p class="evo-hint" data-i18n="popup.tagline"></p>
+
+      <section class="evo-field">
+        <h2 class="evo-label" data-i18n="popup.stateHeading"></h2>
+        <dl class="evo-kv">
+          <div class="evo-kv-row">
+            <dt data-i18n="popup.mode"></dt>
+            <dd id="modeState">-</dd>
+          </div>
+          <div class="evo-kv-row">
+            <dt data-i18n="popup.targetLang"></dt>
+            <dd id="langState">-</dd>
+          </div>
+          <div class="evo-kv-row">
+            <dt data-i18n="popup.openaiKey"></dt>
+            <dd id="openaiState">-</dd>
+          </div>
+          <div class="evo-kv-row">
+            <dt data-i18n="popup.geminiKey"></dt>
+            <dd id="geminiState">-</dd>
+          </div>
+          <div class="evo-kv-row">
+            <dt data-i18n="popup.shareServer"></dt>
+            <dd id="serverState">-</dd>
+          </div>
+        </dl>
+      </section>
+
+      <button id="openOptions" type="button" class="evo-btn evo-btn--solid evo-btn--block">
+        <span class="evo-i evo-i-settings" aria-hidden="true"></span>
+        <span data-i18n="popup.openSettings"></span>
+      </button>
+    </main>
+
     <script type="module" src="./popup.ts"></script>
   </body>
 </html>

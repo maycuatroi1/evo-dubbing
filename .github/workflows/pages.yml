@@ -34,7 +34,7 @@ jobs:
       - name: Assemble site
         run: |
           mkdir -p site
-          cp web/index.html site/index.html
+          cp web/*.html site/
           cp -r extension/dist site/dist
           cd extension/dist
           zip -r "${GITHUB_WORKSPACE}/site/evo-dubbing-extension.zip" .

@@ -33,6 +33,28 @@ export interface SttRequest {
   language?: string;
 }
 
+export function parseTranslationsResponse(text: string): TranslatedSegment[] {
+  try {
+    const parsed = JSON.parse(text) as { translations?: TranslatedSegment[] };
+    return Array.isArray(parsed.translations) ? parsed.translations : [];
+  } catch {
+  }
+  const salvaged: TranslatedSegment[] = [];
+  const re = /\{\s*"idx"\s*:\s*(\d+)\s*,\s*"text"\s*:\s*"((?:[^"\\]|\\.)*)"\s*\}/g;
+  let match: RegExpExecArray | null;
+  while ((match = re.exec(text)) !== null) {
+    try {
+      salvaged.push({ idx: Number(match[1]), text: JSON.parse(`"${match[2]}"`) as string });
+    } catch {
+    }
+  }
+  if (salvaged.length > 0) {
+    console.warn(`[evo-dubbing] translation JSON was truncated; salvaged ${salvaged.length} segments`);
+    return salvaged;
+  }
+  throw new Error("translation response was not valid JSON");
+}
+
 export interface VoiceOption {
   id: string;
   label: string;

@@ -58,7 +58,8 @@ function installDocumentStub() {
       return elements.get(id);
     },
     createElement: (tag: string) =>
-      tag === "option" ? { value: "", textContent: "", selected: false } : new FakeSelect()
+      tag === "option" ? { value: "", textContent: "", selected: false } : new FakeSelect(),
+    querySelectorAll: () => []
   };
   return elements;
 }

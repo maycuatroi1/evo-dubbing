@@ -84,16 +84,17 @@ export function renderShareConfirmation(
   handlers: ShareConfirmationHandlers
 ): void {
   root.innerHTML = "";
-  root.append(el("p", "share-confirm-title", SHARE_CONFIRM_TITLE));
+  root.append(el("p", "evo-confirm-title", SHARE_CONFIRM_TITLE));
   for (const line of shareConfirmationLines(view)) {
-    root.append(el("p", "share-confirm-line", line));
+    root.append(el("p", "evo-confirm-line", line));
   }
-  root.append(el("p", "share-confirm-line muted", AI_VOICE_DISCLOSURE));
+  root.append(el("p", "evo-confirm-line evo-muted", AI_VOICE_DISCLOSURE));
 
   const checkbox = document.createElement("input");
   checkbox.type = "checkbox";
   checkbox.checked = false;
-  const confirmBtn = el("button", "managed-btn", "Xác nhận chia sẻ công khai");
+  const confirmBtn = el("button", "evo-btn evo-btn--solid evo-btn--sm", "Xác nhận chia sẻ công khai");
+  confirmBtn.type = "button";
   confirmBtn.disabled = true;
   checkbox.addEventListener("change", () => {
     confirmBtn.disabled = !checkbox.checked;
@@ -102,12 +103,13 @@ export function renderShareConfirmation(
     if (!checkbox.checked) return;
     handlers.onConfirm();
   });
-  const cancelBtn = el("button", "managed-btn secondary", "Hủy");
+  const cancelBtn = el("button", "evo-btn evo-btn--outline evo-btn--sm", "Hủy");
+  cancelBtn.type = "button";
   cancelBtn.addEventListener("click", () => handlers.onCancel());
 
-  const assertion = el("label", "share-confirm-assertion", null);
+  const assertion = el("label", "evo-confirm-assertion", null);
   assertion.append(checkbox, el("span", null, RIGHTS_ASSERTION_COPY));
-  const actions = el("div", "share-confirm-actions", null);
+  const actions = el("div", "evo-confirm-actions", null);
   actions.append(confirmBtn, cancelBtn);
   root.append(assertion, actions);
 }

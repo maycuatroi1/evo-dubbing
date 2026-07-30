@@ -7,10 +7,60 @@ Git chỉ chứa tên biến và dashboard location. Owner mọi mục: Bình (s
 
 | Mục | Giá trị | Ghi chú |
 |-----|---------|---------|
-| Item ID | `ligchebgiheiildjcnndjoalkpiamgko` | Suy ra từ public key nhúng trong `extension/manifest.config.ts`; CWS giữ nguyên ID này khi upload vì manifest có `key` |
+| Item ID (hiện tại, chỉ dev) | `ligchebgiheiildjcnndjoalkpiamgko` | Suy ra từ cặp khoá tự tạo 2026-07-26. Dùng cho bản unpacked. **Không phải ID trên store** |
+| Item ID (store) | Chưa có | Sinh ra khi tạo item lần đầu trên CWS. Xem quy trình bên dưới |
 | Public key | Trong `extension/manifest.config.ts` (field `key`) | Public, an toàn khi open-source |
 | Private key | `evo cred get evo_dubbing.chrome_extension_private_key` | PEM, KHÔNG commit; cần khi ký/publish ngoài CWS |
-| Rotation | Nếu mất private key: tạo cặp mới -> Item ID đổi -> phải tạo OAuth client mới và update CWS item (tránh bằng mọi giá) | Tạo lần đầu 2026-07-26 |
+
+### Item ID đi theo chiều nào
+
+Trước 2026-07-26 mục này ghi "CWS giữ nguyên ID này khi upload vì manifest có `key`". **Sai.** Tài liệu
+Chrome (`developer.chrome.com/docs/extensions/reference/manifest/key`) mô tả chiều ngược lại: upload zip
+**không có** field `key`, CWS gán cặp khoá và Item ID, rồi bạn vào **Package -> View public key**, copy về
+dán vào manifest để bản unpacked dùng chung ID đó. Khoá đi từ store về repo.
+
+Hệ quả: khi tạo item trên store, Item ID sẽ khác `ligchebgiheiildjcnndjoalkpiamgko`, và ba thứ neo vào
+ID cũ phải làm lại cùng lúc:
+
+1. OAuth client type Chrome Extension (`GOOGLE_OAUTH_CHROME_CLIENT_ID` bên dưới) - tạo client mới
+2. Supabase redirect allowlist `https://<ITEM_ID>.chromiumapp.org/`
+3. `PAYOS_RETURN_URL_ALLOWLIST` phần `chrome-extension://<ITEM_ID>`
+
+Thứ tự đúng: tạo item trên CWS trước, lấy Item ID thật, rồi mới cấu hình ba mục trên. Làm ngược sẽ phải
+làm hai lần.
+
+### Publish lần đầu (owner-manual, CWS Dashboard không script được)
+
+Chrome chặn mọi automation trên domain Web Store nên các bước này bắt buộc làm tay:
+
+1. Tài khoản developer + bật 2-Step Verification (CWS yêu cầu trước khi publish), trả phí đăng ký một lần
+2. `npm run build:ext`, zip **nội dung** `extension/dist`
+3. Dashboard -> Add new item -> upload, chưa publish. Lấy public key ở tab Package, dán vào `key`
+4. Làm ba mục ở phần trên theo Item ID mới
+5. Điền listing: nội dung đã soạn sẵn trong `docs/CWS-LISTING.md` (single purpose, justification từng
+   permission, data usage declaration). Privacy policy: `web/privacy.html`, deploy qua Pages tới
+   `https://maycuatroi1.github.io/evo-dubbing/privacy.html`
+6. Publish tay ít nhất một lần. API không publish được cho tới khi visibility đã được set tay một lần
+
+### CI/CD (`.github/workflows/release.yml`, job `chrome-web-store`)
+
+Chạy khi push tag `v*`. Đổi refresh token lấy access token, `:upload`, rồi `:publish` nếu repo variable
+`CWS_AUTO_PUBLISH` = `true` (mặc định không set: upload thành draft).
+
+| Secret (GitHub Environment `chrome-web-store`) | Lấy ở đâu |
+|---|---|
+| `CWS_CLIENT_ID` | OAuth client "evo-dubbing CWS Deploy", type **Web application**, tạo 2026-07-26 |
+| `CWS_CLIENT_SECRET` | Cùng client. Google chỉ cho xem một lần lúc tạo |
+| `CWS_REFRESH_TOKEN` | OAuth Playground với credentials trên, scope `https://www.googleapis.com/auth/chromewebstore` |
+| `CWS_PUBLISHER_ID` | Dashboard -> Publisher -> Settings |
+| `CWS_ITEM_ID` | Item ID trên store (mục trên) |
+
+Chrome Web Store API đã enable trên project `omelet-f0b89` (2026-07-26). OAuth consent screen đã ở
+**In production** - quan trọng, vì ở trạng thái Testing thì Google cho refresh token hạn 7 ngày và CI sẽ
+chết với `invalid_grant` sau đúng một tuần.
+
+Manifest version chảy từ tag: `EXT_VERSION` được set trong workflow, `manifest.config.ts` cắt tiền tố `v`
+và validate định dạng. CWS từ chối upload nếu version không cao hơn bản đã publish.
 
 ## Google Cloud (project `omelet-f0b89`)
 
