@@ -131,6 +131,30 @@ Dashboard: https://supabase.com/dashboard/project/lrypactuodbguwncoomc
 
 Redirect URLs (Authentication -> Sign In/Providers -> URL Configuration -> Redirect URLs) phải allowlist `https://ligchebgiheiildjcnndjoalkpiamgko.chromiumapp.org/` để flow `chrome.identity.launchWebAuthFlow` của extension (step 12) hoàn tất.
 
+### Web sign-in (nghe.omelet.tech, nghe-site-mvp step 8)
+
+Web app dùng flow PKCE canonical của Supabase (signInWithOAuth + exchange ở `/auth/callback`),
+session do supabase-js giữ trong localStorage. Hai biến public đọc lúc runtime bởi layout server:
+
+| Biến | Giá trị |
+|------|---------|
+| `NEXT_PUBLIC_SUPABASE_URL` | https://lrypactuodbguwncoomc.supabase.co |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | `evo cred get evo_dubbing.supabase_publishable_key` (giá trị public, an toàn khi lộ) |
+
+Owner external setup (làm tay trên dashboard, **append, không replace**):
+
+1. Google Cloud Console -> Clients: tạo OAuth client type **Web application** (ví dụ "evo-dubbing Web"),
+   authorized redirect URI theo Supabase yêu cầu (`https://lrypactuodbguwncoomc.supabase.co/auth/v1/callback`).
+2. Supabase -> Authentication -> Sign In/Providers -> Google: **thêm** Web client ID vào Client IDs,
+   GIỮ NGUYÊN Chrome Extension client ID `401458936175-sofsattbm8g3t3qcjjgb1c333eo97k9h.apps.googleusercontent.com`.
+   Thay thay vì thêm sẽ giết auth extension ngay trên mọi máy user.
+3. Supabase -> URL Configuration -> Redirect URLs: thêm `https://nghe.omelet.tech/auth/callback`.
+4. Nạp hai biến `NEXT_PUBLIC_*` vào `/opt/evo-dubbing/server.env` rồi recreate container (runbook trên).
+5. Verify kép: web sign-in Google trên https://nghe.omelet.tech/sign-in sống qua reload, VÀ extension
+   sign-in (mục "Live auth check" dưới) vẫn pass sau khi provider có thêm Web client. Nếu lỡ replace,
+   khôi phục bằng cách thêm lại Chrome Extension client ID ở trên.
+
+
 Extension đọc publishable key lúc build qua env `VITE_SUPABASE_PUBLISHABLE_KEY` (xem `extension/src/lib/managed/config.ts`), KHÔNG commit giá trị thật:
 
 ```powershell

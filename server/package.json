@@ -1,33 +1,34 @@
 {
-    "name":  "evo-dubbing-server",
-    "version":  "0.1.0",
-    "private":  true,
-    "scripts":  {
-                    "dev":  "next dev -p 3000",
-                    "build":  "next build",
-                    "start":  "next start -p 3000",
-                    "lint":  "next lint",
-                    "db:generate":  "drizzle-kit generate",
-                    "db:push":  "drizzle-kit push",
-                    "db:migrate":  "node scripts/migrate.mjs",
-                    "db:migrate:test":  "node scripts/migrate-fresh.mjs",
-                    "test":  "node scripts/test.mjs"
-                },
-    "dependencies":  {
-                         "@aws-sdk/client-s3":  "^3.637.0",
-                         "@aws-sdk/s3-request-presigner":  "^3.637.0",
-                         "drizzle-orm":  "^0.33.0",
-                         "jose":  "^6.2.4",
-                         "next":  "^14.2.7",
-                         "postgres":  "^3.4.4",
-                         "react":  "^18.3.1",
-                         "react-dom":  "^18.3.1"
-                     },
-    "devDependencies":  {
-                            "@types/node":  "^20.14.15",
-                            "@types/react":  "^18.3.4",
-                            "@types/react-dom":  "^18.3.0",
-                            "drizzle-kit":  "^0.24.0",
-                            "typescript":  "^5.5.4"
-                        }
+    "name": "evo-dubbing-server",
+    "version": "0.1.0",
+    "private": true,
+    "scripts": {
+        "dev": "next dev -p 3000",
+        "build": "next build",
+        "start": "next start -p 3000",
+        "lint": "next lint",
+        "db:generate": "drizzle-kit generate",
+        "db:push": "drizzle-kit push",
+        "db:migrate": "node scripts/migrate.mjs",
+        "db:migrate:test": "node scripts/migrate-fresh.mjs",
+        "test": "node scripts/test.mjs"
+    },
+    "dependencies": {
+        "@aws-sdk/client-s3": "^3.637.0",
+        "@aws-sdk/s3-request-presigner": "^3.637.0",
+        "@supabase/supabase-js": "^2.111.0",
+        "drizzle-orm": "^0.33.0",
+        "jose": "^6.2.4",
+        "next": "^14.2.7",
+        "postgres": "^3.4.4",
+        "react": "^18.3.1",
+        "react-dom": "^18.3.1"
+    },
+    "devDependencies": {
+        "@types/node": "^20.14.15",
+        "@types/react": "^18.3.4",
+        "@types/react-dom": "^18.3.0",
+        "drizzle-kit": "^0.24.0",
+        "typescript": "^5.5.4"
+    }
 }

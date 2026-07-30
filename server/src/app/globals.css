@@ -320,6 +320,22 @@ a {
   color: var(--evo-fg);
 }
 
+.site-nav-button {
+  padding: 6px 10px;
+  border: 0;
+  border-radius: var(--evo-radius-sm);
+  background: transparent;
+  color: var(--evo-fg-muted);
+  font-family: inherit;
+  font-size: var(--evo-text-body);
+  cursor: pointer;
+}
+
+.site-nav-button:hover {
+  background: var(--evo-bg-hover);
+  color: var(--evo-fg);
+}
+
 .site-main {
   min-height: calc(100vh - 56px - 73px);
 }
