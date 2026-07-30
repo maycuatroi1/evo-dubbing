@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { AuthProvider } from "./auth-provider";
 import { AuthNav } from "./auth-nav";
-import { publicSupabaseConfig } from "@/lib/supabase-public";
 import "./tokens.css";
 import "./globals.css";
 
@@ -11,11 +10,10 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const supabase = publicSupabaseConfig();
   return (
     <html lang="vi">
       <body>
-        <AuthProvider url={supabase?.url ?? ""} publishableKey={supabase?.key ?? ""}>
+        <AuthProvider>
           <header className="site-header">
             <div className="site-header-inner">
               <a className="brand" href="/">

@@ -21,22 +21,33 @@ export function useAuth(): AuthContextValue {
   return useContext(AuthContext);
 }
 
-export function AuthProvider({
-  url,
-  publishableKey,
-  children
-}: {
-  url: string;
-  publishableKey: string;
-  children: React.ReactNode;
-}) {
-  const [client] = useState<SupabaseClient | null>(() =>
-    url && publishableKey ? createClient(url, publishableKey) : null
-  );
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [client, setClient] = useState<SupabaseClient | null>(null);
   const [session, setSession] = useState<Session | null>(null);
+  const [configReady, setConfigReady] = useState(false);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
+    let cancelled = false;
+    fetch("/api/auth/config")
+      .then((res) => res.json())
+      .then((data: { configured?: boolean; url?: string; key?: string }) => {
+        if (cancelled) return;
+        if (data.configured && data.url && data.key) {
+          setClient(createClient(data.url, data.key));
+        }
+        setConfigReady(true);
+      })
+      .catch(() => {
+        if (!cancelled) setConfigReady(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!configReady) return;
     if (!client) {
       setReady(true);
       return;
@@ -56,7 +67,7 @@ export function AuthProvider({
       cancelled = true;
       subscription.unsubscribe();
     };
-  }, [client]);
+  }, [client, configReady]);
 
   async function signOut() {
     if (!client) return;

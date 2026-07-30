@@ -134,7 +134,9 @@ Redirect URLs (Authentication -> Sign In/Providers -> URL Configuration -> Redir
 ### Web sign-in (nghe.omelet.tech, nghe-site-mvp step 8)
 
 Web app dùng flow PKCE canonical của Supabase (signInWithOAuth + exchange ở `/auth/callback`),
-session do supabase-js giữ trong localStorage. Hai biến public đọc lúc runtime bởi layout server:
+session do supabase-js giữ trong localStorage. Hai biến public đọc lúc runtime qua
+`GET /api/auth/config` (KHÔNG inline lúc build - Next thay `process.env.NEXT_PUBLIC_*` ở build time,
+nên đọc trực tiếp trong component sẽ ra undefined trên production):
 
 | Biến | Giá trị |
 |------|---------|
