@@ -467,3 +467,74 @@ a.card:hover {
   border-radius: var(--evo-radius-sm);
   padding: var(--evo-space-3);
 }
+
+.landing-hero {
+  border-bottom: 1px solid var(--evo-border);
+  background: var(--evo-bg-subtle);
+}
+
+.landing-hero-inner {
+  padding-top: 72px;
+  padding-bottom: 72px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.landing-hero-logo {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--evo-radius);
+  margin-bottom: var(--evo-space-5);
+}
+
+.landing-hero h1 {
+  font-size: 34px;
+  max-width: 640px;
+}
+
+.landing-hero-sub {
+  color: var(--evo-fg-muted);
+  max-width: 560px;
+  margin: var(--evo-space-3) 0 var(--evo-space-6);
+}
+
+.landing-cta {
+  display: flex;
+  gap: var(--evo-space-3);
+}
+
+.section-title {
+  margin: 0 0 var(--evo-space-5);
+  font-size: 22px;
+}
+
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--evo-space-5);
+}
+
+.section-head .section-title {
+  margin: 0;
+}
+
+.card-text {
+  margin: 0;
+  font-size: var(--evo-text-body);
+  color: var(--evo-fg-muted);
+  line-height: 1.6;
+}
+
+.price-card .price {
+  margin: 0 0 var(--evo-space-3);
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.pricing-note {
+  margin-top: var(--evo-space-4);
+}
