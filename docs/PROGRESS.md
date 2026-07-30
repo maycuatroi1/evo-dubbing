@@ -4,6 +4,30 @@ Append at the end of every session. Newest first. Keep entries short: what chang
 verified, what the next session should pick up. This file is the only thing that survives a
 context window.
 
+## 2026-07-30 - nghe-site-mvp: product site live on production
+
+- https://nghe.omelet.tech is now the mono-light product site: landing with the 199.000 VND /
+  300 phút / 30 ngày pricing contract, `/library` search, `/dub/[id]` preview playback over
+  presigned URLs (playback_started with a localStorage web install ID), `/privacy` + `/terms`,
+  Supabase PKCE web sign-in, `/account` quota dashboard with PayOS renewal behind
+  `MANAGED_CHECKOUT_ENABLED`, and `/admin` restyled onto the extension tokens.
+- Deploy runbook written from the live VPS state (42.96.16.233, docker + Caddy, env
+  `/opt/evo-dubbing/server.env`, recreate to reload env, rollback by image tag) - top of
+  docs/DEPLOY.md. Every step above shipped as its own deploy behind `npm run check` + Playwright.
+- Gotcha worth remembering: Next inlines `process.env.NEXT_PUBLIC_*` at BUILD time, so the public
+  Supabase config is read at runtime via `GET /api/auth/config`; direct reads in server components
+  silently become undefined in the Docker image.
+- **Verified:** `npm run check`, 126+37 unit tests, `npm run test:integration`; per-step deploys
+  each gated by `npm run test:e2e:prod` (22 specs green at the end, including library search on
+  the seeded fixture dub, real audio playback > 2s with a 200 playback event, mock-session auth
+  reload/sign-out, mock account + checkout navigation to the PayOS link). e2e seed/cleanup
+  scripts round-trip; the fixture dub is left seeded for the next gate.
+- **Not verified (owner-only):** live Google sign-in on the web (needs the Supabase Google
+  provider Web client append + redirect allowlist, docs/DEPLOY.md "Web sign-in") and one live
+  PayOS checkout (blocked on merchant KYC, managed-dubbing-business-mvp step 18).
+- Windows dev box flakes: loopback `ERR_NO_BUFFER_SPACE`/`ERR_ADDRESS_IN_USE` under ~5k TIME_WAIT
+  connections; Playwright retries: 1 absorbs it.
+
 ## 2026-07-30 - extension UI redesign mono minimal + single-branch decision
 
 - Redesigned the extension UI to a light monochrome system (tokens.css, base.css primitives,
