@@ -645,3 +645,100 @@ a.card:hover {
   width: 44px;
   padding-top: 1px;
 }
+
+.legal h1 {
+  font-size: 28px;
+  line-height: 1.25;
+  margin: 0 0 8px;
+}
+
+.legal h2 {
+  font-size: 20px;
+  margin: 44px 0 12px;
+  padding-top: 20px;
+  border-top: 1px solid var(--evo-border);
+}
+
+.legal h3 {
+  font-size: 16px;
+  margin: 24px 0 8px;
+}
+
+.legal p,
+.legal li {
+  color: var(--evo-fg-muted);
+}
+
+.legal strong {
+  color: var(--evo-fg);
+  font-weight: 600;
+}
+
+.legal .meta {
+  color: var(--evo-fg-subtle);
+  font-size: 14px;
+  margin: 0 0 8px;
+}
+
+.legal .lede {
+  font-size: 17px;
+  color: var(--evo-fg);
+}
+
+.legal ul {
+  padding-left: 22px;
+}
+
+.legal li {
+  margin-bottom: 6px;
+}
+
+.legal .table-wrap {
+  overflow-x: auto;
+}
+
+.legal table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+  font-size: 14px;
+}
+
+.legal th,
+.legal td {
+  text-align: left;
+  vertical-align: top;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--evo-border);
+}
+
+.legal th {
+  background: var(--evo-bg-subtle);
+  color: var(--evo-fg);
+  font-weight: 600;
+}
+
+.legal td {
+  color: var(--evo-fg-muted);
+}
+
+.legal code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.9em;
+  background: var(--evo-bg-subtle);
+  border: 1px solid var(--evo-border);
+  border-radius: 4px;
+  padding: 1px 5px;
+  color: var(--evo-fg);
+}
+
+.legal a {
+  color: var(--evo-fg);
+  text-decoration: underline;
+}
+
+.legal .divider {
+  margin: 72px 0 0;
+  border: 0;
+  border-top: 1px solid var(--evo-border);
+}
