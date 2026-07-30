@@ -5,6 +5,8 @@ export interface PlayerInfo {
   videoId: string;
   title: string;
   durationMs: number;
+  channelId?: string;
+  channelName?: string;
 }
 
 export interface CaptionEvent {

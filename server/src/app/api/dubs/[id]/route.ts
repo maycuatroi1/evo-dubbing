@@ -2,7 +2,9 @@ import { eq, asc } from "drizzle-orm";
 import { db } from "@/db";
 import { dubs, dubSegments } from "@/db/schema";
 import { json, error, preflight, hashToken } from "@/lib/http";
+import { shapeDubResponse } from "@/lib/dubResponse";
 import { presignGet, deleteKeys } from "@/lib/r2";
+import { authorizeGet } from "@/lib/shareSecurity";
 
 export const runtime = "nodejs";
 
@@ -10,9 +12,14 @@ export function OPTIONS() {
   return preflight();
 }
 
-export async function GET(_request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, { params }: { params: { id: string } }) {
   const dub = await db.query.dubs.findFirst({ where: eq(dubs.id, params.id) });
   if (!dub || dub.status !== "ready") return error("not found", 404);
+
+  const url = new URL(request.url);
+  const ownerToken = url.searchParams.get("ownerToken") ?? request.headers.get("x-owner-token");
+  const auth = authorizeGet(dub, ownerToken);
+  if (!auth.ok) return error(auth.message, auth.status);
 
   const segs = await db.query.dubSegments.findMany({
     where: eq(dubSegments.dubId, dub.id),
@@ -31,19 +38,7 @@ export async function GET(_request: Request, { params }: { params: { id: string 
     }))
   );
 
-  return json({
-    id: dub.id,
-    platform: dub.platform,
-    videoId: dub.videoId,
-    sourceLang: dub.sourceLang,
-    targetLang: dub.targetLang,
-    voice: dub.voice,
-    provider: dub.provider,
-    title: dub.title,
-    durationMs: dub.durationMs,
-    visibility: dub.visibility,
-    segments
-  });
+  return json(shapeDubResponse(dub, segments));
 }
 
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {

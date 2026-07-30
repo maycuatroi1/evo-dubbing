@@ -1,13 +1,41 @@
 {
-  "version": "7",
-  "dialect": "postgresql",
-  "entries": [
-    {
-      "idx": 0,
-      "version": "7",
-      "when": 1784961705118,
-      "tag": "0000_baseline",
-      "breakpoints": true
-    }
-  ]
+    "version":  "7",
+    "dialect":  "postgresql",
+    "entries":  [
+                    {
+                        "idx":  0,
+                        "version":  "7",
+                        "when":  1784961705118,
+                        "tag":  "0000_baseline",
+                        "breakpoints":  true
+                    },
+                    {
+                        "idx":  1,
+                        "version":  "7",
+                        "when":  1785016128214,
+                        "tag":  "0001_monetization",
+                        "breakpoints":  true
+                    },
+                    {
+                        "idx":  2,
+                        "version":  "7",
+                        "when":  1785024000000,
+                        "tag":  "0002_managed_ledger",
+                        "breakpoints":  true
+                    },
+                    {
+                        "idx":  3,
+                        "version":  "7",
+                        "when":  1785100800000,
+                        "tag":  "0003_shared_v1",
+                        "breakpoints":  true
+                    },
+                    {
+                        "idx":  4,
+                        "version":  "7",
+                        "when":  1785196800000,
+                        "tag":  "0004_product_events",
+                        "breakpoints":  true
+                    }
+                ]
 }

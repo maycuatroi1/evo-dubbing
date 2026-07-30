@@ -1,5 +1,5 @@
-import type { Transcript, VideoContext } from "../types";
-import { youtubePlatform } from "./youtube";
+import type { Transcript, VideoContext } from "../types.ts";
+import { youtubePlatform } from "./youtube.ts";
 
 export interface Platform {
   id: string;

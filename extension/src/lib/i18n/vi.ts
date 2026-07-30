@@ -1,0 +1,95 @@
+export const vi = {
+  "app.name": "evo-dubbing",
+
+  "overlay.open": "Mở bảng điều khiển evo-dubbing",
+  "overlay.collapse": "Thu gọn bảng điều khiển",
+  "overlay.settings": "Mở cài đặt",
+  "overlay.noVideo": "Không tìm thấy video trên trang này.",
+  "overlay.sourceMeta": "{duration} · {platform}",
+  "overlay.targetLabel": "Dịch sang",
+  "overlay.dub": "Lồng tiếng video này",
+  "overlay.pause": "Tạm dừng",
+  "overlay.resume": "Phát tiếp",
+  "overlay.redub": "Làm lại",
+  "overlay.shareLabel": "Chia sẻ",
+  "overlay.share": "Chia sẻ bản dub",
+  "overlay.visibility": "Chế độ hiển thị",
+  "overlay.visibilityPublic": "Công khai",
+  "overlay.visibilityPrivate": "Riêng tư",
+  "overlay.progressLabel": "Tiến độ lồng tiếng",
+
+  "status.videoElementMissing": "Không tìm thấy phần tử video trên trang.",
+  "status.checkingLibrary": "Đang tra thư viện dùng chung",
+  "status.lookupFailed":
+    "Không tra được thư viện dùng chung ({reason}). Tạm dừng để tránh phát sinh chi phí ngoài ý muốn. Hãy thử lại sau.",
+  "status.playingShared": "Đang phát bản dub dùng chung (miễn phí)",
+  "status.uploading": "Đang tải bản dub lên...",
+  "status.shared": "Đã chia sẻ ({visibility})",
+  "status.alreadyShared": "Bản dub này đã được chia sẻ.",
+  "status.updatingVisibility": "Đang cập nhật chế độ hiển thị...",
+  "status.visibilitySet": "Đã đặt chế độ hiển thị: {visibility}",
+  "status.needShareServer": "Hãy đặt địa chỉ share server trong cài đặt trước.",
+  "status.payosCreating": "Đang tạo link thanh toán PayOS...",
+  "status.payosOpened": "Đã mở link thanh toán PayOS ở tab mới. Thanh toán xong, nhấn Làm lại.",
+  "status.signedInAgain": "Đã đăng nhập lại. Nhấn Làm lại để thử lại.",
+
+  "popup.tagline": "Mở một video YouTube rồi dùng bảng điều khiển nổi để lồng tiếng.",
+  "popup.stateHeading": "Trạng thái",
+  "popup.mode": "Chế độ",
+  "popup.modeByok": "BYOK",
+  "popup.modeManaged": "Managed",
+  "popup.openaiKey": "Khoá OpenAI",
+  "popup.geminiKey": "Khoá Gemini",
+  "popup.targetLang": "Ngôn ngữ đích",
+  "popup.shareServer": "Share server",
+  "popup.keySet": "Đã đặt",
+  "popup.keyMissing": "Chưa đặt",
+  "popup.serverConfigured": "Đã cấu hình",
+  "popup.serverOff": "Tắt",
+  "popup.openSettings": "Mở cài đặt",
+
+  "options.title": "Cài đặt",
+  "options.subtitle": "API key nằm trong trình duyệt của bạn và không bao giờ được gửi lên share server.",
+  "options.save": "Lưu thay đổi",
+  "options.saved": "Đã lưu",
+
+  "options.mode.heading": "Chế độ sử dụng",
+  "options.mode.byok": "BYOK - miễn phí, không cần đăng nhập",
+  "options.mode.byokHint":
+    "Dùng API key của riêng bạn ở phần bên dưới. Không cần tài khoản, không gửi key lên server managed.",
+  "options.mode.managed": "Managed - không cần API key",
+  "options.mode.managedHint":
+    "Gói 199.000 VND cho khoảng 300 phút nguồn trong 30 ngày. Tùy chọn, không bắt buộc với người dùng BYOK.",
+
+  "options.managed.heading": "Managed dubbing",
+  "options.managed.baseUrl": "Địa chỉ server managed",
+
+  "options.keys.heading": "API key",
+  "options.keys.hint": "Chỉ cần cho chế độ BYOK. Key được lưu trong bộ nhớ cục bộ của trình duyệt.",
+  "options.keys.openai": "Khoá OpenAI",
+  "options.keys.gemini": "Khoá Gemini",
+
+  "options.dubbing.heading": "Lồng tiếng",
+  "options.dubbing.targetLang": "Ngôn ngữ đích",
+  "options.dubbing.duck": "Âm lượng gốc khi đang lồng tiếng",
+  "options.dubbing.duckValue": "{percent}% âm lượng gốc",
+  "options.dubbing.translateProvider": "Nhà cung cấp dịch",
+  "options.dubbing.translateModel": "Mô hình dịch",
+  "options.dubbing.ttsProvider": "Nhà cung cấp giọng đọc",
+  "options.dubbing.ttsModel": "Mô hình giọng đọc",
+  "options.dubbing.voice": "Giọng đọc",
+  "options.dubbing.sttProvider": "Nhà cung cấp nhận dạng (dự phòng)",
+  "options.dubbing.sttHint": "Dùng khi video không có phụ đề để trích xuất.",
+  "options.dubbing.subtitles": "Hiện phụ đề đã dịch trên video",
+
+  "options.sharing.heading": "Chia sẻ",
+  "options.sharing.serverUrl": "Địa chỉ share server",
+  "options.sharing.serverHint": "Để trống nếu không muốn tra hay tải bản dub lên thư viện dùng chung.",
+  "options.sharing.autoUpload": "Tự động tải bản dub đã hoàn tất lên",
+  "options.sharing.visibility": "Chế độ hiển thị mặc định",
+  "options.sharing.public": "Công khai",
+  "options.sharing.private": "Riêng tư"
+} as const;
+
+export type StringKey = keyof typeof vi;
+export type StringTable = Record<StringKey, string>;

@@ -17,6 +17,15 @@ interface FormDescriptor {
   file?: FormFile;
 }
 
+export class HttpError extends Error {
+  status: number;
+
+  constructor(status: number, message: string) {
+    super(message);
+    this.status = status;
+  }
+}
+
 async function proxy(
   url: string,
   as: "text" | "arrayBuffer" | "json",
@@ -27,7 +36,8 @@ async function proxy(
     | { ok: true; status: number; data: unknown }
     | { ok: false; status: number; error: string };
   if (!res || !res.ok) {
-    throw new Error(`fetch failed (${res?.status ?? 0}): ${res?.error ?? "no response"}`);
+    const status = res?.status ?? 0;
+    throw new HttpError(status, `fetch failed (${status}): ${res?.error ?? "no response"}`);
   }
   return res.data;
 }

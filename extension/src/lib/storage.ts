@@ -1,4 +1,4 @@
-import type { Settings, ProviderKeys, DubbingSettings } from "./types";
+import type { Settings, ProviderKeys, DubbingSettings } from "./types.ts";
 
 const SETTINGS_KEY = "evoDubbingSettings";
 const KEYS_KEY = "evoDubbingKeys";
@@ -15,7 +15,10 @@ export const DEFAULT_SETTINGS: DubbingSettings = {
   translateModel: "gpt-5.4-mini",
   shareServerUrl: "",
   autoUpload: false,
-  defaultVisibility: "public"
+  defaultVisibility: "public",
+  billingMode: "byok",
+  managedBaseUrl: "",
+  managedVoiceProfileId: "vi-standard-female"
 };
 
 export async function getSettings(): Promise<Settings> {

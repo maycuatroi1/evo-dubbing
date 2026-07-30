@@ -1,5 +1,5 @@
-import type { Transcript } from "../types";
-import { fetchJson, base64ToArrayBuffer } from "../net";
+import type { Transcript } from "../types.ts";
+import { fetchJson, base64ToArrayBuffer } from "../net.ts";
 import type {
   Provider,
   TranslateBatch,
@@ -7,7 +7,8 @@ import type {
   TtsRequest,
   TtsResult,
   SttRequest
-} from "./index";
+} from "./index.ts";
+import { parseTranslationsResponse } from "./index.ts";
 
 const BASE = "https://generativelanguage.googleapis.com/v1beta/models";
 
@@ -76,8 +77,7 @@ async function translate(batch: TranslateBatch, key: string): Promise<Translated
   });
 
   const text = res.candidates?.[0]?.content?.parts?.[0]?.text ?? "{}";
-  const parsed = JSON.parse(text) as { translations?: TranslatedSegment[] };
-  return parsed.translations ?? [];
+  return parseTranslationsResponse(text);
 }
 
 async function tts(req: TtsRequest, key: string): Promise<TtsResult> {

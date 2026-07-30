@@ -1,111 +1,179 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>evo-dubbing settings</title>
+    <title>evo-dubbing</title>
     <link rel="stylesheet" href="./options.css" />
   </head>
   <body>
-    <main class="wrap">
-      <header class="head">
-        <div class="logo">E</div>
-        <div>
-          <h1>evo-dubbing</h1>
-          <p class="muted">Your API keys stay in this browser and are never sent to the share server.</p>
+    <header class="evo-topbar">
+      <div class="evo-topbar-inner">
+        <div class="evo-brand">
+          <span class="evo-logo" aria-hidden="true"></span>
+          <span data-i18n="app.name">evo-dubbing</span>
+          <span class="evo-brand-sep" aria-hidden="true">/</span>
+          <span class="evo-brand-page" data-i18n="options.title"></span>
         </div>
-      </header>
-
-      <section class="card">
-        <h2>API keys</h2>
-        <label class="field">
-          <span>OpenAI key</span>
-          <input id="openaiKey" type="password" placeholder="sk-..." autocomplete="off" />
-        </label>
-        <label class="field">
-          <span>Gemini key</span>
-          <input id="geminiKey" type="password" placeholder="AIza..." autocomplete="off" />
-        </label>
-      </section>
-
-      <section class="card">
-        <h2>Dubbing</h2>
-        <div class="grid">
-          <label class="field">
-            <span>Target language</span>
-            <input id="targetLang" type="text" placeholder="vi" />
-          </label>
-          <label class="field">
-            <span>Duck original volume</span>
-            <input id="duckVolume" type="range" min="0" max="0.6" step="0.02" />
-            <small id="duckValue" class="muted"></small>
-          </label>
+        <div class="evo-topbar-actions">
+          <span id="status" class="evo-save-state" role="status" aria-live="polite"></span>
+          <button id="save" type="button" class="evo-btn evo-btn--solid" data-i18n="options.save"></button>
         </div>
+      </div>
+    </header>
 
-        <div class="grid">
-          <label class="field">
-            <span>Translate provider</span>
-            <select id="translateProvider"></select>
-          </label>
-          <label class="field">
-            <span>Translate model</span>
-            <select id="translateModel"></select>
-          </label>
-        </div>
+    <main class="evo-page">
+      <p class="evo-hint evo-lede" data-i18n="options.subtitle"></p>
 
-        <div class="grid">
-          <label class="field">
-            <span>TTS provider</span>
-            <select id="ttsProvider"></select>
+      <section class="evo-card">
+        <h2 class="evo-card-title" data-i18n="options.mode.heading"></h2>
+        <div class="evo-choices">
+          <label class="evo-choice">
+            <input id="modeByok" type="radio" name="billingMode" value="byok" />
+            <span class="evo-choice-body">
+              <span class="evo-choice-title" data-i18n="options.mode.byok"></span>
+              <span class="evo-choice-hint" data-i18n="options.mode.byokHint"></span>
+            </span>
           </label>
-          <label class="field">
-            <span>TTS model</span>
-            <select id="ttsModel"></select>
-          </label>
-          <label class="field">
-            <span>Voice</span>
-            <select id="voice"></select>
-          </label>
-        </div>
-
-        <div class="grid">
-          <label class="field">
-            <span>STT provider (fallback)</span>
-            <select id="sttProvider"></select>
-          </label>
-          <label class="field checkbox">
-            <input id="showSubtitles" type="checkbox" />
-            <span>Show translated subtitles on the video</span>
+          <label class="evo-choice">
+            <input id="modeManaged" type="radio" name="billingMode" value="managed" />
+            <span class="evo-choice-body">
+              <span class="evo-choice-title" data-i18n="options.mode.managed"></span>
+              <span class="evo-choice-hint" data-i18n="options.mode.managedHint"></span>
+            </span>
           </label>
         </div>
       </section>
 
-      <section class="card">
-        <h2>Sharing</h2>
-        <label class="field">
-          <span>Share server URL</span>
-          <input id="shareServerUrl" type="text" placeholder="https://your-server.example.com" />
-        </label>
-        <div class="grid">
-          <label class="field checkbox">
-            <input id="autoUpload" type="checkbox" />
-            <span>Upload finished dubs automatically</span>
-          </label>
-          <label class="field">
-            <span>Default visibility</span>
-            <select id="defaultVisibility">
-              <option value="public">Public</option>
-              <option value="private">Private</option>
-            </select>
-          </label>
+      <section class="evo-card">
+        <h2 class="evo-card-title" data-i18n="options.managed.heading"></h2>
+        <div class="evo-field">
+          <label class="evo-label" for="managedBaseUrl" data-i18n="options.managed.baseUrl"></label>
+          <input id="managedBaseUrl" class="evo-input" type="url" placeholder="https://managed.example.com" spellcheck="false" />
+        </div>
+        <div id="managedState" class="evo-managed"></div>
+      </section>
+
+      <section class="evo-card">
+        <h2 class="evo-card-title" data-i18n="options.keys.heading"></h2>
+        <p class="evo-hint" data-i18n="options.keys.hint"></p>
+        <div class="evo-grid">
+          <div class="evo-field">
+            <label class="evo-label" for="openaiKey" data-i18n="options.keys.openai"></label>
+            <input id="openaiKey" class="evo-input" type="password" placeholder="sk-..." autocomplete="off" spellcheck="false" />
+          </div>
+          <div class="evo-field">
+            <label class="evo-label" for="geminiKey" data-i18n="options.keys.gemini"></label>
+            <input id="geminiKey" class="evo-input" type="password" placeholder="AIza..." autocomplete="off" spellcheck="false" />
+          </div>
         </div>
       </section>
 
-      <footer class="actions">
-        <button id="save" class="primary">Save</button>
-        <span id="status" class="muted"></span>
-      </footer>
+      <section class="evo-card">
+        <h2 class="evo-card-title" data-i18n="options.dubbing.heading"></h2>
+        <div class="evo-grid">
+          <div class="evo-field">
+            <label class="evo-label" for="targetLang" data-i18n="options.dubbing.targetLang"></label>
+            <div class="evo-select-wrap">
+              <select id="targetLang" class="evo-select"></select>
+              <span class="evo-i evo-i-chevron" aria-hidden="true"></span>
+            </div>
+          </div>
+          <div class="evo-field">
+            <label class="evo-label" for="duckVolume" data-i18n="options.dubbing.duck"></label>
+            <input id="duckVolume" class="evo-range" type="range" min="0" max="0.6" step="0.02" />
+            <small id="duckValue" class="evo-hint evo-num"></small>
+          </div>
+        </div>
+
+        <hr class="evo-divider" />
+
+        <div class="evo-grid">
+          <div class="evo-field">
+            <label class="evo-label" for="translateProvider" data-i18n="options.dubbing.translateProvider"></label>
+            <div class="evo-select-wrap">
+              <select id="translateProvider" class="evo-select"></select>
+              <span class="evo-i evo-i-chevron" aria-hidden="true"></span>
+            </div>
+          </div>
+          <div class="evo-field">
+            <label class="evo-label" for="translateModel" data-i18n="options.dubbing.translateModel"></label>
+            <div class="evo-select-wrap">
+              <select id="translateModel" class="evo-select"></select>
+              <span class="evo-i evo-i-chevron" aria-hidden="true"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="evo-grid">
+          <div class="evo-field">
+            <label class="evo-label" for="ttsProvider" data-i18n="options.dubbing.ttsProvider"></label>
+            <div class="evo-select-wrap">
+              <select id="ttsProvider" class="evo-select"></select>
+              <span class="evo-i evo-i-chevron" aria-hidden="true"></span>
+            </div>
+          </div>
+          <div class="evo-field">
+            <label class="evo-label" for="ttsModel" data-i18n="options.dubbing.ttsModel"></label>
+            <div class="evo-select-wrap">
+              <select id="ttsModel" class="evo-select"></select>
+              <span class="evo-i evo-i-chevron" aria-hidden="true"></span>
+            </div>
+          </div>
+          <div class="evo-field">
+            <label class="evo-label" for="voice" data-i18n="options.dubbing.voice"></label>
+            <div class="evo-select-wrap">
+              <select id="voice" class="evo-select"></select>
+              <span class="evo-i evo-i-chevron" aria-hidden="true"></span>
+            </div>
+          </div>
+        </div>
+
+        <hr class="evo-divider" />
+
+        <div class="evo-grid">
+          <div class="evo-field">
+            <label class="evo-label" for="sttProvider" data-i18n="options.dubbing.sttProvider"></label>
+            <div class="evo-select-wrap">
+              <select id="sttProvider" class="evo-select"></select>
+              <span class="evo-i evo-i-chevron" aria-hidden="true"></span>
+            </div>
+            <small class="evo-hint" data-i18n="options.dubbing.sttHint"></small>
+          </div>
+        </div>
+
+        <label class="evo-check">
+          <input id="showSubtitles" type="checkbox" />
+          <span data-i18n="options.dubbing.subtitles"></span>
+        </label>
+      </section>
+
+      <section class="evo-card">
+        <h2 class="evo-card-title" data-i18n="options.sharing.heading"></h2>
+        <div class="evo-field">
+          <label class="evo-label" for="shareServerUrl" data-i18n="options.sharing.serverUrl"></label>
+          <input id="shareServerUrl" class="evo-input" type="url" placeholder="https://your-server.example.com" spellcheck="false" />
+          <small class="evo-hint" data-i18n="options.sharing.serverHint"></small>
+        </div>
+        <div class="evo-grid">
+          <div class="evo-field">
+            <label class="evo-label" for="defaultVisibility" data-i18n="options.sharing.visibility"></label>
+            <div class="evo-select-wrap">
+              <select id="defaultVisibility" class="evo-select">
+                <option value="public" data-i18n="options.sharing.public"></option>
+                <option value="private" data-i18n="options.sharing.private"></option>
+              </select>
+              <span class="evo-i evo-i-chevron" aria-hidden="true"></span>
+            </div>
+          </div>
+        </div>
+        <label class="evo-check">
+          <input id="autoUpload" type="checkbox" />
+          <span data-i18n="options.sharing.autoUpload"></span>
+        </label>
+      </section>
     </main>
+
     <script type="module" src="./options.ts"></script>
   </body>
 </html>

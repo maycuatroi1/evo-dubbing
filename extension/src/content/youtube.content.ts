@@ -1,9 +1,21 @@
-import { EvoOverlay } from "./overlay";
-import { getSettings, saveOwnerToken, getOwnerToken } from "../lib/storage";
-import { resolvePlatform } from "../lib/platforms";
-import { DubSession } from "../lib/dubbing/session";
-import { lookupDub, uploadDub, setVisibility, type RemoteDub } from "../lib/api/shareClient";
-import type { Dub, Settings, VideoContext } from "../lib/types";
+import { EvoOverlay, type OverlayAction } from "./overlay.ts";
+import { getSettings, saveOwnerToken, getOwnerToken } from "../lib/storage.ts";
+import { resolvePlatform } from "../lib/platforms/index.ts";
+import { DubSession } from "../lib/dubbing/session.ts";
+import { lookupDub, uploadDub, setVisibility, type RemoteDub } from "../lib/api/shareClient.ts";
+import {
+  ManagedClientError,
+  managedAccount,
+  managedCheckout,
+  managedLookupDub,
+  managedSignIn,
+  reportPlaybackStarted,
+  type ManagedSharedDub
+} from "../lib/managed/messages.ts";
+import { MANAGED_ACTION_COPY, MANAGED_ERROR_COPY } from "../lib/managed/onboarding.ts";
+import { performShare } from "../lib/managed/share.ts";
+import { t } from "../lib/i18n/index.ts";
+import type { Dub, Settings, VideoContext } from "../lib/types.ts";
 
 const platform = resolvePlatform(location.href);
 
@@ -13,7 +25,7 @@ let session: DubSession | null = null;
 let fromRemote = false;
 let uploadedDubId: string | null = null;
 
-function remoteToDub(remote: RemoteDub): Dub {
+function remoteToDub(remote: RemoteDub | ManagedSharedDub): Dub {
   return {
     id: remote.id,
     platform: remote.platform,
@@ -21,7 +33,7 @@ function remoteToDub(remote: RemoteDub): Dub {
     sourceLang: remote.sourceLang,
     targetLang: remote.targetLang,
     voice: remote.voice,
-    provider: remote.provider,
+    provider: remote.provider as Dub["provider"],
     title: remote.title,
     durationMs: remote.durationMs,
     visibility: remote.visibility,
@@ -44,12 +56,78 @@ function cleanupSession(): void {
   }
 }
 
+function openOptionsPage(): void {
+  void chrome.runtime.sendMessage({ type: "openOptionsPage" });
+}
+
+function visibilityLabel(visibility: "public" | "private"): string {
+  return visibility === "public" ? t("overlay.visibilityPublic") : t("overlay.visibilityPrivate");
+}
+
+async function openPayosCheckout(settings: Settings): Promise<void> {
+  overlay?.setShareStatus(t("status.payosCreating"));
+  try {
+    const result = await managedCheckout(settings.managedBaseUrl);
+    window.open(result.checkoutUrl, "_blank");
+    overlay?.setShareStatus(t("status.payosOpened"));
+  } catch (err) {
+    overlay?.setError(err instanceof Error ? err.message : String(err));
+  }
+}
+
+function managedRecoveryActions(settings: Settings, status: number): OverlayAction[] {
+  if (status === 401) {
+    return [
+      {
+        label: MANAGED_ACTION_COPY.signInAgain,
+        onClick: () => {
+          void managedSignIn()
+            .then(() => overlay?.setShareStatus(t("status.signedInAgain")))
+            .catch((err) => overlay?.setError(err instanceof Error ? err.message : String(err)));
+        }
+      }
+    ];
+  }
+  if (status === 402) {
+    return [
+      { label: MANAGED_ACTION_COPY.checkout, onClick: () => void openPayosCheckout(settings) },
+      { label: MANAGED_ACTION_COPY.openByok, onClick: openOptionsPage }
+    ];
+  }
+  if (status === 503) {
+    return [{ label: MANAGED_ACTION_COPY.openByok, onClick: openOptionsPage }];
+  }
+  return [];
+}
+
+function showSessionError(settings: Settings, message: string, status?: number): void {
+  if (settings.billingMode !== "managed" || !status || !(status in MANAGED_ERROR_COPY)) {
+    overlay?.setError(message);
+    return;
+  }
+  overlay?.setActionError(MANAGED_ERROR_COPY[status], managedRecoveryActions(settings, status));
+}
+
+function handleExportError(settings: Settings, err: unknown): void {
+  const code = (err as { code?: unknown }).code;
+  const message = err instanceof Error ? err.message : String(err);
+  if (settings.billingMode === "managed" && code === "insufficient_quota") {
+    overlay?.setActionError(message, [
+      { label: MANAGED_ACTION_COPY.checkout, onClick: () => void openPayosCheckout(settings) },
+      { label: MANAGED_ACTION_COPY.openByok, onClick: openOptionsPage }
+    ]);
+    return;
+  }
+  const status = err instanceof ManagedClientError ? err.status : undefined;
+  showSessionError(settings, message, status);
+}
+
 async function onDub(targetLang: string): Promise<void> {
   if (!platform || !context) return;
 
   const video = platform.getVideoElement();
   if (!video) {
-    overlay?.setError("Could not find the video element.");
+    overlay?.setError(t("status.videoElementMissing"));
     return;
   }
 
@@ -63,30 +141,66 @@ async function onDub(targetLang: string): Promise<void> {
     context,
     settings,
     onProgress: (p) => {
-      if (p.phase === "error") overlay?.setError(p.message);
+      if (p.phase === "error") showSessionError(settings, p.message, p.status);
       else overlay?.setProgress(p);
     },
     onReady: () => {
       overlay?.setReady();
       overlay?.setPlaying(true);
-    }
+    },
+    getRemainingSourceMs:
+      settings.billingMode === "managed"
+        ? async () => {
+            try {
+              const account = await managedAccount(settings.managedBaseUrl);
+              return account.remainingSourceMs;
+            } catch {
+              return null;
+            }
+          }
+        : undefined
   });
 
   try {
     if (settings.shareServerUrl) {
-      overlay?.setProgress({ phase: "transcript", current: 0, total: 1, message: "Checking shared library" });
-      const remote = await lookupDub(settings.shareServerUrl, {
-        platform: context.platform,
-        videoId: context.videoId,
-        targetLang,
-        voice: settings.voice,
-        provider: settings.ttsProvider
-      });
+      overlay?.setProgress({ phase: "transcript", current: 0, total: 1, message: t("status.checkingLibrary") });
+      let remote: RemoteDub | ManagedSharedDub | null;
+      try {
+        remote =
+          settings.billingMode === "managed"
+            ? await managedLookupDub({
+                baseUrl: settings.managedBaseUrl,
+                platform: context.platform,
+                videoId: context.videoId,
+                targetLang,
+                voiceProfileId: settings.managedVoiceProfileId
+              })
+            : await lookupDub(settings.shareServerUrl, {
+                platform: context.platform,
+                videoId: context.videoId,
+                targetLang,
+                voice: settings.voice,
+                provider: settings.ttsProvider
+              });
+      } catch (err) {
+        overlay?.setError(
+          t("status.lookupFailed", { reason: err instanceof Error ? err.message : String(err) })
+        );
+        return;
+      }
       if (remote && remote.segments.length > 0) {
         fromRemote = true;
         await session.startRemote(remoteToDub(remote));
         overlay?.setVisibility(remote.visibility);
-        overlay?.setShareStatus("Playing a shared dub (free)");
+        overlay?.setShareStatus(t("status.playingShared"));
+        const eventsBaseUrl = settings.billingMode === "managed" ? settings.managedBaseUrl : settings.shareServerUrl;
+        void reportPlaybackStarted({
+          baseUrl: eventsBaseUrl,
+          platform: context.platform,
+          videoId: context.videoId,
+          channelId: context.channelId,
+          channelName: context.channelName
+        }).catch(() => undefined);
         return;
       }
     }
@@ -94,28 +208,51 @@ async function onDub(targetLang: string): Promise<void> {
     fromRemote = false;
     await session.startGenerated(platform);
   } catch (err) {
-    overlay?.setError(err instanceof Error ? err.message : String(err));
+    handleExportError(settings, err);
+  }
+}
+
+async function runShare(visibility: "public" | "private", settings: Settings, rightsAssertion: boolean): Promise<void> {
+  if (!session) return;
+  try {
+    const result = await performShare({
+      visibility,
+      billingMode: settings.billingMode,
+      rightsAssertion,
+      voiceProfileId: settings.managedVoiceProfileId,
+      completeAll: () => session!.completeAll((p) => overlay?.setProgress(p)),
+      upload: async (dub, meta) => {
+        dub.visibility = visibility;
+        overlay?.setShareStatus(t("status.uploading"));
+        return uploadDub(settings.shareServerUrl, dub, meta);
+      }
+    });
+    uploadedDubId = result.id;
+    await saveOwnerToken(result.id, result.ownerToken);
+    overlay?.setShareStatus(t("status.shared", { visibility: visibilityLabel(result.visibility) }));
+  } catch (err) {
+    handleExportError(settings, err);
   }
 }
 
 async function shareCurrent(visibility: "public" | "private", settings: Settings): Promise<void> {
   if (!session) return;
   if (!settings.shareServerUrl) {
-    overlay?.setError("Set a share server URL in the extension options first.");
+    overlay?.setError(t("status.needShareServer"));
     return;
   }
   if (fromRemote) {
-    overlay?.setShareStatus("This dub is already shared.");
+    overlay?.setShareStatus(t("status.alreadyShared"));
     return;
   }
 
   if (uploadedDubId) {
     const token = await getOwnerToken(uploadedDubId);
     if (token) {
-      overlay?.setShareStatus("Updating visibility...");
+      overlay?.setShareStatus(t("status.updatingVisibility"));
       try {
         await setVisibility(settings.shareServerUrl, uploadedDubId, visibility, token);
-        overlay?.setShareStatus(`Visibility set to ${visibility}`);
+        overlay?.setShareStatus(t("status.visibilitySet", { visibility: visibilityLabel(visibility) }));
       } catch (err) {
         overlay?.setError(err instanceof Error ? err.message : String(err));
       }
@@ -123,17 +260,29 @@ async function shareCurrent(visibility: "public" | "private", settings: Settings
     }
   }
 
-  try {
-    const dub = await session.completeAll((p) => overlay?.setProgress(p));
-    dub.visibility = visibility;
-    overlay?.setShareStatus("Uploading dub...");
-    const result = await uploadDub(settings.shareServerUrl, dub);
-    uploadedDubId = result.id;
-    await saveOwnerToken(result.id, result.ownerToken);
-    overlay?.setShareStatus(`Shared (${result.visibility})`);
-  } catch (err) {
-    overlay?.setError(err instanceof Error ? err.message : String(err));
+  if (visibility === "public" && settings.billingMode === "managed") {
+    const estimateMs = session.estimateExportSourceMs();
+    let remainingMs: number | null = null;
+    try {
+      const account = await managedAccount(settings.managedBaseUrl);
+      remainingMs = account.remainingSourceMs;
+    } catch {
+      remainingMs = null;
+    }
+    overlay?.showShareConfirmation(
+      { estimateMs, remainingMs },
+      {
+        onConfirm: () => {
+          overlay?.hideShareConfirmation();
+          void runShare("public", settings, true);
+        },
+        onCancel: () => overlay?.hideShareConfirmation()
+      }
+    );
+    return;
   }
+
+  await runShare(visibility, settings, false);
 }
 
 function onTogglePlay(): void {
@@ -169,7 +318,7 @@ async function refreshContext(): Promise<void> {
 async function init(): Promise<void> {
   if (!platform) return;
   const settings = await getSettings();
-  overlay = new EvoOverlay({ onDub, onTogglePlay, onRedub, onShare });
+  overlay = new EvoOverlay({ onDub, onTogglePlay, onRedub, onShare, onOpenSettings: openOptionsPage });
   overlay.mount(settings.targetLang);
   overlay.setVisibility(settings.defaultVisibility);
   await refreshContext();

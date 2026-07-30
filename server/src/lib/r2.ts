@@ -1,4 +1,4 @@
-import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectsCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand, GetObjectCommand, HeadObjectCommand, DeleteObjectsCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 const accountId = process.env.R2_ACCOUNT_ID ?? "";
@@ -35,6 +35,19 @@ export async function presignGet(key: string, expiresIn = 21600): Promise<string
   }
   const command = new GetObjectCommand({ Bucket: bucket, Key: key });
   return getSignedUrl(getClient(), command, { expiresIn });
+}
+
+export async function headObject(key: string): Promise<{ size: number } | null> {
+  try {
+    const res = await getClient().send(new HeadObjectCommand({ Bucket: bucket, Key: key }));
+    return { size: Number(res.ContentLength ?? 0) };
+  } catch {
+    return null;
+  }
+}
+
+export async function putObject(key: string, body: Uint8Array, mime: string): Promise<void> {
+  await getClient().send(new PutObjectCommand({ Bucket: bucket, Key: key, Body: body, ContentType: mime }));
 }
 
 export async function deleteKeys(keys: string[]): Promise<void> {

@@ -5,10 +5,10 @@ import type {
   Settings,
   TranscriptSegment,
   VideoContext
-} from "../types";
-import type { Platform } from "../platforms";
-import { getProvider, type Provider } from "../providers";
-import { mergeCues } from "./merge";
+} from "../types.ts";
+import type { Platform } from "../platforms/index.ts";
+import { createInferenceBackend, type InferenceBackend } from "../backend/index.ts";
+import { mergeCues } from "./merge.ts";
 import {
   ttsCacheKey,
   getCachedAudio,
@@ -16,9 +16,10 @@ import {
   translationCacheKey,
   getCachedTranslation,
   putCachedTranslation
-} from "./cache";
-import { timeCompress } from "./stretch";
-import { fetchArrayBuffer } from "../net";
+} from "./cache.ts";
+import { timeCompress } from "./stretch.ts";
+import { fetchArrayBuffer } from "../net.ts";
+import { isQuotaInsufficient, quotaBlockMessage } from "../managed/onboarding.ts";
 
 const LOOKAHEAD_MS = 30000;
 const BEHIND_MS = 2000;
@@ -44,6 +45,7 @@ export interface SessionOptions {
   settings: Settings;
   onProgress: ProgressHandler;
   onReady: () => void;
+  getRemainingSourceMs?: () => Promise<number | null>;
 }
 
 export class DubSession {
@@ -52,16 +54,14 @@ export class DubSession {
   private settings: Settings;
   private onProgress: ProgressHandler;
   private onReady: () => void;
+  private getRemainingSourceMs?: () => Promise<number | null>;
 
   private cues: TranscriptSegment[] = [];
   private states: CueState[] = [];
   private sourceLang = "auto";
   private mode: "generate" | "remote" = "generate";
 
-  private translateProvider!: Provider;
-  private ttsProvider!: Provider;
-  private translateKey = "";
-  private ttsKey = "";
+  private backend!: InferenceBackend;
   private chunkPromises = new Map<number, Promise<void>>();
 
   private ctx: AudioContext;
@@ -74,6 +74,7 @@ export class DubSession {
 
   private active = false;
   private destroyed = false;
+  private fatalBlocked = false;
   private activeGen = 0;
   private queue: number[] = [];
   private readyCount = 0;
@@ -88,6 +89,7 @@ export class DubSession {
     this.settings = opts.settings;
     this.onProgress = opts.onProgress;
     this.onReady = opts.onReady;
+    this.getRemainingSourceMs = opts.getRemainingSourceMs;
     this.ctx = new AudioContext();
     this.gain = this.ctx.createGain();
     this.gain.connect(this.ctx.destination);
@@ -101,10 +103,11 @@ export class DubSession {
 
   async startGenerated(platform: Platform): Promise<void> {
     this.mode = "generate";
-    this.translateProvider = getProvider(this.settings.translateProvider);
-    this.ttsProvider = getProvider(this.settings.ttsProvider);
-    this.translateKey = this.requireKey(this.settings.translateProvider);
-    this.ttsKey = this.requireKey(this.settings.ttsProvider);
+    this.backend = createInferenceBackend(this.settings);
+    if (this.settings.billingMode !== "managed") {
+      this.requireKey(this.settings.translateProvider);
+      this.requireKey(this.settings.ttsProvider);
+    }
 
     this.onProgress({ phase: "transcript", current: 0, total: 1, message: "Reading captions" });
     const transcript = await platform.getCaptionTranscript(this.settings.targetLang);
@@ -323,7 +326,7 @@ export class DubSession {
   }
 
   private pump(): void {
-    if (!this.active || this.destroyed) return;
+    if (!this.active || this.destroyed || this.fatalBlocked) return;
     const ms = this.video.currentTime * 1000;
     for (let i = 0; i < this.cues.length; i++) {
       const cue = this.cues[i];
@@ -339,12 +342,13 @@ export class DubSession {
   }
 
   private fillSlots(): void {
+    if (!this.active || this.destroyed || this.fatalBlocked) return;
     while (this.activeGen < TTS_CONCURRENCY && this.queue.length > 0) {
       const idx = this.queue.shift()!;
       this.activeGen++;
       this.generateCue(idx).finally(() => {
         this.activeGen--;
-        if (!this.destroyed) this.fillSlots();
+        if (!this.destroyed && this.active && !this.fatalBlocked) this.fillSlots();
       });
     }
   }
@@ -357,7 +361,7 @@ export class DubSession {
       const batch = this.cues.slice(start, start + TRANSLATE_CHUNK);
       const segments = batch.map((c) => ({ idx: c.idx, text: c.text }));
       const key = translationCacheKey(
-        this.settings.translateProvider,
+        this.backend.namespace().translate,
         this.settings.translateModel,
         this.sourceLang,
         this.settings.targetLang,
@@ -365,14 +369,14 @@ export class DubSession {
       );
       let result = await getCachedTranslation(key);
       if (!result) {
-        result = await this.translateProvider.translate(
+        result = await this.backend.translate(
           {
             segments,
             sourceLang: this.sourceLang,
             targetLang: this.settings.targetLang,
             model: this.settings.translateModel
           },
-          this.translateKey
+          batch.map((c) => ({ idx: c.idx, startMs: c.startMs, endMs: c.endMs }))
         );
         await putCachedTranslation(key, result);
       }
@@ -415,15 +419,18 @@ export class DubSession {
         return;
       }
 
-      const key = ttsCacheKey(this.settings.ttsProvider, this.settings.ttsModel, this.settings.voice, text);
+      const key = ttsCacheKey(this.backend.namespace().tts, this.settings.ttsModel, this.settings.voice, text);
       const cached = await getCachedAudio(key);
       if (cached) {
         st.data = cached.data;
         st.mime = cached.mime;
       } else {
-        const result = await this.ttsProvider.tts(
+        const result = await this.backend.tts(
           { text, voice: this.settings.voice, model: this.settings.ttsModel },
-          this.ttsKey
+          {
+            cue: { startMs: this.cues[idx].startMs, endMs: this.cues[idx].endMs },
+            idempotencyKey: key
+          }
         );
         st.data = result.audio;
         st.mime = result.mime;
@@ -438,18 +445,27 @@ export class DubSession {
       st.status = "error";
       const msg = err instanceof Error ? err.message : String(err);
       console.error(`[evo-dubbing] cue ${idx} generation failed:`, msg);
-      this.reportError(msg);
+      const status = (err as { status?: unknown }).status;
+      if (status === 401 || status === 402) {
+        this.fatalBlocked = true;
+        this.queue.length = 0;
+        for (const other of this.states) {
+          if (other.status === "pending") other.status = "idle";
+        }
+      }
+      this.reportError(msg, typeof status === "number" ? status : undefined);
     }
   }
 
-  private reportError(message: string): void {
+  private reportError(message: string, status?: number): void {
     if (this.firstError) return;
     this.firstError = message;
     this.onProgress({
       phase: "error",
       current: this.readyCount,
       total: this.cues.length,
-      message: `Dubbing failed: ${message}`
+      message: `Dubbing failed: ${message}`,
+      status
     });
   }
 
@@ -465,10 +481,13 @@ export class DubSession {
 
   async completeAll(onProgress: ProgressHandler): Promise<Dub> {
     if (this.mode === "generate") {
-      this.translateProvider = this.translateProvider ?? getProvider(this.settings.translateProvider);
-      this.ttsProvider = this.ttsProvider ?? getProvider(this.settings.ttsProvider);
-      this.translateKey = this.translateKey || this.requireKey(this.settings.translateProvider);
-      this.ttsKey = this.ttsKey || this.requireKey(this.settings.ttsProvider);
+      this.backend = this.backend ?? createInferenceBackend(this.settings);
+      if (this.settings.billingMode !== "managed") {
+        this.requireKey(this.settings.translateProvider);
+        this.requireKey(this.settings.ttsProvider);
+      } else {
+        await this.assertQuotaForExport();
+      }
     }
 
     let done = 0;
@@ -508,6 +527,28 @@ export class DubSession {
     };
   }
 
+  estimateExportSourceMs(): number {
+    let total = 0;
+    for (let i = 0; i < this.cues.length; i++) {
+      const st = this.states[i];
+      if (st.data || st.status === "empty" || !this.cues[i].text.trim()) continue;
+      total += Math.max(0, this.cues[i].endMs - this.cues[i].startMs);
+    }
+    return total;
+  }
+
+  private async assertQuotaForExport(): Promise<void> {
+    if (!this.getRemainingSourceMs) return;
+    const neededMs = this.estimateExportSourceMs();
+    if (neededMs <= 0) return;
+    const remainingMs = await this.getRemainingSourceMs();
+    if (isQuotaInsufficient(neededMs, remainingMs)) {
+      const err = new Error(quotaBlockMessage(neededMs, remainingMs as number)) as Error & { code: string };
+      err.code = "insufficient_quota";
+      throw err;
+    }
+  }
+
   private async generateCueForExport(idx: number): Promise<void> {
     const st = this.states[idx];
     if (st.translated === null) {
@@ -519,15 +560,18 @@ export class DubSession {
       return;
     }
     if (st.data) return;
-    const key = ttsCacheKey(this.settings.ttsProvider, this.settings.ttsModel, this.settings.voice, text);
+    const key = ttsCacheKey(this.backend.namespace().tts, this.settings.ttsModel, this.settings.voice, text);
     const cached = await getCachedAudio(key);
     if (cached) {
       st.data = cached.data;
       st.mime = cached.mime;
     } else {
-      const result = await this.ttsProvider.tts(
+      const result = await this.backend.tts(
         { text, voice: this.settings.voice, model: this.settings.ttsModel },
-        this.ttsKey
+        {
+          cue: { startMs: this.cues[idx].startMs, endMs: this.cues[idx].endMs },
+          idempotencyKey: key
+        }
       );
       st.data = result.audio;
       st.mime = result.mime;

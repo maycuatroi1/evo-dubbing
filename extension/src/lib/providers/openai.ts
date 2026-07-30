@@ -1,5 +1,5 @@
-import type { Transcript } from "../types";
-import { fetchJson, fetchArrayBuffer, postForm, arrayBufferToBase64 } from "../net";
+import type { Transcript } from "../types.ts";
+import { fetchJson, fetchArrayBuffer, postForm, arrayBufferToBase64 } from "../net.ts";
 import type {
   Provider,
   TranslateBatch,
@@ -7,7 +7,8 @@ import type {
   TtsRequest,
   TtsResult,
   SttRequest
-} from "./index";
+} from "./index.ts";
+import { parseTranslationsResponse } from "./index.ts";
 
 const BASE = "https://api.openai.com/v1";
 
@@ -57,8 +58,7 @@ async function translate(batch: TranslateBatch, key: string): Promise<Translated
   });
 
   const content = res.choices?.[0]?.message?.content ?? "{}";
-  const parsed = JSON.parse(content) as { translations?: TranslatedSegment[] };
-  return parsed.translations ?? [];
+  return parseTranslationsResponse(content);
 }
 
 async function tts(req: TtsRequest, key: string): Promise<TtsResult> {

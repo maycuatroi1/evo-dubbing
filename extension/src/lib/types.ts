@@ -1,5 +1,7 @@
 export type ProviderId = "openai" | "gemini";
 
+export type BillingMode = "byok" | "managed";
+
 export type TranscriptSource = "captions" | "stt";
 
 export interface TranscriptSegment {
@@ -49,6 +51,8 @@ export interface VideoContext {
   title: string;
   url: string;
   durationMs: number;
+  channelId?: string;
+  channelName?: string;
 }
 
 export interface ProviderKeys {
@@ -69,6 +73,9 @@ export interface DubbingSettings {
   shareServerUrl: string;
   autoUpload: boolean;
   defaultVisibility: "public" | "private";
+  billingMode: BillingMode;
+  managedBaseUrl: string;
+  managedVoiceProfileId: string;
 }
 
 export interface Settings extends DubbingSettings {
@@ -89,6 +96,7 @@ export interface DubbingProgress {
   current: number;
   total: number;
   message: string;
+  status?: number;
 }
 
 export type ProgressHandler = (progress: DubbingProgress) => void;

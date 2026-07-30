@@ -6,7 +6,7 @@ import {
   type BridgeResult,
   type CaptionEvent,
   type PlayerInfo
-} from "./bridge-protocol";
+} from "./bridge-protocol.ts";
 
 interface RawCaptionTrack {
   baseUrl: string;
@@ -15,7 +15,7 @@ interface RawCaptionTrack {
 }
 
 interface PlayerResponse {
-  videoDetails?: { videoId?: string; title?: string; lengthSeconds?: string };
+  videoDetails?: { videoId?: string; title?: string; lengthSeconds?: string; channelId?: string; author?: string };
   captions?: {
     playerCaptionsTracklistRenderer?: { captionTracks?: RawCaptionTrack[] };
   };
@@ -134,7 +134,9 @@ function readPlayerInfo(): PlayerInfo | null {
       ? Number(d.lengthSeconds) * 1000
       : playerDuration
       ? Math.round(playerDuration * 1000)
-      : 0
+      : 0,
+    channelId: d?.channelId ?? "",
+    channelName: d?.author ?? ""
   };
 }
 

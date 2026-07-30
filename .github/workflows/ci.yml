@@ -9,12 +9,26 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: evo
+          POSTGRES_PASSWORD: evo_test
+          POSTGRES_DB: evo_dubbing
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U evo"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
 
       - name: Install dependencies
@@ -25,6 +39,17 @@ jobs:
 
       - name: Verify seams and harness artifacts
         run: npm run verify
+
+      - name: Unit tests (server + extension)
+        run: npm test
+
+      - name: Migration integration tests
+        run: npm run test:integration
+        env:
+          DATABASE_URL: postgres://evo:evo_test@127.0.0.1:5432/evo_dubbing
+
+      - name: Build server Docker image
+        run: docker build -f server/Dockerfile .
 
       - name: Build extension
         run: npm run build:ext

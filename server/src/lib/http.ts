@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { createHash, randomBytes } from "node:crypto";
+
+export { newOwnerToken, hashToken } from "./shareSecurity";
 
 const allowOrigin = process.env.ALLOWED_EXTENSION_ORIGIN ?? "*";
 
@@ -20,14 +21,6 @@ export function error(message: string, status = 400): NextResponse {
 
 export function preflight(): NextResponse {
   return new NextResponse(null, { status: 204, headers: corsHeaders });
-}
-
-export function newOwnerToken(): string {
-  return randomBytes(24).toString("hex");
-}
-
-export function hashToken(token: string): string {
-  return createHash("sha256").update(token).digest("hex");
 }
 
 export function maxSegments(): number {

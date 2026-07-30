@@ -1,6 +1,17 @@
-import { getSettings, saveSettings, saveKeys, DEFAULT_SETTINGS } from "../lib/storage";
-import { listProviders, getProvider } from "../lib/providers";
-import type { ProviderId } from "../lib/types";
+import { getSettings, saveSettings, saveKeys, DEFAULT_SETTINGS } from "../lib/storage.ts";
+import { listProviders, getProvider } from "../lib/providers/index.ts";
+import { hydrate, t } from "../lib/i18n/index.ts";
+import { targetLanguageOptions } from "../lib/i18n/languages.ts";
+import type { ProviderId } from "../lib/types.ts";
+import {
+  ManagedClientError,
+  managedAccount,
+  managedAuthState,
+  managedCheckout,
+  managedSignIn,
+  managedSignOut
+} from "../lib/managed/messages.ts";
+import { renderManagedCard, type ManagedCardHandlers } from "../lib/managed/onboarding.ts";
 
 function $<T extends HTMLElement>(id: string): T {
   const el = document.getElementById(id);
@@ -46,20 +57,31 @@ function fillProviderModels(providerId: ProviderId, kind: "translate" | "tts") {
 }
 
 async function init() {
+  hydrate(document);
   const settings = await getSettings();
 
   ($("openaiKey") as HTMLInputElement).value = settings.keys.openai ?? "";
   ($("geminiKey") as HTMLInputElement).value = settings.keys.gemini ?? "";
-  ($("targetLang") as HTMLInputElement).value = settings.targetLang;
+  fillOptions(
+    $("targetLang"),
+    targetLanguageOptions(settings.targetLang).map((l) => ({ value: l.code, label: l.label })),
+    settings.targetLang
+  );
   ($("showSubtitles") as HTMLInputElement).checked = settings.showSubtitles;
   ($("shareServerUrl") as HTMLInputElement).value = settings.shareServerUrl;
   ($("autoUpload") as HTMLInputElement).checked = settings.autoUpload;
   ($("defaultVisibility") as HTMLSelectElement).value = settings.defaultVisibility;
+  ($("managedBaseUrl") as HTMLInputElement).value = settings.managedBaseUrl;
+  ($("modeByok") as HTMLInputElement).checked = settings.billingMode !== "managed";
+  ($("modeManaged") as HTMLInputElement).checked = settings.billingMode === "managed";
 
   const duck = $("duckVolume") as HTMLInputElement;
   duck.value = String(settings.duckVolume);
   const duckValue = $("duckValue");
-  const showDuck = () => (duckValue.textContent = `${Math.round(Number(duck.value) * 100)}% original volume`);
+  const showDuck = () =>
+    (duckValue.textContent = t("options.dubbing.duckValue", {
+      percent: Math.round(Number(duck.value) * 100)
+    }));
   duck.addEventListener("input", showDuck);
   showDuck();
 
@@ -73,12 +95,12 @@ async function init() {
     settings.sttProvider
   );
 
+  fillProviderModels(settings.translateProvider, "translate");
+  fillProviderModels(settings.ttsProvider, "tts");
+
   ($("translateModel") as HTMLSelectElement).value = settings.translateModel;
   ($("ttsModel") as HTMLSelectElement).value = settings.ttsModel;
   ($("voice") as HTMLSelectElement).value = settings.voice;
-
-  fillProviderModels(settings.translateProvider, "translate");
-  fillProviderModels(settings.ttsProvider, "tts");
 
   ($("translateProvider") as HTMLSelectElement).addEventListener("change", (e) => {
     fillProviderModels((e.target as HTMLSelectElement).value as ProviderId, "translate");
@@ -88,6 +110,79 @@ async function init() {
   });
 
   $("save").addEventListener("click", onSave);
+  $("managedBaseUrl").addEventListener("change", () => void refreshManagedCard());
+  await refreshManagedCard();
+}
+
+function managedBaseUrl(): string {
+  return ($("managedBaseUrl") as HTMLInputElement).value.trim();
+}
+
+const managedHandlers: ManagedCardHandlers = {
+  onSignIn() {
+    void (async () => {
+      try {
+        await managedSignIn();
+        await refreshManagedCard();
+      } catch (err) {
+        renderManagedCard($("managedState"), {
+          signedIn: false,
+          account: null,
+          error: err instanceof Error ? err.message : String(err)
+        }, managedHandlers);
+      }
+    })();
+  },
+  onSignOut() {
+    void (async () => {
+      await managedSignOut().catch(() => undefined);
+      await refreshManagedCard();
+    })();
+  },
+  onCheckout() {
+    void (async () => {
+      const root = $("managedState");
+      try {
+        const result = await managedCheckout(managedBaseUrl());
+        window.open(result.checkoutUrl, "_blank");
+      } catch (err) {
+        renderManagedCard(root, {
+          signedIn: true,
+          account: null,
+          error: err instanceof Error ? err.message : String(err)
+        }, managedHandlers);
+        return;
+      }
+      await refreshManagedCard();
+    })();
+  },
+  onRefresh() {
+    void refreshManagedCard();
+  }
+};
+
+async function refreshManagedCard(): Promise<void> {
+  const root = $("managedState");
+  try {
+    const auth = await managedAuthState();
+    if (!auth.signedIn) {
+      renderManagedCard(root, { signedIn: false, account: null }, managedHandlers);
+      return;
+    }
+    const account = await managedAccount(managedBaseUrl());
+    renderManagedCard(root, { signedIn: true, account }, managedHandlers);
+  } catch (err) {
+    const status = err instanceof ManagedClientError ? err.status : 0;
+    if (status === 401) {
+      renderManagedCard(root, { signedIn: false, account: null }, managedHandlers);
+    } else {
+      renderManagedCard(root, {
+        signedIn: true,
+        account: null,
+        error: err instanceof Error ? err.message : String(err)
+      }, managedHandlers);
+    }
+  }
 }
 
 async function onSave() {
@@ -96,12 +191,14 @@ async function onSave() {
     openai: ($("openaiKey") as HTMLInputElement).value.trim() || undefined,
     gemini: ($("geminiKey") as HTMLInputElement).value.trim() || undefined
   });
+  const { keys: _keys, ...current } = await getSettings();
   await saveSettings({
     ...DEFAULT_SETTINGS,
+    ...current,
     translateProvider: ($("translateProvider") as HTMLSelectElement).value as ProviderId,
     ttsProvider: ($("ttsProvider") as HTMLSelectElement).value as ProviderId,
     sttProvider: ($("sttProvider") as HTMLSelectElement).value as ProviderId,
-    targetLang: ($("targetLang") as HTMLInputElement).value.trim() || "vi",
+    targetLang: ($("targetLang") as HTMLSelectElement).value.trim() || "vi",
     voice: ($("voice") as HTMLSelectElement).value,
     duckVolume: Number(($("duckVolume") as HTMLInputElement).value),
     showSubtitles: ($("showSubtitles") as HTMLInputElement).checked,
@@ -109,10 +206,12 @@ async function onSave() {
     translateModel: ($("translateModel") as HTMLSelectElement).value,
     shareServerUrl: ($("shareServerUrl") as HTMLInputElement).value.trim().replace(/\/$/, ""),
     autoUpload: ($("autoUpload") as HTMLInputElement).checked,
-    defaultVisibility: ($("defaultVisibility") as HTMLSelectElement).value as "public" | "private"
+    defaultVisibility: ($("defaultVisibility") as HTMLSelectElement).value as "public" | "private",
+    billingMode: ($("modeManaged") as HTMLInputElement).checked ? "managed" : "byok",
+    managedBaseUrl: ($("managedBaseUrl") as HTMLInputElement).value.trim().replace(/\/+$/, "")
   });
-  status.textContent = "Saved";
-  setTimeout(() => (status.textContent = ""), 1500);
+  status.textContent = t("options.saved");
+  setTimeout(() => (status.textContent = ""), 2000);
 }
 
 init();

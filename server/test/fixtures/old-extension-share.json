@@ -1,0 +1,39 @@
+{
+  "description": "Payloads captured from the pre-managed BYOK extension share client (extension/src/lib/api/shareClient.ts). The shipped extension is loaded unpacked and never auto-updates, so the server must keep accepting these exact shapes.",
+  "init": {
+    "method": "POST",
+    "path": "/api/dubs/init",
+    "body": {
+      "platform": "youtube",
+      "videoId": "dQw4w9WgXcQ",
+      "sourceLang": "en",
+      "targetLang": "vi",
+      "voice": "alloy",
+      "provider": "openai",
+      "title": "Old client capture",
+      "durationMs": 2600,
+      "visibility": "public",
+      "segments": [
+        { "idx": 0, "startMs": 0, "endMs": 1200, "originalText": "hello", "text": "xin chao", "mime": "audio/mpeg" },
+        { "idx": 1, "startMs": 1200, "endMs": 2600, "originalText": "world", "text": "the gioi", "mime": "audio/mpeg" }
+      ]
+    },
+    "absentFields": ["generationProfile", "voiceProfile", "rightsAssertion"]
+  },
+  "lookup": {
+    "method": "GET",
+    "path": "/api/dubs/lookup",
+    "query": {
+      "platform": "youtube",
+      "videoId": "dQw4w9WgXcQ",
+      "targetLang": "vi",
+      "voice": "alloy",
+      "provider": "openai"
+    }
+  },
+  "complete": {
+    "method": "POST",
+    "path": "/api/dubs/[id]/complete",
+    "body": { "ownerToken": "old-client-owner-token" }
+  }
+}
