@@ -104,15 +104,15 @@ export default function AdminOutreachPage() {
         operator, tải danh sách, tự mở trang Business Inquiry của kênh, nhập email creator đang công khai rồi duyệt
         template trước khi gửi.
       </p>
-      <div style={{ marginBottom: 16 }}>
+      <div className="admin-token">
         <input
-          style={{ width: "70%" }}
+          className="evo-input"
           type="password"
           placeholder="Supabase access token"
           value={token}
           onChange={(e) => saveToken(e.target.value)}
         />
-        <button onClick={() => void load()}>Tải danh sách</button>
+        <button className="evo-btn evo-btn--solid" onClick={() => void load()}>Tải danh sách</button>
       </div>
       {message && <p>{message}</p>}
       {items.map((item) => (
@@ -131,17 +131,17 @@ export default function AdminOutreachPage() {
               Mở YouTube Business Inquiry
             </a>
           </p>
-          <div>
+          <div className="admin-actions">
             <input
-              style={{ width: "50%" }}
+              className="evo-input"
               type="email"
               placeholder="Email creator (operator tự nhập từ trang công khai)"
               value={emails[item.id] ?? item.creatorEmail}
               onChange={(e) => setEmails((prev) => ({ ...prev, [item.id]: e.target.value }))}
             />
-            <button onClick={() => void saveEmail(item)}>Lưu email</button>
-            <button onClick={() => void preview(item)}>Xem template</button>
-            <button onClick={() => void send(item)}>Gửi notice</button>
+            <button className="evo-btn evo-btn--outline" onClick={() => void saveEmail(item)}>Lưu email</button>
+            <button className="evo-btn evo-btn--outline" onClick={() => void preview(item)}>Xem template</button>
+            <button className="evo-btn evo-btn--solid" onClick={() => void send(item)}>Gửi notice</button>
           </div>
           {previews[item.id] && (
             <pre style={{ whiteSpace: "pre-wrap", marginTop: 8 }}>

@@ -44,7 +44,7 @@ export default async function Home() {
   return (
     <main className="wrap">
       <div className="hero">
-        <div className="logo">E</div>
+        <span className="evo-logo" aria-hidden="true" />
         <div>
           <h1>evo-dubbing</h1>
         </div>
