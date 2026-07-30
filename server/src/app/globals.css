@@ -538,3 +538,39 @@ a.card:hover {
 .pricing-note {
   margin-top: var(--evo-space-4);
 }
+
+.library-filter {
+  display: flex;
+  gap: var(--evo-space-2);
+  margin-bottom: var(--evo-space-6);
+}
+
+.library-filter .evo-input {
+  flex: 1 1 auto;
+}
+
+.library-filter .evo-select {
+  width: auto;
+  min-width: 150px;
+}
+
+.dub-card .dub-title {
+  text-decoration: none;
+}
+
+.dub-card .dub-title:hover h3 {
+  text-decoration: underline;
+}
+
+.dub-actions {
+  display: flex;
+  gap: var(--evo-space-2);
+  margin-top: var(--evo-space-3);
+}
+
+.library-pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: var(--evo-space-6);
+}
