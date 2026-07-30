@@ -574,3 +574,74 @@ a.card:hover {
   justify-content: space-between;
   margin-top: var(--evo-space-6);
 }
+
+.dub-page-title {
+  font-size: 24px;
+  margin-bottom: var(--evo-space-2);
+}
+
+.player {
+  border: 1px solid var(--evo-border);
+  border-radius: var(--evo-radius-lg);
+  padding: var(--evo-space-4);
+}
+
+.player-bar {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--evo-space-4);
+  padding-bottom: var(--evo-space-4);
+  border-bottom: 1px solid var(--evo-border);
+}
+
+.player-now {
+  flex: 1;
+  min-width: 0;
+}
+
+.player-cue-text {
+  font-size: var(--evo-text-section);
+  line-height: 1.5;
+  margin-bottom: var(--evo-space-1);
+}
+
+.player-cues {
+  list-style: none;
+  margin: var(--evo-space-4) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.player-cue {
+  display: flex;
+  gap: var(--evo-space-3);
+  width: 100%;
+  text-align: left;
+  padding: var(--evo-space-2) var(--evo-space-3);
+  border: 0;
+  border-radius: var(--evo-radius-sm);
+  background: transparent;
+  font-family: inherit;
+  font-size: var(--evo-text-body);
+  color: var(--evo-fg);
+  cursor: pointer;
+}
+
+.player-cue:hover {
+  background: var(--evo-bg-hover);
+}
+
+.player-cue--active {
+  background: var(--evo-bg-muted);
+  font-weight: 600;
+}
+
+.player-cue-time {
+  flex: none;
+  width: 44px;
+  padding-top: 1px;
+}

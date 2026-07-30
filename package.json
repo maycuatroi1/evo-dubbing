@@ -25,6 +25,8 @@
     "check": "npm run type:all && npm run verify",
     "test:e2e": "playwright test",
     "test:e2e:prod": "cross-env BASE_URL=https://nghe.omelet.tech playwright test",
+    "e2e:seed": "cross-env BASE_URL=https://nghe.omelet.tech node scripts/e2e-seed.mjs",
+    "e2e:cleanup": "cross-env BASE_URL=https://nghe.omelet.tech node scripts/e2e-cleanup.mjs",
     "benchmark:providers": "node scripts/benchmark/providers.mjs",
     "benchmark:translation": "node scripts/benchmark/providers.mjs --kind translation",
     "benchmark:tts": "node scripts/benchmark/providers.mjs --kind tts",
