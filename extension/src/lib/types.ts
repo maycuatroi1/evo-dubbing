@@ -15,6 +15,22 @@ export interface Transcript {
   source: TranscriptSource;
   lang: string;
   segments: TranscriptSegment[];
+  trackId?: string;
+  coverage?: number;
+}
+
+export interface CaptionTrackOption {
+  id: string;
+  lang: string;
+  name: string;
+  auto: boolean;
+  primary: boolean;
+}
+
+export interface TranscriptInfo {
+  lang: string;
+  trackId: string;
+  coverage: number;
 }
 
 export interface DubSegment {

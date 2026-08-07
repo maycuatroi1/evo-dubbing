@@ -7,6 +7,11 @@ export const vi = {
   "overlay.noVideo": "Không tìm thấy video trên trang này.",
   "overlay.sourceMeta": "{duration} · {platform}",
   "overlay.targetLabel": "Dịch sang",
+  "overlay.trackLabel": "Nguồn phụ đề",
+  "overlay.trackAuto": "Tự động (khuyến nghị)",
+  "overlay.trackForeign": "khác tiếng gốc",
+  "overlay.trackLowCoverage":
+    "Phụ đề đang dùng chỉ phủ {percent}% thời lượng video. Hãy chọn nguồn phụ đề khác nếu bản lồng tiếng bị thiếu.",
   "overlay.dub": "Lồng tiếng video này",
   "overlay.pause": "Tạm dừng",
   "overlay.resume": "Phát tiếp",

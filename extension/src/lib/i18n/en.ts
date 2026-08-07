@@ -9,6 +9,11 @@ export const en: StringTable = {
   "overlay.noVideo": "No video detected on this page.",
   "overlay.sourceMeta": "{duration} · {platform}",
   "overlay.targetLabel": "Translate to",
+  "overlay.trackLabel": "Caption source",
+  "overlay.trackAuto": "Automatic (recommended)",
+  "overlay.trackForeign": "not the spoken language",
+  "overlay.trackLowCoverage":
+    "The current captions only cover {percent}% of the video. Pick another caption source if the dub has gaps.",
   "overlay.dub": "Dub this video",
   "overlay.pause": "Pause",
   "overlay.resume": "Resume",

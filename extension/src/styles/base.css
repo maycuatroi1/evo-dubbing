@@ -335,6 +335,14 @@
   color: var(--evo-fg-subtle);
 }
 
+.evo-note--warn {
+  padding: var(--evo-space-2) var(--evo-space-3);
+  border: 1px solid var(--evo-border-strong);
+  border-radius: var(--evo-radius-sm);
+  background: var(--evo-bg-muted);
+  color: var(--evo-fg-muted);
+}
+
 .evo-num {
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum";

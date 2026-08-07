@@ -15,13 +15,23 @@ export interface CaptionEvent {
   text: string;
 }
 
+export interface CaptionTrackInfo {
+  id: string;
+  lang: string;
+  name: string;
+  auto: boolean;
+  primary: boolean;
+}
+
 export type BridgeRequest =
   | { kind: "getPlayerInfo" }
-  | { kind: "fetchTranscript"; avoidLang?: string };
+  | { kind: "listCaptionTracks"; avoidLang?: string }
+  | { kind: "fetchTranscript"; avoidLang?: string; trackId?: string };
 
 export type BridgeResult =
   | { kind: "playerInfo"; info: PlayerInfo | null }
-  | { kind: "transcript"; lang: string; events: CaptionEvent[] }
+  | { kind: "captionTracks"; tracks: CaptionTrackInfo[]; recommendedId: string | null }
+  | { kind: "transcript"; lang: string; trackId: string; coverage: number; events: CaptionEvent[] }
   | { kind: "error"; message: string };
 
 export interface BridgeEnvelope<T> {

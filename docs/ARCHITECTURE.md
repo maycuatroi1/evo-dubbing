@@ -54,6 +54,17 @@ evo-dubbing is split into a Chrome extension that does all the heavy lifting cli
    - Preferred: the platform's own caption track (YouTube `timedtext`). Cheap, already timed.
      YouTube now requires a `pot` (poToken) on `timedtext`; the MAIN-world bridge hooks the
      player's own caption request to capture a valid `pot` and appends it to the track baseUrl.
+   - Which track: `extension/src/content/caption-tracks.ts` ranks them. The spoken language is
+     the language of the ASR track inside the default audio track (YouTube only auto-generates
+     captions for what is actually spoken); with no ASR track it falls back to
+     `defaultCaptionTrackIndex`. Only tracks in that language count as primary, and a
+     human-written track beats ASR only inside that group, so a community joke track in an
+     unrelated language never wins. Do not trust `captionTrackIndices` as the primary signal: on
+     `Dx2yPk0FsGM` it lists the Klingon track alongside the English one. The bridge then loads up
+     to 3 candidates in rank order and keeps the first whose cue coverage clears 35% of the video.
+   - The viewer can override the pick: the overlay lists every track and stores the choice per
+     video and per channel (`evoDubbingTrackPrefs`). A pinned track is used as-is, with its
+     coverage reported back so the overlay can warn when the captions are near-empty.
    - Fallback: download the audio and run Whisper STT (OpenAI). Produces timed segments. (Not wired yet.)
 3. Merge fragmented caption cues into sentence-level cues (fewer TTS calls, more natural speech).
 4. Translate and synthesize lazily, driven by the playhead. See "Cost: lazy generation".

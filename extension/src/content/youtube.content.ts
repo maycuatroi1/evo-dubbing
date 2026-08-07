@@ -1,5 +1,13 @@
 import { EvoOverlay, type OverlayAction } from "./overlay.ts";
-import { getSettings, saveOwnerToken, getOwnerToken } from "../lib/storage.ts";
+import {
+  channelTrackKey,
+  getOwnerToken,
+  getSettings,
+  getTrackPreference,
+  saveOwnerToken,
+  saveTrackPreference,
+  videoTrackKey
+} from "../lib/storage.ts";
 import { resolvePlatform } from "../lib/platforms/index.ts";
 import { DubSession } from "../lib/dubbing/session.ts";
 import { lookupDub, uploadDub, setVisibility, type RemoteDub } from "../lib/api/shareClient.ts";
@@ -24,6 +32,45 @@ let context: VideoContext | null = null;
 let session: DubSession | null = null;
 let fromRemote = false;
 let uploadedDubId: string | null = null;
+const TRACK_LIST_RETRIES = 4;
+const TRACK_LIST_RETRY_MS = 1200;
+
+function trackKeys(ctx: VideoContext): string[] {
+  const keys = [videoTrackKey(ctx.platform, ctx.videoId)];
+  if (ctx.channelId) keys.push(channelTrackKey(ctx.platform, ctx.channelId));
+  return keys;
+}
+
+async function refreshCaptionTracks(attempt = 0): Promise<void> {
+  if (!platform || !context) {
+    overlay?.setCaptionTracks([], "");
+    return;
+  }
+  const videoId = context.videoId;
+  const settings = await getSettings();
+  const [list, preferred] = await Promise.all([
+    platform.listCaptionTracks(settings.targetLang).catch(() => ({ tracks: [], recommendedId: null })),
+    getTrackPreference(trackKeys(context))
+  ]);
+  if (context?.videoId !== videoId) return;
+
+  overlay?.setCaptionTracks(list.tracks, preferred ?? "");
+
+  if (list.tracks.length === 0 && attempt < TRACK_LIST_RETRIES) {
+    window.setTimeout(() => {
+      if (context?.videoId === videoId) void refreshCaptionTracks(attempt + 1);
+    }, TRACK_LIST_RETRY_MS);
+  }
+}
+
+async function onTrackChange(trackId: string): Promise<void> {
+  if (context) await saveTrackPreference(trackKeys(context), trackId);
+  cleanupSession();
+  fromRemote = false;
+  uploadedDubId = null;
+  const settings = await getSettings();
+  overlay?.reset(settings.targetLang);
+}
 
 function remoteToDub(remote: RemoteDub | ManagedSharedDub): Dub {
   return {
@@ -122,7 +169,7 @@ function handleExportError(settings: Settings, err: unknown): void {
   showSessionError(settings, message, status);
 }
 
-async function onDub(targetLang: string): Promise<void> {
+async function onDub(targetLang: string, trackId: string): Promise<void> {
   if (!platform || !context) return;
 
   const video = platform.getVideoElement();
@@ -148,6 +195,7 @@ async function onDub(targetLang: string): Promise<void> {
       overlay?.setReady();
       overlay?.setPlaying(true);
     },
+    onTranscript: (info) => overlay?.setTranscriptInfo(info),
     getRemainingSourceMs:
       settings.billingMode === "managed"
         ? async () => {
@@ -206,7 +254,7 @@ async function onDub(targetLang: string): Promise<void> {
     }
 
     fromRemote = false;
-    await session.startGenerated(platform);
+    await session.startGenerated(platform, trackId || undefined);
   } catch (err) {
     handleExportError(settings, err);
   }
@@ -313,12 +361,20 @@ async function refreshContext(): Promise<void> {
   if (!platform) return;
   context = await platform.getVideoContext();
   overlay?.setVideoContext(context);
+  await refreshCaptionTracks();
 }
 
 async function init(): Promise<void> {
   if (!platform) return;
   const settings = await getSettings();
-  overlay = new EvoOverlay({ onDub, onTogglePlay, onRedub, onShare, onOpenSettings: openOptionsPage });
+  overlay = new EvoOverlay({
+    onDub,
+    onTrackChange: (trackId) => void onTrackChange(trackId),
+    onTogglePlay,
+    onRedub,
+    onShare,
+    onOpenSettings: openOptionsPage
+  });
   overlay.mount(settings.targetLang);
   overlay.setVisibility(settings.defaultVisibility);
   await refreshContext();

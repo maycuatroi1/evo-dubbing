@@ -55,6 +55,54 @@ export async function saveOwnerToken(dubId: string, token: string): Promise<void
   await chrome.storage.local.set({ [OWNERS_KEY]: owners });
 }
 
+const TRACK_PREFS_KEY = "evoDubbingTrackPrefs";
+const TRACK_PREFS_LIMIT = 200;
+
+interface TrackPreference {
+  trackId: string;
+  at: number;
+}
+
+type TrackPreferences = Record<string, TrackPreference>;
+
+async function readTrackPreferences(): Promise<TrackPreferences> {
+  const stored = await chrome.storage.local.get(TRACK_PREFS_KEY);
+  return (stored[TRACK_PREFS_KEY] ?? {}) as TrackPreferences;
+}
+
+export function videoTrackKey(platform: string, videoId: string): string {
+  return `${platform}:v:${videoId}`;
+}
+
+export function channelTrackKey(platform: string, channelId: string): string {
+  return `${platform}:c:${channelId}`;
+}
+
+export async function getTrackPreference(keys: string[]): Promise<string | null> {
+  const prefs = await readTrackPreferences();
+  for (const key of keys) {
+    const hit = prefs[key];
+    if (hit) return hit.trackId;
+  }
+  return null;
+}
+
+export async function saveTrackPreference(keys: string[], trackId: string): Promise<void> {
+  const prefs = await readTrackPreferences();
+  const at = Date.now();
+  for (const key of keys) prefs[key] = { trackId, at };
+
+  const entries = Object.entries(prefs);
+  if (entries.length > TRACK_PREFS_LIMIT) {
+    entries.sort((a, b) => b[1].at - a[1].at);
+    await chrome.storage.local.set({
+      [TRACK_PREFS_KEY]: Object.fromEntries(entries.slice(0, TRACK_PREFS_LIMIT))
+    });
+    return;
+  }
+  await chrome.storage.local.set({ [TRACK_PREFS_KEY]: prefs });
+}
+
 export function onSettingsChanged(handler: (settings: Settings) => void): void {
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area !== "local") return;

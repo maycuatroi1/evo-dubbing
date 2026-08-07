@@ -7,17 +7,21 @@ import {
   type CaptionEvent,
   type PlayerInfo
 } from "./bridge-protocol.ts";
-
-interface RawCaptionTrack {
-  baseUrl: string;
-  languageCode: string;
-  kind?: string;
-}
+import {
+  MAX_TRACK_ATTEMPTS,
+  coverageOf,
+  describeTracks,
+  isUsable,
+  rankTracks,
+  type CaptionsTracklist,
+  type RankedTrack,
+  type RawCaptionTrack
+} from "./caption-tracks.ts";
 
 interface PlayerResponse {
   videoDetails?: { videoId?: string; title?: string; lengthSeconds?: string; channelId?: string; author?: string };
   captions?: {
-    playerCaptionsTracklistRenderer?: { captionTracks?: RawCaptionTrack[] };
+    playerCaptionsTracklistRenderer?: CaptionsTracklist;
   };
 }
 
@@ -101,12 +105,19 @@ function getPlayerResponse(): PlayerResponse | null {
   return initial ?? null;
 }
 
-function readTracks(): RawCaptionTrack[] {
-  const fromPlayer = getPlayerResponse()?.captions?.playerCaptionsTracklistRenderer?.captionTracks ?? [];
-  if (fromPlayer.length) return fromPlayer.filter((t) => t.baseUrl);
+function readTracklist(): CaptionsTracklist {
+  const fromPlayer = getPlayerResponse()?.captions?.playerCaptionsTracklistRenderer;
+  if (fromPlayer?.captionTracks?.length) return fromPlayer;
   const initial = (window as unknown as { ytInitialPlayerResponse?: PlayerResponse }).ytInitialPlayerResponse;
-  const fromInitial = initial?.captions?.playerCaptionsTracklistRenderer?.captionTracks ?? [];
-  return fromInitial.filter((t) => t.baseUrl);
+  return initial?.captions?.playerCaptionsTracklistRenderer ?? {};
+}
+
+function readTracks(): RawCaptionTrack[] {
+  return (readTracklist().captionTracks ?? []).filter((t) => t.baseUrl);
+}
+
+function rankCurrentTracks(tracks: RawCaptionTrack[], avoidLang?: string): RankedTrack[] {
+  return rankTracks(readTracklist(), tracks, avoidLang);
 }
 
 function currentVideoId(): string | null {
@@ -240,29 +251,55 @@ async function loadEvents(url: string): Promise<CaptionEvent[]> {
   }
 }
 
-async function fetchTranscript(avoidLang?: string): Promise<BridgeResult> {
+async function loadTrackEvents(track: RawCaptionTrack): Promise<CaptionEvent[]> {
+  const events = await loadEvents(buildTimedTextUrl(track.baseUrl));
+  if (events.length > 0 || !capturedTimedTextUrl) return events;
+  return loadEvents(withLang(capturedTimedTextUrl, track.languageCode));
+}
+
+function listCaptionTracks(avoidLang?: string): BridgeResult {
+  const ranked = rankCurrentTracks(readTracks(), avoidLang);
+  return {
+    kind: "captionTracks",
+    tracks: describeTracks(ranked),
+    recommendedId: ranked[0]?.id ?? null
+  };
+}
+
+async function fetchTranscript(avoidLang?: string, trackId?: string): Promise<BridgeResult> {
   const tracks = readTracks();
   if (tracks.length === 0) return { kind: "error", message: "no-captions" };
 
-  const pool = avoidLang ? tracks.filter((t) => t.languageCode !== avoidLang) : tracks;
-  const usable = pool.length ? pool : tracks;
-  const chosen = usable.find((t) => t.kind !== "asr") ?? usable[0];
+  const ranked = rankCurrentTracks(tracks, avoidLang);
+  const pinned = trackId ? ranked.find((entry) => entry.id === trackId) : undefined;
+  const candidates = pinned ? [pinned] : ranked.slice(0, MAX_TRACK_ATTEMPTS);
+  const durationMs = readPlayerInfo()?.durationMs ?? 0;
 
-  await ensurePot(chosen.languageCode, tracks);
+  await ensurePot(candidates[0].track.languageCode, tracks);
 
-  let events = await loadEvents(buildTimedTextUrl(chosen.baseUrl));
-  if (events.length === 0 && capturedTimedTextUrl) {
-    events = await loadEvents(withLang(capturedTimedTextUrl, chosen.languageCode));
+  let best: { entry: RankedTrack; events: CaptionEvent[]; coverage: number } | null = null;
+  for (const entry of candidates) {
+    const events = await loadTrackEvents(entry.track);
+    const coverage = coverageOf(events, durationMs);
+    if (!best || coverage > best.coverage) best = { entry, events, coverage };
+    if (isUsable(events, coverage, durationMs)) break;
   }
 
-  if (events.length === 0) return { kind: "error", message: "empty-timedtext" };
-  return { kind: "transcript", lang: chosen.languageCode, events };
+  if (!best || best.events.length === 0) return { kind: "error", message: "empty-timedtext" };
+  return {
+    kind: "transcript",
+    lang: best.entry.track.languageCode,
+    trackId: best.entry.id,
+    coverage: best.coverage,
+    events: best.events
+  };
 }
 
 async function handle(req: BridgeRequest): Promise<BridgeResult> {
   try {
     if (req.kind === "getPlayerInfo") return { kind: "playerInfo", info: readPlayerInfo() };
-    if (req.kind === "fetchTranscript") return await fetchTranscript(req.avoidLang);
+    if (req.kind === "listCaptionTracks") return listCaptionTracks(req.avoidLang);
+    if (req.kind === "fetchTranscript") return await fetchTranscript(req.avoidLang, req.trackId);
     return { kind: "error", message: "unknown request" };
   } catch (err) {
     return { kind: "error", message: err instanceof Error ? err.message : String(err) };

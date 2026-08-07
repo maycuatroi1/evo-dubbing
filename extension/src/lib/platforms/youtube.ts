@@ -1,5 +1,5 @@
 import type { Transcript, VideoContext } from "../types.ts";
-import type { Platform } from "./index.ts";
+import type { CaptionTrackList, Platform, TranscriptRequest } from "./index.ts";
 import {
   BRIDGE_REQ,
   BRIDGE_RES,
@@ -101,8 +101,18 @@ export const youtubePlatform: Platform = {
     return document.querySelector<HTMLVideoElement>(".html5-main-video, #movie_player video");
   },
 
-  async getCaptionTranscript(preferAgainstLang?: string): Promise<Transcript | null> {
-    const res = await bridge({ kind: "fetchTranscript", avoidLang: preferAgainstLang });
+  async listCaptionTracks(avoidLang?: string): Promise<CaptionTrackList> {
+    const res = await bridge({ kind: "listCaptionTracks", avoidLang });
+    if (res.kind !== "captionTracks") return { tracks: [], recommendedId: null };
+    return { tracks: res.tracks, recommendedId: res.recommendedId };
+  },
+
+  async getCaptionTranscript(request?: TranscriptRequest): Promise<Transcript | null> {
+    const res = await bridge({
+      kind: "fetchTranscript",
+      avoidLang: request?.avoidLang,
+      trackId: request?.trackId
+    });
     if (res.kind !== "transcript" || res.events.length === 0) return null;
 
     const segments = res.events.map((ev, idx) => ({
@@ -112,6 +122,12 @@ export const youtubePlatform: Platform = {
       text: ev.text
     }));
 
-    return { source: "captions", lang: res.lang, segments };
+    return {
+      source: "captions",
+      lang: res.lang,
+      trackId: res.trackId,
+      coverage: res.coverage,
+      segments
+    };
   }
 };

@@ -3,6 +3,7 @@ import type {
   DubSegment,
   ProgressHandler,
   Settings,
+  TranscriptInfo,
   TranscriptSegment,
   VideoContext
 } from "../types.ts";
@@ -46,6 +47,7 @@ export interface SessionOptions {
   onProgress: ProgressHandler;
   onReady: () => void;
   getRemainingSourceMs?: () => Promise<number | null>;
+  onTranscript?: (info: TranscriptInfo) => void;
 }
 
 export class DubSession {
@@ -55,6 +57,7 @@ export class DubSession {
   private onProgress: ProgressHandler;
   private onReady: () => void;
   private getRemainingSourceMs?: () => Promise<number | null>;
+  private onTranscript?: (info: TranscriptInfo) => void;
 
   private cues: TranscriptSegment[] = [];
   private states: CueState[] = [];
@@ -90,6 +93,7 @@ export class DubSession {
     this.onProgress = opts.onProgress;
     this.onReady = opts.onReady;
     this.getRemainingSourceMs = opts.getRemainingSourceMs;
+    this.onTranscript = opts.onTranscript;
     this.ctx = new AudioContext();
     this.gain = this.ctx.createGain();
     this.gain.connect(this.ctx.destination);
@@ -101,7 +105,7 @@ export class DubSession {
     return key;
   }
 
-  async startGenerated(platform: Platform): Promise<void> {
+  async startGenerated(platform: Platform, trackId?: string): Promise<void> {
     this.mode = "generate";
     this.backend = createInferenceBackend(this.settings);
     if (this.settings.billingMode !== "managed") {
@@ -110,13 +114,21 @@ export class DubSession {
     }
 
     this.onProgress({ phase: "transcript", current: 0, total: 1, message: "Reading captions" });
-    const transcript = await platform.getCaptionTranscript(this.settings.targetLang);
+    const transcript = await platform.getCaptionTranscript({
+      avoidLang: this.settings.targetLang,
+      trackId
+    });
     if (!transcript || transcript.segments.length === 0) {
       throw new Error(
         "Could not load captions for this video. If it has a CC button, turn captions on once and try again. " +
           "Videos with no captions at all are not supported yet."
       );
     }
+    this.onTranscript?.({
+      lang: transcript.lang,
+      trackId: transcript.trackId ?? "",
+      coverage: transcript.coverage ?? 1
+    });
     this.sourceLang = transcript.lang;
     this.cues = mergeCues(transcript.segments);
     this.states = this.cues.map(() => ({

@@ -4,6 +4,32 @@ Append at the end of every session. Newest first. Keep entries short: what chang
 verified, what the next session should pick up. This file is the only thing that survives a
 context window.
 
+## 2026-08-05 - caption source: ranked track pick + viewer override
+
+- Root cause found on `Dx2yPk0FsGM`: the video ships an English ASR track plus a manual Klingon
+  track, and `page-bridge.ts` preferred any `kind !== "asr"` track, so every dub was built from a
+  few lines of Klingon. The rule was never about ASR quality, it was about ownership of the
+  spoken language.
+- New `extension/src/content/caption-tracks.ts` (pure, unit tested) treats the language of the
+  ASR track as the spoken language, ranks only that language as primary, then prefers
+  human-written over ASR inside it, with a penalty for tracks already in the target language.
+  `fetchTranscript` walks up to 3 candidates and keeps the first whose merged cue coverage clears
+  35% of the runtime, so a short or broken track self-heals.
+- Trap worth remembering: `audioTracks[].captionTrackIndices` is NOT a spoken-language filter. On
+  `Dx2yPk0FsGM` it is `[1, 0]`, listing Klingon before English, so an earlier version of this
+  ranking still picked Klingon. Checked against the real tracklist before believing the tests.
+- Viewer override: bridge gained `listCaptionTracks`, the overlay gained a "Caption source"
+  select (auto + every track, foreign-language ones labelled), and the choice is stored per video
+  and per channel in `evoDubbingTrackPrefs`. Coverage under 50% renders a warning under the
+  select pointing at the picker.
+- **Verified:** `npm run check` (10 seam checks, bridge-protocol now 3 request / 4 result kinds),
+  `npm test --workspace extension` 45 tests including 8 new ranking/coverage cases built from the
+  real `Dx2yPk0FsGM` tracklist, `npm run build:ext`.
+- **Not verified (owner-only):** no in-browser run yet. Load `extension/dist` unpacked, open
+  `Dx2yPk0FsGM`, confirm the dub now reads English and that the picker lists both tracks.
+- Next: the same coverage signal is the natural trigger for the STT fallback in ROADMAP, and
+  a "paste your own .srt" source would close the last gap.
+
 ## 2026-07-30 - nghe-site-mvp: product site live on production
 
 - https://nghe.omelet.tech is now the mono-light product site: landing with the 199.000 VND /

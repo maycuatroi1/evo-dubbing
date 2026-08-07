@@ -1,4 +1,4 @@
-import type { DubbingProgress, VideoContext } from "../lib/types.ts";
+import type { CaptionTrackOption, DubbingProgress, TranscriptInfo, VideoContext } from "../lib/types.ts";
 import { AI_VOICE_DISCLOSURE } from "../lib/managed/onboarding.ts";
 import { t } from "../lib/i18n/index.ts";
 import { targetLanguageOptions } from "../lib/i18n/languages.ts";
@@ -9,12 +9,15 @@ import {
 } from "../lib/managed/share.ts";
 
 export interface OverlayHandlers {
-  onDub: (targetLang: string) => void;
+  onDub: (targetLang: string, trackId: string) => void;
+  onTrackChange: (trackId: string) => void;
   onTogglePlay: () => void;
   onRedub: () => void;
   onShare: (visibility: "public" | "private") => void;
   onOpenSettings: () => void;
 }
+
+const LOW_COVERAGE = 0.5;
 
 export interface OverlayAction {
   label: string;
@@ -67,6 +70,9 @@ export class EvoOverlay {
   private sourceTitle!: HTMLDivElement;
   private sourceMeta!: HTMLDivElement;
   private langSelect!: HTMLSelectElement;
+  private trackSelect!: HTMLSelectElement;
+  private trackField!: HTMLDivElement;
+  private trackNote!: HTMLParagraphElement;
   private dubBtn!: HTMLButtonElement;
   private runEl!: HTMLDivElement;
   private runHead!: HTMLDivElement;
@@ -143,11 +149,26 @@ export class EvoOverlay {
       h("div", { class: "evo-select-wrap" }, [this.langSelect, icon("chevron")])
     ]);
 
+    this.trackSelect = h("select", {
+      class: "evo-select",
+      id: "evo-caption-track",
+      attrs: { "aria-label": t("overlay.trackLabel") }
+    });
+    this.trackSelect.addEventListener("change", () => this.handlers.onTrackChange(this.trackSelect.value));
+    this.trackNote = h("p", { class: "evo-note evo-note--warn evo-hidden" });
+    this.trackField = h("div", { class: "evo-field evo-hidden" }, [
+      h("label", { class: "evo-label", htmlFor: "evo-caption-track", textContent: t("overlay.trackLabel") }),
+      h("div", { class: "evo-select-wrap" }, [this.trackSelect, icon("chevron")]),
+      this.trackNote
+    ]);
+
     this.dubBtn = h("button", {
       class: "evo-btn evo-btn--solid evo-btn--block",
       type: "button"
     }, [icon("audio"), h("span", { textContent: t("overlay.dub") })]);
-    this.dubBtn.addEventListener("click", () => this.handlers.onDub(this.langSelect.value || "vi"));
+    this.dubBtn.addEventListener("click", () =>
+      this.handlers.onDub(this.langSelect.value || "vi", this.trackSelect.value)
+    );
 
     this.progressBar = h("span");
     this.progressEl = h("div", {
@@ -216,6 +237,7 @@ export class EvoOverlay {
     const body = h("div", { class: "evo-body" }, [
       this.sourceEl,
       langField,
+      this.trackField,
       this.dubBtn,
       this.runEl,
       this.statusActions,
@@ -286,6 +308,36 @@ export class EvoOverlay {
         })
       : "";
     this.dubBtn.disabled = !ctx;
+  }
+
+  setCaptionTracks(tracks: CaptionTrackOption[], selectedId: string): void {
+    this.trackField.classList.toggle("evo-hidden", tracks.length === 0);
+    this.trackSelect.innerHTML = "";
+    this.trackSelect.append(h("option", { value: "", textContent: t("overlay.trackAuto") }));
+    for (const track of tracks) {
+      const label = track.primary ? track.name : `${track.name} - ${t("overlay.trackForeign")}`;
+      this.trackSelect.append(h("option", { value: track.id, textContent: label }));
+    }
+    const known = tracks.some((track) => track.id === selectedId);
+    this.trackSelect.value = known ? selectedId : "";
+    this.hideTrackNote();
+  }
+
+  setTranscriptInfo(info: TranscriptInfo | null): void {
+    if (!info || info.coverage >= LOW_COVERAGE) {
+      this.hideTrackNote();
+      return;
+    }
+    this.trackNote.textContent = t("overlay.trackLowCoverage", {
+      percent: String(Math.max(1, Math.round(info.coverage * 100)))
+    });
+    this.trackNote.classList.remove("evo-hidden");
+    this.trackField.classList.remove("evo-hidden");
+  }
+
+  private hideTrackNote(): void {
+    this.trackNote.textContent = "";
+    this.trackNote.classList.add("evo-hidden");
   }
 
   setProgress(progress: DubbingProgress): void {
@@ -368,6 +420,7 @@ export class EvoOverlay {
   reset(defaultLang: string): void {
     this.playing = false;
     this.setTargetLang(defaultLang);
+    this.hideTrackNote();
     this.dubBtn.classList.remove("evo-hidden");
     this.dubBtn.disabled = false;
     this.controls.classList.add("evo-hidden");
