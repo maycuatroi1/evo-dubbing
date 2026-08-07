@@ -60,19 +60,23 @@ body {
 }
 
 .evo-kv dt {
+  flex: none;
   font-size: var(--evo-text-meta);
   color: var(--evo-fg-muted);
 }
 
+/* A custom server host can be arbitrarily long; 300px of popup may not wrap on its own. */
 .evo-kv dd {
   display: flex;
   align-items: center;
   gap: var(--evo-space-1);
+  min-width: 0;
   margin: 0;
   font-size: var(--evo-text-meta);
   font-weight: 500;
   color: var(--evo-fg);
   text-align: right;
+  overflow-wrap: anywhere;
 }
 
 .evo-kv dd .evo-i {

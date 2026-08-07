@@ -217,6 +217,14 @@
   border-color: var(--evo-border-focus);
 }
 
+.evo-input:disabled,
+.evo-select:disabled {
+  border-color: var(--evo-border);
+  background: var(--evo-bg-muted);
+  color: var(--evo-fg-subtle);
+  cursor: not-allowed;
+}
+
 .evo-select {
   appearance: none;
   -webkit-appearance: none;

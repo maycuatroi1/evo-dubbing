@@ -1,4 +1,5 @@
 import { getSettings, saveSettings, saveKeys, DEFAULT_SETTINGS } from "../lib/storage.ts";
+import { DEFAULT_SERVER_URL, isDefaultServer, normalizeBaseUrl, serverHost } from "../lib/config.ts";
 import { listProviders, getProvider } from "../lib/providers/index.ts";
 import { hydrate, t } from "../lib/i18n/index.ts";
 import { targetLanguageOptions } from "../lib/i18n/languages.ts";
@@ -105,15 +106,226 @@ async function init() {
   ($("voice") as HTMLSelectElement).value = settings.voice;
 
   ($("translateProvider") as HTMLSelectElement).addEventListener("change", (e) => {
+    providerChosenByHand = true;
     fillProviderModels((e.target as HTMLSelectElement).value as ProviderId, "translate");
   });
   ($("ttsProvider") as HTMLSelectElement).addEventListener("change", (e) => {
+    providerChosenByHand = true;
     fillProviderModels((e.target as HTMLSelectElement).value as ProviderId, "tts");
   });
+  for (const id of ["sttProvider", "translateModel", "ttsModel", "voice"]) {
+    $(id).addEventListener("change", () => {
+      providerChosenByHand = true;
+    });
+  }
+
+  initKeyProviderLink();
+  initServerCard();
 
   $("save").addEventListener("click", onSave);
   $("managedBaseUrl").addEventListener("change", () => void refreshManagedCard());
   await refreshManagedCard();
+}
+
+// --- Keys drive the provider -------------------------------------------------------------
+//
+// A key is the decision; the provider dropdowns are its consequence. Someone who pastes a
+// Gemini key has told us which pipeline to run, so pointing translate, TTS and voice at Gemini
+// saves them three dropdowns and the failure mode of a key that is never read. It fires only
+// when a field goes from empty to filled - rotating a key is not a choice of provider - and
+// never after the user has picked a provider by hand, because that is a decision to respect.
+
+const KEY_FIELDS: { id: string; provider: ProviderId }[] = [
+  { id: "openaiKey", provider: "openai" },
+  { id: "geminiKey", provider: "gemini" }
+];
+
+let providerChosenByHand = false;
+const keyWasFilled: Record<string, boolean> = {};
+
+function adoptProvider(target: ProviderId): void {
+  const provider = getProvider(target);
+  ($("translateProvider") as HTMLSelectElement).value = target;
+  ($("ttsProvider") as HTMLSelectElement).value = target;
+  fillProviderModels(target, "translate");
+  fillProviderModels(target, "tts");
+  ($("translateModel") as HTMLSelectElement).value = provider.translateModels[0];
+  ($("ttsModel") as HTMLSelectElement).value = provider.ttsModels[0];
+  ($("voice") as HTMLSelectElement).value = provider.voices[0].id;
+  // STT is the caption fallback and only some providers transcribe; leave it where it works.
+  if (provider.sttModels.length > 0) ($("sttProvider") as HTMLSelectElement).value = target;
+
+  const note = $("keysAutoNote");
+  setStatusLine(note, "info", t("options.keys.autoSwitch", { provider: provider.label }));
+  note.classList.remove("evo-hidden");
+}
+
+function initKeyProviderLink(): void {
+  for (const { id, provider } of KEY_FIELDS) {
+    keyWasFilled[id] = ($(id) as HTMLInputElement).value.trim() !== "";
+    $(id).addEventListener("input", () => {
+      const filled = ($(id) as HTMLInputElement).value.trim() !== "";
+      const added = filled && !keyWasFilled[id];
+      keyWasFilled[id] = filled;
+      if (added && !providerChosenByHand) adoptProvider(provider);
+    });
+  }
+}
+
+// --- Server card -------------------------------------------------------------------------
+//
+// The server is a default, not a decision. It renders as a read-only identity row, and the only
+// way to a text field is a collapsed disclosure plus an explicit acknowledgement, because every
+// custom value costs the user their paid plan, their quota and the shared library. Getting back
+// is one click and saves immediately; getting out takes three deliberate ones.
+
+interface ServerView {
+  /** What we name and health-check: the managed base, or the share base when managed is empty. */
+  base: string;
+  /** Any configured field points somewhere other than the server we run. */
+  custom: boolean;
+  /** Shared-library lookups and uploads are disabled. */
+  shareOff: boolean;
+}
+
+function serverView(): ServerView {
+  const managed = normalizeBaseUrl(($("managedBaseUrl") as HTMLInputElement).value);
+  const share = normalizeBaseUrl(($("shareServerUrl") as HTMLInputElement).value);
+  const configured = [managed, share].filter(Boolean);
+  return {
+    base: managed || share,
+    custom: configured.length > 0 && configured.some((url) => !isDefaultServer(url)),
+    shareOff: share === ""
+  };
+}
+
+function setStatusLine(el: HTMLElement, icon: string, text: string, error = false): void {
+  el.textContent = "";
+  el.classList.toggle("evo-status--error", error);
+  const mark = document.createElement("span");
+  mark.className = `evo-i evo-i-${icon} evo-i--sm`;
+  mark.setAttribute("aria-hidden", "true");
+  el.append(mark, document.createTextNode(text));
+}
+
+function renderServerCard(): void {
+  const view = serverView();
+  const badge = $("serverBadge");
+
+  $("serverHost").textContent = view.base ? serverHost(view.base) : t("options.server.off");
+  badge.classList.toggle("evo-hidden", !view.base);
+  badge.classList.toggle("evo-badge--warn", view.custom);
+  badge.textContent = view.custom ? t("options.server.custom") : t("options.server.default");
+
+  const banner = $("serverBanner");
+  if (view.custom) {
+    $("serverBannerText").textContent = t("options.server.bannerCustom", {
+      host: serverHost(view.base)
+    });
+    banner.classList.remove("evo-hidden");
+  } else if (view.shareOff) {
+    $("serverBannerText").textContent = t("options.server.bannerOff");
+    banner.classList.remove("evo-hidden");
+  } else {
+    banner.classList.add("evo-hidden");
+  }
+}
+
+function hostPattern(base: string): string | null {
+  try {
+    return `${new URL(base).origin}/*`;
+  } catch {
+    return null;
+  }
+}
+
+async function pingServer(base: string): Promise<boolean> {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 6000);
+  try {
+    const res = await fetch(`${base}/api/health`, { signal: ctrl.signal });
+    return res.ok;
+  } catch {
+    return false;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+// Only the newest check may write the line; a slow ping on an abandoned URL must not overwrite it.
+let healthToken = 0;
+
+async function checkServerHealth(interactive = false): Promise<void> {
+  const line = $("serverHealth");
+  const { base } = serverView();
+  if (!base) {
+    setStatusLine(line, "info", t("options.server.offNote"));
+    return;
+  }
+  const pattern = hostPattern(base);
+  if (!pattern) {
+    setStatusLine(line, "alert", t("options.server.offline"), true);
+    return;
+  }
+  // permissions.request needs a user gesture, so it only runs from the test button.
+  let granted = await chrome.permissions.contains({ origins: [pattern] });
+  if (!granted && interactive) granted = await chrome.permissions.request({ origins: [pattern] });
+  if (!granted) {
+    setStatusLine(line, "info", t("options.server.needsPermission"));
+    return;
+  }
+
+  const token = ++healthToken;
+  setStatusLine(line, "spinner", t("options.server.checking"));
+  const ok = await pingServer(base);
+  if (token !== healthToken) return;
+  if (ok) setStatusLine(line, "check", t("options.server.online"));
+  else setStatusLine(line, "alert", t("options.server.offline"), true);
+}
+
+function lockServerFields(locked: boolean): void {
+  ($("managedBaseUrl") as HTMLInputElement).disabled = locked;
+  ($("shareServerUrl") as HTMLInputElement).disabled = locked;
+  ($("serverTest") as HTMLButtonElement).disabled = locked;
+}
+
+/** The way out: restore the default and persist it, so a broken server is never one forgotten save away. */
+function resetServer(): void {
+  ($("managedBaseUrl") as HTMLInputElement).value = DEFAULT_SERVER_URL;
+  ($("shareServerUrl") as HTMLInputElement).value = DEFAULT_SERVER_URL;
+  ($("serverUnlock") as HTMLInputElement).checked = false;
+  ($("serverAdvanced") as HTMLDetailsElement).open = false;
+  lockServerFields(true);
+  renderServerCard();
+  void onSave().then(() => {
+    void checkServerHealth();
+    void refreshManagedCard();
+  });
+}
+
+function initServerCard(): void {
+  const view = serverView();
+  const offDefault = view.custom || view.shareOff || !view.base;
+
+  ($("serverUnlock") as HTMLInputElement).checked = offDefault;
+  ($("serverAdvanced") as HTMLDetailsElement).open = offDefault;
+  lockServerFields(!offDefault);
+  renderServerCard();
+
+  $("serverUnlock").addEventListener("change", (e) => {
+    if ((e.target as HTMLInputElement).checked) lockServerFields(false);
+    else resetServer();
+  });
+  $("serverReset").addEventListener("click", resetServer);
+  $("serverBannerReset").addEventListener("click", resetServer);
+  $("serverTest").addEventListener("click", () => void checkServerHealth(true));
+
+  for (const id of ["managedBaseUrl", "shareServerUrl"]) {
+    $(id).addEventListener("input", renderServerCard);
+    $(id).addEventListener("change", () => void checkServerHealth());
+  }
+
+  void checkServerHealth();
 }
 
 function managedBaseUrl(): string {

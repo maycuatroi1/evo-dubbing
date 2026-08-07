@@ -94,6 +94,8 @@ export interface DubbingSettings {
   billingMode: BillingMode;
   managedBaseUrl: string;
   managedVoiceProfileId: string;
+  /** Absent on blobs written before the baked-in default server. See lib/config.ts. */
+  settingsVersion?: number;
 }
 
 export interface Settings extends DubbingSettings {

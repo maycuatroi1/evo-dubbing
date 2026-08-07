@@ -36,7 +36,7 @@ export const en: StringTable = {
   "status.alreadyShared": "This dub is already shared.",
   "status.updatingVisibility": "Updating visibility...",
   "status.visibilitySet": "Visibility set to {visibility}",
-  "status.needShareServer": "Set a share server URL in the extension settings first.",
+  "status.needShareServer": "The shared library is turned off in settings, so this dub cannot be shared.",
   "status.payosCreating": "Creating a PayOS checkout link...",
   "status.payosOpened": "PayOS checkout opened in a new tab. After paying, press Re-dub.",
   "status.signedInAgain": "Signed in again. Press Re-dub to retry.",
@@ -52,7 +52,7 @@ export const en: StringTable = {
   "popup.shareServer": "Share server",
   "popup.keySet": "Set",
   "popup.keyMissing": "Missing",
-  "popup.serverConfigured": "Configured",
+  "popup.serverCustom": "custom",
   "popup.serverOff": "Off",
   "popup.openSettings": "Open settings",
 
@@ -70,12 +70,12 @@ export const en: StringTable = {
     "199,000 VND for roughly 300 source minutes over 30 days. Optional, never required for BYOK users.",
 
   "options.managed.heading": "Managed dubbing",
-  "options.managed.baseUrl": "Managed server URL",
 
   "options.keys.heading": "API keys",
   "options.keys.hint": "Only needed for BYOK mode. Keys are stored in this browser's local storage.",
   "options.keys.openai": "OpenAI key",
   "options.keys.gemini": "Gemini key",
+  "options.keys.autoSwitch": "Picked {provider} for translation and voice, from the key you just entered.",
 
   "options.dubbing.heading": "Dubbing",
   "options.dubbing.targetLang": "Target language",
@@ -97,10 +97,37 @@ export const en: StringTable = {
     "Pressing Dub pauses the video immediately and resumes it once the first dubbed line is ready, so you never hear an un-dubbed opening. Pressing play skips the wait.",
 
   "options.sharing.heading": "Sharing",
-  "options.sharing.serverUrl": "Share server URL",
-  "options.sharing.serverHint": "Leave empty to skip shared-library lookups and uploads.",
   "options.sharing.autoUpload": "Upload finished dubs automatically",
   "options.sharing.visibility": "Default visibility",
   "options.sharing.public": "Public",
-  "options.sharing.private": "Private"
+  "options.sharing.private": "Private",
+
+  "options.server.heading": "Server",
+  "options.server.lede": "The extension uses our server for the paid plan and the shared library.",
+  "options.server.default": "Default",
+  "options.server.custom": "Custom",
+  "options.server.off": "Off",
+  "options.server.checking": "Checking the connection...",
+  "options.server.online": "Server is reachable",
+  "options.server.offline": "Could not reach this server",
+  "options.server.offNote": "No shared-library lookups, and nothing is uploaded.",
+  "options.server.needsPermission": "Press Test the connection to grant access to this domain.",
+  "options.server.advanced": "Advanced",
+  "options.server.warnTitle": "The fields below are for people running their own build of the evo-dubbing server.",
+  "options.server.warnManaged":
+    "The 199,000 VND plan, your quota and your payment history belong to the default server. Switching gives all of that up.",
+  "options.server.warnLibrary":
+    "A new server has an empty shared library, so every video is dubbed from scratch on your own API budget.",
+  "options.server.warnPermission":
+    "Chrome will ask for access to the new domain, and we cannot support what happens on that server.",
+  "options.server.unlock": "I run my own server",
+  "options.server.managedUrl": "Managed server",
+  "options.server.shareUrl": "Share server",
+  "options.server.shareHint": "Leave empty to skip shared-library lookups and uploads.",
+  "options.server.test": "Test the connection",
+  "options.server.reset": "Back to the default server",
+  "options.server.bannerCustom":
+    "Using a custom server ({host}). The paid plan and shared library of the default server do not apply here.",
+  "options.server.bannerOff":
+    "The share server is off. Every video is dubbed from scratch and nothing can be shared."
 };

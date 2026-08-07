@@ -34,7 +34,8 @@ export const vi = {
   "status.alreadyShared": "Bản dub này đã được chia sẻ.",
   "status.updatingVisibility": "Đang cập nhật chế độ hiển thị...",
   "status.visibilitySet": "Đã đặt chế độ hiển thị: {visibility}",
-  "status.needShareServer": "Hãy đặt địa chỉ share server trong cài đặt trước.",
+  "status.needShareServer":
+    "Thư viện dùng chung đang tắt trong cài đặt, nên không chia sẻ được bản dub này.",
   "status.payosCreating": "Đang tạo link thanh toán PayOS...",
   "status.payosOpened": "Đã mở link thanh toán PayOS ở tab mới. Thanh toán xong, nhấn Làm lại.",
   "status.signedInAgain": "Đã đăng nhập lại. Nhấn Làm lại để thử lại.",
@@ -50,7 +51,7 @@ export const vi = {
   "popup.shareServer": "Share server",
   "popup.keySet": "Đã đặt",
   "popup.keyMissing": "Chưa đặt",
-  "popup.serverConfigured": "Đã cấu hình",
+  "popup.serverCustom": "tự chọn",
   "popup.serverOff": "Tắt",
   "popup.openSettings": "Mở cài đặt",
 
@@ -68,12 +69,12 @@ export const vi = {
     "Gói 199.000 VND cho khoảng 300 phút nguồn trong 30 ngày. Tùy chọn, không bắt buộc với người dùng BYOK.",
 
   "options.managed.heading": "Managed dubbing",
-  "options.managed.baseUrl": "Địa chỉ server managed",
 
   "options.keys.heading": "API key",
   "options.keys.hint": "Chỉ cần cho chế độ BYOK. Key được lưu trong bộ nhớ cục bộ của trình duyệt.",
   "options.keys.openai": "Khoá OpenAI",
   "options.keys.gemini": "Khoá Gemini",
+  "options.keys.autoSwitch": "Đã chọn {provider} cho dịch và giọng đọc theo API key bạn vừa điền.",
 
   "options.dubbing.heading": "Lồng tiếng",
   "options.dubbing.targetLang": "Ngôn ngữ đích",
@@ -95,12 +96,40 @@ export const vi = {
     "Bấm Lồng tiếng là video tạm dừng ngay, và chỉ phát lại khi đoạn lồng tiếng đầu tiên sẵn sàng, nên bạn không nghe phải một đoạn chưa có tiếng. Bấm play là bỏ qua việc chờ.",
 
   "options.sharing.heading": "Chia sẻ",
-  "options.sharing.serverUrl": "Địa chỉ share server",
-  "options.sharing.serverHint": "Để trống nếu không muốn tra hay tải bản dub lên thư viện dùng chung.",
   "options.sharing.autoUpload": "Tự động tải bản dub đã hoàn tất lên",
   "options.sharing.visibility": "Chế độ hiển thị mặc định",
   "options.sharing.public": "Công khai",
-  "options.sharing.private": "Riêng tư"
+  "options.sharing.private": "Riêng tư",
+
+  "options.server.heading": "Server",
+  "options.server.lede":
+    "Tiện ích đang dùng server của chúng tôi cho gói trả phí và thư viện dùng chung.",
+  "options.server.default": "Mặc định",
+  "options.server.custom": "Tự chọn",
+  "options.server.off": "Đã tắt",
+  "options.server.checking": "Đang kiểm tra kết nối...",
+  "options.server.online": "Server đang hoạt động",
+  "options.server.offline": "Không kết nối được tới server này",
+  "options.server.offNote": "Không tra thư viện dùng chung, cũng không tải bản dub nào lên.",
+  "options.server.needsPermission": "Nhấn Kiểm tra kết nối để cấp quyền truy cập tên miền này.",
+  "options.server.advanced": "Nâng cao",
+  "options.server.warnTitle": "Các mục dưới đây dành cho người tự chạy một bản server evo-dubbing.",
+  "options.server.warnManaged":
+    "Gói 199.000 VND, quota và lịch sử thanh toán gắn với server mặc định. Đổi server là mất quyền dùng những thứ đó.",
+  "options.server.warnLibrary":
+    "Thư viện dùng chung của server mới rỗng, nên mọi video đều phải lồng tiếng lại từ đầu và tốn chi phí API của bạn.",
+  "options.server.warnPermission":
+    "Chrome sẽ hỏi quyền truy cập tên miền mới, và chúng tôi không hỗ trợ sự cố phát sinh trên server đó.",
+  "options.server.unlock": "Tôi tự chạy server riêng",
+  "options.server.managedUrl": "Server managed",
+  "options.server.shareUrl": "Server chia sẻ",
+  "options.server.shareHint": "Để trống nếu không muốn tra hay tải bản dub lên thư viện dùng chung.",
+  "options.server.test": "Kiểm tra kết nối",
+  "options.server.reset": "Quay về server mặc định",
+  "options.server.bannerCustom":
+    "Đang dùng server tự chọn ({host}). Gói trả phí và thư viện dùng chung của server mặc định không áp dụng ở đây.",
+  "options.server.bannerOff":
+    "Server chia sẻ đang tắt. Mọi video sẽ được lồng tiếng lại từ đầu và không thể chia sẻ."
 } as const;
 
 export type StringKey = keyof typeof vi;

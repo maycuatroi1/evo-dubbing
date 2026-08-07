@@ -1,4 +1,5 @@
 import { getSettings } from "../lib/storage.ts";
+import { isDefaultServer, serverHost } from "../lib/config.ts";
 import { hydrate, t, type StringKey } from "../lib/i18n/index.ts";
 import { languageLabel } from "../lib/i18n/languages.ts";
 
@@ -30,6 +31,14 @@ function flag(present: boolean, onKey: StringKey, offKey: StringKey): StateView 
   };
 }
 
+/** Names the host rather than saying "configured": a custom server has to be visible from here. */
+function serverState(url: string): StateView {
+  const host = serverHost(url);
+  if (!host) return { label: t("popup.serverOff"), icon: null, on: false };
+  if (isDefaultServer(url)) return { label: host, icon: "check", on: true };
+  return { label: `${host} (${t("popup.serverCustom")})`, icon: "alert", on: true };
+}
+
 async function init(): Promise<void> {
   hydrate(document);
   const settings = await getSettings();
@@ -42,10 +51,7 @@ async function init(): Promise<void> {
   render("langState", { label: languageLabel(settings.targetLang), icon: null, on: true });
   render("openaiState", flag(Boolean(settings.keys.openai), "popup.keySet", "popup.keyMissing"));
   render("geminiState", flag(Boolean(settings.keys.gemini), "popup.keySet", "popup.keyMissing"));
-  render(
-    "serverState",
-    flag(Boolean(settings.shareServerUrl), "popup.serverConfigured", "popup.serverOff")
-  );
+  render("serverState", serverState(settings.shareServerUrl));
 
   document.getElementById("openOptions")?.addEventListener("click", () => {
     chrome.runtime.openOptionsPage();

@@ -246,6 +246,169 @@ body {
   align-self: flex-start;
 }
 
+/* Server card ------------------------------------------------------------------------------ */
+
+.evo-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--evo-space-3);
+  padding: var(--evo-space-3) var(--evo-space-4);
+  border: 1px solid var(--evo-border-strong);
+  border-left-width: 3px;
+  border-left-color: var(--evo-fg);
+  border-radius: var(--evo-radius);
+  background: var(--evo-bg);
+}
+
+.evo-banner > .evo-i {
+  margin-top: 2px;
+  color: var(--evo-fg);
+}
+
+.evo-banner-text {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: var(--evo-text-meta);
+  line-height: 1.55;
+  color: var(--evo-fg);
+}
+
+.evo-banner .evo-btn {
+  flex: none;
+}
+
+/* Read-only identity row: the server is a fact to confirm, not a field to fill. */
+.evo-server {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--evo-space-3);
+  padding: var(--evo-space-3) var(--evo-space-4);
+  border: 1px solid var(--evo-border);
+  border-radius: var(--evo-radius);
+  background: var(--evo-bg-muted);
+}
+
+.evo-server > .evo-i {
+  color: var(--evo-fg-muted);
+}
+
+.evo-server-id {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--evo-space-2);
+  min-width: 0;
+}
+
+.evo-server-host {
+  font-size: var(--evo-text-title);
+  font-weight: 600;
+  color: var(--evo-fg);
+  overflow-wrap: anywhere;
+}
+
+.evo-server-health {
+  flex: 1 1 100%;
+  margin: 0;
+}
+
+.evo-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 var(--evo-space-2);
+  border: 1px solid var(--evo-border-strong);
+  border-radius: var(--evo-radius-pill);
+  font-size: var(--evo-text-label);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--evo-fg-muted);
+  white-space: nowrap;
+}
+
+.evo-badge--warn {
+  border-color: var(--evo-solid);
+  background: var(--evo-solid);
+  color: var(--evo-on-solid);
+}
+
+/* Progressive disclosure: quiet by default, never a primary action. */
+.evo-advanced {
+  border-top: 1px solid var(--evo-border);
+  padding-top: var(--evo-space-3);
+}
+
+.evo-advanced-summary {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--evo-space-2);
+  padding: var(--evo-space-1) 0;
+  font-size: var(--evo-text-meta);
+  color: var(--evo-fg-muted);
+  cursor: pointer;
+  list-style: none;
+}
+
+.evo-advanced-summary::-webkit-details-marker {
+  display: none;
+}
+
+.evo-advanced-summary:hover {
+  color: var(--evo-fg);
+}
+
+.evo-advanced-summary:focus-visible {
+  outline: 2px solid var(--evo-border-focus);
+  outline-offset: 2px;
+  border-radius: var(--evo-radius-sm);
+}
+
+.evo-advanced-summary > .evo-i {
+  transition: transform var(--evo-duration) var(--evo-ease);
+}
+
+.evo-advanced[open] > .evo-advanced-summary > .evo-i {
+  transform: rotate(180deg);
+}
+
+.evo-advanced-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--evo-space-4);
+  padding-top: var(--evo-space-4);
+}
+
+.evo-server-warn-title {
+  margin: 0;
+  font-size: var(--evo-text-body);
+  font-weight: 600;
+  color: var(--evo-fg);
+}
+
+.evo-server-warn-list {
+  margin: 0;
+  padding-left: var(--evo-space-5);
+  font-size: var(--evo-text-meta);
+  line-height: 1.6;
+  color: var(--evo-fg-muted);
+}
+
+.evo-advanced-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--evo-space-2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .evo-advanced-summary > .evo-i {
+    transition: none;
+  }
+}
+
 @media (max-width: 560px) {
   .evo-topbar-inner,
   .evo-page {

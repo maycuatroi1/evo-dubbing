@@ -1,71 +1,18 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { installChromeMock, flushMicrotasks } from "./helpers.ts";
+import {
+  installChromeMock,
+  installDocumentStub,
+  installFetchStub,
+  flushMicrotasks,
+  type FakeElement
+} from "./helpers.ts";
 
-interface FakeOption {
-  value: string;
-  textContent: string;
-  selected: boolean;
-}
-
-class FakeSelect {
-  id = "";
-  options: FakeOption[] = [];
-  selectedIdx = -1;
-  checked = false;
-  textContent = "";
-  listeners: Record<string, ((e: unknown) => void)[]> = {};
-
-  set innerHTML(value: string) {
-    if (value === "") {
-      this.options = [];
-      this.selectedIdx = -1;
-    }
-  }
-
-  appendChild(option: FakeOption): void {
-    this.options.push(option);
-    if (option.selected) this.selectedIdx = this.options.length - 1;
-    else if (this.selectedIdx === -1) this.selectedIdx = 0;
-  }
-
-  append(...nodes: unknown[]): void {
-    void nodes;
-  }
-
-  set value(v: string) {
-    this.selectedIdx = this.options.findIndex((o) => o.value === v);
-  }
-
-  get value(): string {
-    return this.selectedIdx >= 0 ? this.options[this.selectedIdx].value : "";
-  }
-
-  addEventListener(type: string, fn: (e: unknown) => void): void {
-    (this.listeners[type] ??= []).push(fn);
-  }
-}
-
-function installDocumentStub() {
-  const elements = new Map<string, FakeSelect>();
-  (globalThis as { document?: unknown }).document = {
-    getElementById: (id: string) => {
-      if (!elements.has(id)) {
-        const el = new FakeSelect();
-        el.id = id;
-        elements.set(id, el);
-      }
-      return elements.get(id);
-    },
-    createElement: (tag: string) =>
-      tag === "option" ? { value: "", textContent: "", selected: false } : new FakeSelect(),
-    querySelectorAll: () => []
-  };
-  return elements;
-}
+const DEFAULT_SERVER = "https://nghe.omelet.tech";
 
 test("options init restores model and voice selection after filling options", async () => {
-  installDocumentStub();
+  const elements = installDocumentStub();
+  installFetchStub();
   const mock = installChromeMock(async () => ({ ok: false, status: 401, code: "not_signed_in", error: "no" }));
   mock.storage.local.data["evoDubbingSettings"] = {
     translateProvider: "gemini",
@@ -88,8 +35,7 @@ test("options init restores model and voice selection after filling options", as
   await import("../src/options/options.ts");
   await flushMicrotasks();
 
-  const el = (id: string) =>
-    (globalThis as { document: { getElementById(id: string): FakeSelect } }).document.getElementById(id);
+  const el = (id: string) => elements.get(id) as FakeElement;
 
   assert.equal(el("translateProvider").value, "gemini");
   assert.equal(el("ttsProvider").value, "gemini");
@@ -98,4 +44,15 @@ test("options init restores model and voice selection after filling options", as
   assert.equal(el("voice").value, "Kore");
   assert.equal(el("modeByok").checked, true);
   assert.equal(el("modeManaged").checked, false);
+
+  // A settings blob from before the baked-in default lands on it, and the server card stays
+  // shut: nothing to read, nothing to type, no disclosure open.
+  assert.equal(el("managedBaseUrl").value, DEFAULT_SERVER);
+  assert.equal(el("shareServerUrl").value, DEFAULT_SERVER);
+  assert.equal(el("managedBaseUrl").disabled, true);
+  assert.equal(el("shareServerUrl").disabled, true);
+  assert.equal(el("serverTest").disabled, true);
+  assert.equal(el("serverUnlock").checked, false);
+  assert.equal(el("serverAdvanced").open, false);
+  assert.equal(el("serverBanner").classes.has("evo-hidden"), true);
 });

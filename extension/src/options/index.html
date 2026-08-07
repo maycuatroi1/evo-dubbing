@@ -25,6 +25,17 @@
     <main class="evo-page">
       <p class="evo-hint evo-lede" data-i18n="options.subtitle"></p>
 
+      <div id="serverBanner" class="evo-banner evo-hidden" role="status">
+        <span class="evo-i evo-i-alert" aria-hidden="true"></span>
+        <p id="serverBannerText" class="evo-banner-text"></p>
+        <button
+          id="serverBannerReset"
+          type="button"
+          class="evo-btn evo-btn--outline evo-btn--sm"
+          data-i18n="options.server.reset"
+        ></button>
+      </div>
+
       <section class="evo-card">
         <h2 class="evo-card-title" data-i18n="options.mode.heading"></h2>
         <div class="evo-choices">
@@ -47,10 +58,6 @@
 
       <section class="evo-card">
         <h2 class="evo-card-title" data-i18n="options.managed.heading"></h2>
-        <div class="evo-field">
-          <label class="evo-label" for="managedBaseUrl" data-i18n="options.managed.baseUrl"></label>
-          <input id="managedBaseUrl" class="evo-input" type="url" placeholder="https://managed.example.com" spellcheck="false" />
-        </div>
         <div id="managedState" class="evo-managed"></div>
       </section>
 
@@ -67,6 +74,7 @@
             <input id="geminiKey" class="evo-input" type="password" placeholder="AIza..." autocomplete="off" spellcheck="false" />
           </div>
         </div>
+        <p id="keysAutoNote" class="evo-status evo-hidden" role="status" aria-live="polite"></p>
       </section>
 
       <section class="evo-card">
@@ -166,11 +174,6 @@
 
       <section class="evo-card">
         <h2 class="evo-card-title" data-i18n="options.sharing.heading"></h2>
-        <div class="evo-field">
-          <label class="evo-label" for="shareServerUrl" data-i18n="options.sharing.serverUrl"></label>
-          <input id="shareServerUrl" class="evo-input" type="url" placeholder="https://your-server.example.com" spellcheck="false" />
-          <small class="evo-hint" data-i18n="options.sharing.serverHint"></small>
-        </div>
         <div class="evo-grid">
           <div class="evo-field">
             <label class="evo-label" for="defaultVisibility" data-i18n="options.sharing.visibility"></label>
@@ -187,6 +190,85 @@
           <input id="autoUpload" type="checkbox" />
           <span data-i18n="options.sharing.autoUpload"></span>
         </label>
+      </section>
+
+      <section class="evo-card">
+        <h2 class="evo-card-title" data-i18n="options.server.heading"></h2>
+        <p class="evo-hint" data-i18n="options.server.lede"></p>
+
+        <div class="evo-server">
+          <span class="evo-i evo-i-server evo-i--lg" aria-hidden="true"></span>
+          <div class="evo-server-id">
+            <span id="serverHost" class="evo-server-host evo-num"></span>
+            <span id="serverBadge" class="evo-badge"></span>
+          </div>
+          <p id="serverHealth" class="evo-status evo-server-health" role="status" aria-live="polite"></p>
+        </div>
+
+        <details id="serverAdvanced" class="evo-advanced">
+          <summary class="evo-advanced-summary">
+            <span class="evo-i evo-i-chevron evo-i--sm" aria-hidden="true"></span>
+            <span data-i18n="options.server.advanced"></span>
+          </summary>
+
+          <div class="evo-advanced-body">
+            <div class="evo-callout" id="serverWarning">
+              <p class="evo-server-warn-title" data-i18n="options.server.warnTitle"></p>
+              <ul class="evo-server-warn-list">
+                <li data-i18n="options.server.warnManaged"></li>
+                <li data-i18n="options.server.warnLibrary"></li>
+                <li data-i18n="options.server.warnPermission"></li>
+              </ul>
+            </div>
+
+            <label class="evo-check">
+              <input id="serverUnlock" type="checkbox" aria-describedby="serverWarning" />
+              <span data-i18n="options.server.unlock"></span>
+            </label>
+
+            <div class="evo-grid">
+              <div class="evo-field">
+                <label class="evo-label" for="managedBaseUrl" data-i18n="options.server.managedUrl"></label>
+                <input
+                  id="managedBaseUrl"
+                  class="evo-input"
+                  type="url"
+                  spellcheck="false"
+                  disabled
+                  aria-describedby="serverWarning"
+                />
+              </div>
+              <div class="evo-field">
+                <label class="evo-label" for="shareServerUrl" data-i18n="options.server.shareUrl"></label>
+                <input
+                  id="shareServerUrl"
+                  class="evo-input"
+                  type="url"
+                  spellcheck="false"
+                  disabled
+                  aria-describedby="serverWarning"
+                />
+                <small class="evo-hint" data-i18n="options.server.shareHint"></small>
+              </div>
+            </div>
+
+            <div class="evo-advanced-actions">
+              <button
+                id="serverTest"
+                type="button"
+                class="evo-btn evo-btn--outline evo-btn--sm"
+                disabled
+                data-i18n="options.server.test"
+              ></button>
+              <button
+                id="serverReset"
+                type="button"
+                class="evo-btn evo-btn--ghost evo-btn--sm"
+                data-i18n="options.server.reset"
+              ></button>
+            </div>
+          </div>
+        </details>
       </section>
     </main>
 

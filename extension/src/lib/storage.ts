@@ -1,4 +1,5 @@
 import type { Settings, ProviderKeys, DubbingSettings } from "./types.ts";
+import { DEFAULT_SERVER_URL, SETTINGS_VERSION, normalizeBaseUrl } from "./config.ts";
 
 const SETTINGS_KEY = "evoDubbingSettings";
 const KEYS_KEY = "evoDubbingKeys";
@@ -15,23 +16,47 @@ export const DEFAULT_SETTINGS: DubbingSettings = {
   holdUntilFirstDub: true,
   ttsModel: "gpt-4o-mini-tts",
   translateModel: "gpt-5.4-mini",
-  shareServerUrl: "",
+  shareServerUrl: DEFAULT_SERVER_URL,
   autoUpload: false,
   defaultVisibility: "public",
   billingMode: "byok",
-  managedBaseUrl: "",
-  managedVoiceProfileId: "vi-standard-female"
+  managedBaseUrl: DEFAULT_SERVER_URL,
+  managedVoiceProfileId: "vi-standard-female",
+  settingsVersion: SETTINGS_VERSION
 };
+
+/**
+ * Adopt the baked-in default server for installs that predate it. Those blobs store "" for
+ * both server fields, and an explicit "" beats a default in the spread below, so without this
+ * an existing user would keep a dead server forever.
+ *
+ * Only blobs with no settingsVersion are rewritten. Anything written since carries the version,
+ * so an empty field there is a deliberate opt-out (see the advanced disclosure in the options
+ * page) and stays empty. Nothing is persisted here: the rewrite is deterministic on every read,
+ * and the next save stamps the version.
+ */
+function migrateSettings(stored: Partial<DubbingSettings>): Partial<DubbingSettings> {
+  if ((stored.settingsVersion ?? 0) >= SETTINGS_VERSION) return stored;
+  return {
+    ...stored,
+    shareServerUrl: normalizeBaseUrl(stored.shareServerUrl ?? "") || DEFAULT_SERVER_URL,
+    managedBaseUrl: normalizeBaseUrl(stored.managedBaseUrl ?? "") || DEFAULT_SERVER_URL,
+    settingsVersion: SETTINGS_VERSION
+  };
+}
 
 export async function getSettings(): Promise<Settings> {
   const stored = await chrome.storage.local.get([SETTINGS_KEY, KEYS_KEY]);
-  const settings = { ...DEFAULT_SETTINGS, ...(stored[SETTINGS_KEY] ?? {}) };
+  const raw = stored[SETTINGS_KEY] as Partial<DubbingSettings> | undefined;
+  const settings = { ...DEFAULT_SETTINGS, ...(raw ? migrateSettings(raw) : {}) };
   const keys: ProviderKeys = stored[KEYS_KEY] ?? {};
   return { ...settings, keys };
 }
 
 export async function saveSettings(settings: DubbingSettings): Promise<void> {
-  await chrome.storage.local.set({ [SETTINGS_KEY]: settings });
+  await chrome.storage.local.set({
+    [SETTINGS_KEY]: { ...settings, settingsVersion: SETTINGS_VERSION }
+  });
 }
 
 export async function getKeys(): Promise<ProviderKeys> {

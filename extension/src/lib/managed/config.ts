@@ -12,6 +12,5 @@ export const EXTENSION_ITEM_ID = "ligchebgiheiildjcnndjoalkpiamgko";
 export const GOOGLE_OAUTH_CLIENT_ID =
   "401458936175-sofsattbm8g3t3qcjjgb1c333eo97k9h.apps.googleusercontent.com";
 
-export function normalizeBaseUrl(url: string): string {
-  return url.trim().replace(/\/+$/, "");
-}
+/** Server addressing is not managed-specific: the share routes use the same base. */
+export { DEFAULT_SERVER_URL, normalizeBaseUrl } from "../config.ts";

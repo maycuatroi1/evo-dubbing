@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import { defineManifest } from "@crxjs/vite-plugin";
+import { DEFAULT_SERVER_URL } from "./src/lib/config.ts";
 
 const pkg = JSON.parse(readFileSync(new URL("./package.json", import.meta.url), "utf8")) as {
   version: string;
@@ -61,7 +62,10 @@ export default defineManifest({
     "https://*.googlevideo.com/*",
     "https://api.openai.com/*",
     "https://generativelanguage.googleapis.com/*",
-    "https://*.supabase.co/*"
+    "https://*.supabase.co/*",
+    // Granted up front so the default server needs no permission prompt. A custom server falls
+    // through to optional_host_permissions and Chrome asks - friction we want in that path.
+    `${DEFAULT_SERVER_URL}/*`
   ],
   optional_host_permissions: ["https://*/*"],
   web_accessible_resources: [
