@@ -24,3 +24,4 @@ benchmarks/tts-vi/artifacts/
 test-results/
 playwright-report/
 e2e/.seed-state.json
+.claude/skills/.learned/.processed/
