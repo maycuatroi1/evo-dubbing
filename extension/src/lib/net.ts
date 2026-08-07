@@ -1,3 +1,5 @@
+import { delay } from "./concurrency.ts";
+
 interface ProxyInit {
   method?: string;
   headers?: Record<string, string>;
@@ -26,20 +28,57 @@ export class HttpError extends Error {
   }
 }
 
+type ProxyResponse =
+  | { ok: true; status: number; data: unknown }
+  | { ok: false; status: number; error: string };
+
+const PROXY_ATTEMPTS = 3;
+const PROXY_BACKOFF_MS = [400, 1200];
+
+/**
+ * Chrome can evict the MV3 service worker while it is still fetching. It then closes the
+ * message channel with no reply, which arrives here as a rejection instead of an HTTP status.
+ * The next sendMessage boots a fresh worker, so the request is worth repeating.
+ */
+const WORKER_GONE = /message channel closed|message port closed|Receiving end does not exist/i;
+
+const NO_REPLY = "the extension background worker did not reply";
+
+function isRetriableStatus(status: number): boolean {
+  return status === 0 || status === 408 || status === 429 || status >= 500;
+}
+
 async function proxy(
   url: string,
   as: "text" | "arrayBuffer" | "json",
   init?: ProxyInit,
   form?: FormDescriptor
 ): Promise<unknown> {
-  const res = (await chrome.runtime.sendMessage({ type: "fetchProxy", url, init, form, as })) as
-    | { ok: true; status: number; data: unknown }
-    | { ok: false; status: number; error: string };
-  if (!res || !res.ok) {
-    const status = res?.status ?? 0;
-    throw new HttpError(status, `fetch failed (${status}): ${res?.error ?? "no response"}`);
+  const message = { type: "fetchProxy", url, init, form, as };
+  let lastStatus = 0;
+  let lastError = NO_REPLY;
+
+  for (let attempt = 0; attempt < PROXY_ATTEMPTS; attempt++) {
+    if (attempt > 0) await delay(PROXY_BACKOFF_MS[attempt - 1] ?? 1200);
+
+    let res: ProxyResponse | undefined;
+    try {
+      res = (await chrome.runtime.sendMessage(message)) as ProxyResponse | undefined;
+    } catch (err) {
+      const reason = err instanceof Error ? err.message : String(err);
+      if (!WORKER_GONE.test(reason)) throw new HttpError(0, `fetch failed (0): ${reason}`);
+      lastStatus = 0;
+      lastError = reason;
+      continue;
+    }
+
+    if (res?.ok) return res.data;
+    lastStatus = res?.status ?? 0;
+    lastError = res?.error ?? NO_REPLY;
+    if (res && !isRetriableStatus(res.status)) break;
   }
-  return res.data;
+
+  throw new HttpError(lastStatus, `fetch failed (${lastStatus}): ${lastError}`);
 }
 
 export async function fetchText(url: string, init?: ProxyInit): Promise<string> {

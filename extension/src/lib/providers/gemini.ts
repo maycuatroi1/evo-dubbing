@@ -1,5 +1,6 @@
 import type { Transcript } from "../types.ts";
 import { fetchJson, base64ToArrayBuffer } from "../net.ts";
+import { delay } from "../concurrency.ts";
 import type {
   Provider,
   TranslateBatch,
@@ -12,10 +13,30 @@ import { parseTranslationsResponse } from "./index.ts";
 
 const BASE = "https://generativelanguage.googleapis.com/v1beta/models";
 
+interface GeminiPart {
+  text?: string;
+  thought?: boolean;
+  inlineData?: { mimeType?: string; data?: string };
+}
+
 interface GenerateResponse {
   candidates?: {
-    content?: { parts?: { text?: string; inlineData?: { mimeType?: string; data?: string } }[] };
+    content?: { parts?: GeminiPart[] };
+    finishReason?: string;
   }[];
+  promptFeedback?: { blockReason?: string };
+}
+
+/**
+ * A candidate is a list of parts, not one part. Reasoning models put a thought part first, and
+ * a long answer can arrive split across several parts, so reading parts[0] alone hands the
+ * parser either a thought or a prefix of the JSON.
+ */
+function joinTextParts(parts: GeminiPart[] | undefined): string {
+  const all = parts ?? [];
+  const answer = all.filter((p) => p.thought !== true && typeof p.text === "string");
+  const chosen = answer.length > 0 ? answer : all.filter((p) => typeof p.text === "string");
+  return chosen.map((p) => p.text as string).join("");
 }
 
 function parseRate(mime: string | undefined): number {
@@ -76,31 +97,82 @@ async function translate(batch: TranslateBatch, key: string): Promise<Translated
     })
   });
 
-  const text = res.candidates?.[0]?.content?.parts?.[0]?.text ?? "{}";
-  return parseTranslationsResponse(text);
+  const text = joinTextParts(res.candidates?.[0]?.content?.parts) || "{}";
+  return parseTranslationsResponse(text, batch.segments.length);
+}
+
+const TTS_ATTEMPTS = 3;
+const TTS_BACKOFF_MS = [400, 1200];
+
+/** Refusals and hard stops repeat on the same text; anything else is worth another try. */
+const TTS_PERMANENT_FINISH = new Set([
+  "SAFETY",
+  "RECITATION",
+  "PROHIBITED_CONTENT",
+  "BLOCKLIST",
+  "SPII",
+  "MAX_TOKENS"
+]);
+
+class NoAudioError extends Error {
+  permanent: boolean;
+
+  constructor(message: string, permanent: boolean) {
+    super(message);
+    this.permanent = permanent;
+  }
+}
+
+function describeMissingAudio(res: GenerateResponse): NoAudioError {
+  const blockReason = res.promptFeedback?.blockReason;
+  if (blockReason) return new NoAudioError(`gemini tts refused the text (blockReason=${blockReason})`, true);
+
+  const candidate = res.candidates?.[0];
+  if (!candidate) return new NoAudioError("gemini tts returned no audio (empty response, no candidate)", false);
+
+  const finishReason = candidate.finishReason ?? "";
+  const spoken = candidate.content?.parts?.find((p) => typeof p.text === "string" && p.text.trim())?.text;
+  const detail = [
+    finishReason ? `finishReason=${finishReason}` : "no finishReason",
+    spoken ? `model replied with text instead: "${spoken.trim().slice(0, 120)}"` : ""
+  ]
+    .filter(Boolean)
+    .join("; ");
+  return new NoAudioError(`gemini tts returned no audio (${detail})`, TTS_PERMANENT_FINISH.has(finishReason));
 }
 
 async function tts(req: TtsRequest, key: string): Promise<TtsResult> {
-  const res = await fetchJson<GenerateResponse>(`${BASE}/${req.model}:generateContent?key=${key}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: req.text }] }],
-      generationConfig: {
-        responseModalities: ["AUDIO"],
-        speechConfig: {
-          voiceConfig: { prebuiltVoiceConfig: { voiceName: req.voice } }
-        }
+  const body = JSON.stringify({
+    contents: [{ parts: [{ text: req.text }] }],
+    generationConfig: {
+      responseModalities: ["AUDIO"],
+      speechConfig: {
+        voiceConfig: { prebuiltVoiceConfig: { voiceName: req.voice } }
       }
-    })
+    }
   });
 
-  const part = res.candidates?.[0]?.content?.parts?.find((p) => p.inlineData?.data);
-  const data = part?.inlineData?.data;
-  if (!data) throw new Error("gemini tts returned no audio");
-  const pcm = base64ToArrayBuffer(data);
-  const wav = pcm16ToWav(pcm, parseRate(part?.inlineData?.mimeType));
-  return { audio: wav, mime: "audio/wav" };
+  let lastError = new NoAudioError("gemini tts returned no audio", false);
+  for (let attempt = 0; attempt < TTS_ATTEMPTS; attempt++) {
+    if (attempt > 0) await delay(TTS_BACKOFF_MS[attempt - 1] ?? 1200);
+
+    const res = await fetchJson<GenerateResponse>(`${BASE}/${req.model}:generateContent?key=${key}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body
+    });
+
+    const part = res.candidates?.[0]?.content?.parts?.find((p) => p.inlineData?.data);
+    const data = part?.inlineData?.data;
+    if (data) {
+      const pcm = base64ToArrayBuffer(data);
+      return { audio: pcm16ToWav(pcm, parseRate(part?.inlineData?.mimeType)), mime: "audio/wav" };
+    }
+
+    lastError = describeMissingAudio(res);
+    if (lastError.permanent) throw lastError;
+  }
+  throw lastError;
 }
 
 async function stt(_req: SttRequest, _key: string): Promise<Transcript> {

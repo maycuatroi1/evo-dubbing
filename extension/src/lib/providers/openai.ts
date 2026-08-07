@@ -58,7 +58,7 @@ async function translate(batch: TranslateBatch, key: string): Promise<Translated
   });
 
   const content = res.choices?.[0]?.message?.content ?? "{}";
-  return parseTranslationsResponse(content);
+  return parseTranslationsResponse(content, batch.segments.length);
 }
 
 async function tts(req: TtsRequest, key: string): Promise<TtsResult> {

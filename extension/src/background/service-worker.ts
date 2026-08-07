@@ -105,7 +105,44 @@ function buildBody(req: FetchProxyRequest): BodyInit | undefined {
   return req.init?.body;
 }
 
+const FETCH_TIMEOUT_MS = 120000;
+const KEEPALIVE_PING_MS = 20000;
+
+let inFlight = 0;
+let keepAliveTimer: ReturnType<typeof setInterval> | null = null;
+
+function pingForKeepAlive(): void {
+  try {
+    chrome.runtime.getPlatformInfo().catch(() => undefined);
+  } catch {
+    // Nothing to keep alive if the runtime is already gone.
+  }
+}
+
+/**
+ * Chrome evicts an MV3 service worker after roughly 30 seconds without extension API activity,
+ * and a bare fetch() does not reset that timer. Long TTS calls outlived the worker, so every
+ * in-flight proxied request died together and surfaced as "the message channel closed".
+ * Touching an extension API on a timer holds the worker open for exactly as long as there is
+ * work in the air, and no longer.
+ */
+async function withKeepAlive<T>(run: () => Promise<T>): Promise<T> {
+  inFlight++;
+  if (keepAliveTimer === null) keepAliveTimer = setInterval(pingForKeepAlive, KEEPALIVE_PING_MS);
+  try {
+    return await run();
+  } finally {
+    inFlight--;
+    if (inFlight === 0 && keepAliveTimer !== null) {
+      clearInterval(keepAliveTimer);
+      keepAliveTimer = null;
+    }
+  }
+}
+
 async function handleFetchProxy(req: FetchProxyRequest): Promise<FetchProxyResponse> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
   try {
     const headers = { ...(req.init?.headers ?? {}) };
     if (req.form) {
@@ -115,7 +152,8 @@ async function handleFetchProxy(req: FetchProxyRequest): Promise<FetchProxyRespo
     const res = await fetch(req.url, {
       method: req.init?.method ?? (req.form ? "POST" : "GET"),
       headers,
-      body: buildBody(req)
+      body: buildBody(req),
+      signal: controller.signal
     });
     if (!res.ok) {
       const text = await res.text().catch(() => "");
@@ -130,13 +168,18 @@ async function handleFetchProxy(req: FetchProxyRequest): Promise<FetchProxyRespo
     }
     return { ok: true, status: res.status, data: await res.text() };
   } catch (err) {
+    if (controller.signal.aborted) {
+      return { ok: false, status: 0, error: `request timed out after ${Math.round(FETCH_TIMEOUT_MS / 1000)}s` };
+    }
     return { ok: false, status: 0, error: err instanceof Error ? err.message : String(err) };
+  } finally {
+    clearTimeout(timer);
   }
 }
 
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (message?.type === "fetchProxy") {
-    handleFetchProxy(message as FetchProxyRequest).then(sendResponse);
+    withKeepAlive(() => handleFetchProxy(message as FetchProxyRequest)).then(sendResponse);
     return true;
   }
   if (message?.type === "openOptionsPage") {
@@ -145,7 +188,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     return false;
   }
   if (isRuntimeMessage(message)) {
-    handleRuntimeMessage(message).then(sendResponse);
+    withKeepAlive(() => handleRuntimeMessage(message)).then(sendResponse);
     return true;
   }
   return false;
