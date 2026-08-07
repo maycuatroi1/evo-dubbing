@@ -84,6 +84,8 @@ export interface DubbingSettings {
   voice: string;
   duckVolume: number;
   showSubtitles: boolean;
+  showTimelineProgress: boolean;
+  holdUntilFirstDub: boolean;
   ttsModel: string;
   translateModel: string;
   shareServerUrl: string;
@@ -105,6 +107,7 @@ export type DubbingPhase =
   | "synthesizing"
   | "ready"
   | "playing"
+  | "holding"
   | "error";
 
 export interface DubbingProgress {
@@ -116,3 +119,19 @@ export interface DubbingProgress {
 }
 
 export type ProgressHandler = (progress: DubbingProgress) => void;
+
+/** A stretch of the source timeline that already has dubbed audio in hand. */
+export interface DubCoverageRange {
+  startMs: number;
+  endMs: number;
+}
+
+export interface DubCoverage {
+  /** Length of the source video, so a range can be turned into a position on the scrubber. */
+  durationMs: number;
+  ranges: DubCoverageRange[];
+  ready: number;
+  total: number;
+}
+
+export type CoverageHandler = (coverage: DubCoverage) => void;

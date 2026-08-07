@@ -68,6 +68,8 @@ async function init() {
     settings.targetLang
   );
   ($("showSubtitles") as HTMLInputElement).checked = settings.showSubtitles;
+  ($("showTimelineProgress") as HTMLInputElement).checked = settings.showTimelineProgress;
+  ($("holdUntilFirstDub") as HTMLInputElement).checked = settings.holdUntilFirstDub;
   ($("shareServerUrl") as HTMLInputElement).value = settings.shareServerUrl;
   ($("autoUpload") as HTMLInputElement).checked = settings.autoUpload;
   ($("defaultVisibility") as HTMLSelectElement).value = settings.defaultVisibility;
@@ -202,6 +204,8 @@ async function onSave() {
     voice: ($("voice") as HTMLSelectElement).value,
     duckVolume: Number(($("duckVolume") as HTMLInputElement).value),
     showSubtitles: ($("showSubtitles") as HTMLInputElement).checked,
+    showTimelineProgress: ($("showTimelineProgress") as HTMLInputElement).checked,
+    holdUntilFirstDub: ($("holdUntilFirstDub") as HTMLInputElement).checked,
     ttsModel: ($("ttsModel") as HTMLSelectElement).value,
     translateModel: ($("translateModel") as HTMLSelectElement).value,
     shareServerUrl: ($("shareServerUrl") as HTMLInputElement).value.trim().replace(/\/$/, ""),

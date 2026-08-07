@@ -4,6 +4,27 @@ Append at the end of every session. Newest first. Keep entries short: what chang
 verified, what the next session should pick up. This file is the only thing that survives a
 context window.
 
+## 2026-08-07 - closing the un-dubbed opening stretch
+
+- Two answers to the same complaint (press Dub, hear the video keep going with no voice-over):
+  a **playback hold** and a **coverage lane on the scrubber**. Both are settings, both default on
+  (`holdUntilFirstDub`, `showTimelineProgress`), both documented in docs/ARCHITECTURE.md under
+  "The first-line gap".
+- The hold is engaged by the content script *before* the shared-library lookup and the caption
+  fetch, because that wait is most of the gap. It releases on the first settled cue at the
+  playhead, on a fatal error, on a 30s timeout, or the instant the viewer presses play.
+- `content/timeline.ts` measures against the player box instead of appending into YouTube's
+  progress DOM: chaptered videos split that DOM into per-chapter lists that no longer map to the
+  whole duration. Two new selectors live in the platform adapter (`getPlayerRoot`,
+  `getProgressBar`).
+- **Verified:** `npm run check` green (10 seam checks, both workspaces typecheck),
+  `npm test --workspace extension` green including 4 new hold tests and 4 coverage-merge tests,
+  `npm run build:ext` green with no `@import` trap.
+- **Not verified:** nobody has watched either feature on a real YouTube player. The lane's
+  alignment in theater/fullscreen and on a chaptered video, and how the hold feels in the hand,
+  are exactly what the two `in_progress` entries in `feature_list.json` ask the next session to
+  check.
+
 ## 2026-08-05 - caption source: ranked track pick + viewer override
 
 - Root cause found on `Dx2yPk0FsGM`: the video ships an English ASR track plus a manual Klingon

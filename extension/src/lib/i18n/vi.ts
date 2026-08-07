@@ -23,6 +23,7 @@ export const vi = {
   "overlay.visibilityPrivate": "Riêng tư",
   "overlay.progressLabel": "Tiến độ lồng tiếng",
 
+  "status.holdingForFirstDub": "Đang chờ đoạn lồng tiếng đầu tiên",
   "status.videoElementMissing": "Không tìm thấy phần tử video trên trang.",
   "status.checkingLibrary": "Đang tra thư viện dùng chung",
   "status.lookupFailed":
@@ -86,6 +87,12 @@ export const vi = {
   "options.dubbing.sttProvider": "Nhà cung cấp nhận dạng (dự phòng)",
   "options.dubbing.sttHint": "Dùng khi video không có phụ đề để trích xuất.",
   "options.dubbing.subtitles": "Hiện phụ đề đã dịch trên video",
+  "options.dubbing.timeline": "Hiện tiến độ lồng tiếng trên thanh thời gian của video",
+  "options.dubbing.timelineHint":
+    "Một vạch nhỏ ngay dưới thanh tua cho biết những đoạn nào đã có tiếng lồng sẵn sàng.",
+  "options.dubbing.hold": "Giữ video cho tới khi có đoạn lồng tiếng đầu tiên",
+  "options.dubbing.holdHint":
+    "Bấm Lồng tiếng là video tạm dừng ngay, và chỉ phát lại khi đoạn lồng tiếng đầu tiên sẵn sàng, nên bạn không nghe phải một đoạn chưa có tiếng. Bấm play là bỏ qua việc chờ.",
 
   "options.sharing.heading": "Chia sẻ",
   "options.sharing.serverUrl": "Địa chỉ share server",

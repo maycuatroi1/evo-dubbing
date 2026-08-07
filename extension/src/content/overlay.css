@@ -281,6 +281,56 @@ html[dark] {
   display: none;
 }
 
+/*
+ * Player-surface elements. Like .evo-subtitle these sit on top of video frames and keep the
+ * same white-on-black treatment in both themes: the tokens describe our own panel, not the
+ * arbitrary picture underneath. They are positioned from JS (content/timeline.ts) against the
+ * measured player box, so only the paint lives here.
+ */
+.evo-dub-lane {
+  position: absolute;
+  height: 3px;
+  z-index: 59;
+  pointer-events: none;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.16);
+  transition: opacity var(--evo-duration) var(--evo-ease);
+}
+
+.ytp-autohide .evo-dub-lane,
+.ytp-hide-controls .evo-dub-lane {
+  opacity: 0;
+}
+
+.evo-dub-lane-range {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: #ffffff;
+}
+
+.evo-dub-notice {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 61;
+  display: flex;
+  align-items: center;
+  gap: var(--evo-space-2);
+  max-width: 80%;
+  padding: var(--evo-space-2) var(--evo-space-4);
+  border-radius: var(--evo-radius-pill);
+  background: rgba(10, 10, 10, 0.78);
+  color: #ffffff;
+  font-family: var(--evo-font);
+  font-size: var(--evo-text-body);
+  font-weight: 500;
+  line-height: 1.4;
+  pointer-events: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   #evo-dub-fab {
     transition: none;

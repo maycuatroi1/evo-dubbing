@@ -1,4 +1,5 @@
 import { EvoOverlay, type OverlayAction } from "./overlay.ts";
+import { DubTimeline } from "./timeline.ts";
 import {
   channelTrackKey,
   getOwnerToken,
@@ -30,6 +31,7 @@ const platform = resolvePlatform(location.href);
 let overlay: EvoOverlay | null = null;
 let context: VideoContext | null = null;
 let session: DubSession | null = null;
+let timeline: DubTimeline | null = null;
 let fromRemote = false;
 let uploadedDubId: string | null = null;
 const TRACK_LIST_RETRIES = 4;
@@ -100,6 +102,10 @@ function cleanupSession(): void {
   if (session) {
     session.destroy();
     session = null;
+  }
+  if (timeline) {
+    timeline.destroy();
+    timeline = null;
   }
 }
 
@@ -183,14 +189,22 @@ async function onDub(targetLang: string, trackId: string): Promise<void> {
 
   cleanupSession();
   uploadedDubId = null;
+  timeline = new DubTimeline(platform, settings.showTimelineProgress);
   session = new DubSession({
     video,
     context,
     settings,
     onProgress: (p) => {
+      if (p.phase === "holding") {
+        timeline?.showNotice(t("status.holdingForFirstDub"));
+        overlay?.setProgress({ ...p, message: t("status.holdingForFirstDub") });
+        return;
+      }
+      timeline?.hideNotice();
       if (p.phase === "error") showSessionError(settings, p.message, p.status);
       else overlay?.setProgress(p);
     },
+    onCoverage: (coverage) => timeline?.setCoverage(coverage),
     onReady: () => {
       overlay?.setReady();
       overlay?.setPlaying(true);
@@ -208,6 +222,10 @@ async function onDub(targetLang: string, trackId: string): Promise<void> {
           }
         : undefined
   });
+
+  // Engaged before the lookup and the caption fetch: that wait is most of the un-dubbed
+  // opening stretch the hold exists to remove.
+  session.beginHold();
 
   try {
     if (settings.shareServerUrl) {
@@ -234,6 +252,8 @@ async function onDub(targetLang: string, trackId: string): Promise<void> {
         overlay?.setError(
           t("status.lookupFailed", { reason: err instanceof Error ? err.message : String(err) })
         );
+        // Nothing was started, so drop the session; that also lifts the hold on the video.
+        cleanupSession();
         return;
       }
       if (remote && remote.segments.length > 0) {
@@ -257,6 +277,7 @@ async function onDub(targetLang: string, trackId: string): Promise<void> {
     await session.startGenerated(platform, trackId || undefined);
   } catch (err) {
     handleExportError(settings, err);
+    cleanupSession();
   }
 }
 

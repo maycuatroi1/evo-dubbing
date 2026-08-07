@@ -18,6 +18,10 @@ export interface Platform {
   getVideoElement(): HTMLVideoElement | null;
   listCaptionTracks(avoidLang?: string): Promise<CaptionTrackList>;
   getCaptionTranscript(request?: TranscriptRequest): Promise<Transcript | null>;
+  /** Positioned ancestor the overlay hangs its player-surface elements off. */
+  getPlayerRoot(): HTMLElement | null;
+  /** The element whose box spans the whole duration, so a timestamp maps to an x offset. */
+  getProgressBar(): HTMLElement | null;
 }
 
 const platforms: Platform[] = [youtubePlatform];

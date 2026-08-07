@@ -11,6 +11,8 @@ export const DEFAULT_SETTINGS: DubbingSettings = {
   voice: "alloy",
   duckVolume: 0.18,
   showSubtitles: true,
+  showTimelineProgress: true,
+  holdUntilFirstDub: true,
   ttsModel: "gpt-4o-mini-tts",
   translateModel: "gpt-5.4-mini",
   shareServerUrl: "",

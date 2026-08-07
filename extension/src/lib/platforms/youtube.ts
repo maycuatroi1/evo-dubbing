@@ -101,6 +101,19 @@ export const youtubePlatform: Platform = {
     return document.querySelector<HTMLVideoElement>(".html5-main-video, #movie_player video");
   },
 
+  getPlayerRoot(): HTMLElement | null {
+    return document.querySelector<HTMLElement>(".html5-video-player");
+  },
+
+  getProgressBar(): HTMLElement | null {
+    // .ytp-progress-bar spans the full duration even on chaptered videos, where each chapter
+    // gets its own .ytp-progress-list and no single list covers the whole timeline.
+    return (
+      document.querySelector<HTMLElement>(".ytp-progress-bar") ??
+      document.querySelector<HTMLElement>(".ytp-progress-bar-container")
+    );
+  },
+
   async listCaptionTracks(avoidLang?: string): Promise<CaptionTrackList> {
     const res = await bridge({ kind: "listCaptionTracks", avoidLang });
     if (res.kind !== "captionTracks") return { tracks: [], recommendedId: null };

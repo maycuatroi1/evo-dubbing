@@ -92,6 +92,27 @@ The player follows the page `<video>` element:
 - Each TTS segment is scheduled against `video.currentTime` using the Web Audio API.
 - Seeking and pause/play re-sync the schedule. Segments whose audio is longer than their time slot are time-stretched via `playbackRate` within a clamp, or allowed to overrun slightly.
 
+### The first-line gap, and the two things that answer it
+
+Lazy generation means the dub is never ahead of the viewer at the moment they press Dub: a
+caption fetch, a translate call, and a TTS round trip all have to land first. Left alone, the
+video runs on and the opening stretch plays with no voice-over at all.
+
+- **Hold** (`holdUntilFirstDub`, on by default). `DubSession.beginHold()` is called by the
+  content script the moment Dub is pressed, *before* the shared-library lookup and the caption
+  fetch, and pauses the video. It releases when the first cue at the playhead settles - audio in
+  hand, translated to silence, or failed - and only then calls `play()`. It also releases on a
+  fatal error, on a 30s timeout, and the instant the viewer presses play themselves; a hold that
+  fights the play button, or that can hang forever, is worse than a few un-dubbed seconds. While
+  held the session keeps pumping generation, which the normal paused path deliberately does not.
+- **Coverage** (`showTimelineProgress`, on by default). The session emits merged ranges of
+  prepared cues (`lib/dubbing/coverage.ts`) on every cue that settles, and
+  `content/timeline.ts` draws them as a lane under the YouTube scrubber, plus the notice that
+  explains a held video. Both are positioned against the measured player box rather than being
+  appended inside YouTube's own progress DOM: chaptered videos split that DOM into per-chapter
+  lists that no longer map to the whole duration, and their internal positioning is not ours to
+  depend on. The platform adapter owns the two selectors (`getPlayerRoot`, `getProgressBar`).
+
 ## Data model (server)
 
 ```

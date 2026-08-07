@@ -1,4 +1,5 @@
 import type {
+  CoverageHandler,
   Dub,
   DubSegment,
   ProgressHandler,
@@ -10,6 +11,7 @@ import type {
 import type { Platform } from "../platforms/index.ts";
 import { createInferenceBackend, type InferenceBackend } from "../backend/index.ts";
 import { mergeCues } from "./merge.ts";
+import { firstCueAtOrAfter, mergeCoverageRanges } from "./coverage.ts";
 import {
   ttsCacheKey,
   getCachedAudio,
@@ -27,6 +29,9 @@ const BEHIND_MS = 2000;
 const TTS_CONCURRENCY = 2;
 const TRANSLATE_CHUNK = 10;
 const MAX_PLAYBACK_RATE = 2;
+const HOLD_POLL_MS = 200;
+/** A hold that never ends is worse than a few un-dubbed seconds, so it always expires. */
+const HOLD_TIMEOUT_MS = 30000;
 
 type CueStatus = "idle" | "pending" | "ready" | "empty" | "error";
 
@@ -46,6 +51,7 @@ export interface SessionOptions {
   settings: Settings;
   onProgress: ProgressHandler;
   onReady: () => void;
+  onCoverage?: CoverageHandler;
   getRemainingSourceMs?: () => Promise<number | null>;
   onTranscript?: (info: TranscriptInfo) => void;
 }
@@ -56,6 +62,7 @@ export class DubSession {
   private settings: Settings;
   private onProgress: ProgressHandler;
   private onReady: () => void;
+  private onCoverage?: CoverageHandler;
   private getRemainingSourceMs?: () => Promise<number | null>;
   private onTranscript?: (info: TranscriptInfo) => void;
 
@@ -86,12 +93,20 @@ export class DubSession {
   private lastSubText = "";
   private boundReset = () => this.forceReevaluate();
 
+  private holdArmed = false;
+  private holdSelfPaused = false;
+  private holdDeadline = 0;
+  private holdTimer: number | null = null;
+  private holdResuming = false;
+  private boundHoldPlay = () => this.onExternalPlay();
+
   constructor(opts: SessionOptions) {
     this.video = opts.video;
     this.context = opts.context;
     this.settings = opts.settings;
     this.onProgress = opts.onProgress;
     this.onReady = opts.onReady;
+    this.onCoverage = opts.onCoverage;
     this.getRemainingSourceMs = opts.getRemainingSourceMs;
     this.onTranscript = opts.onTranscript;
     this.ctx = new AudioContext();
@@ -176,6 +191,7 @@ export class DubSession {
     this.mountSubtitle();
     this.ticker = window.setInterval(() => this.tick(), 60);
     this.pump();
+    this.emitCoverage();
   }
 
   private mountSubtitle(): void {
@@ -207,6 +223,7 @@ export class DubSession {
   }
 
   pause(): void {
+    this.releaseHold(true);
     if (!this.active) return;
     this.active = false;
     if (this.ticker !== null) window.clearInterval(this.ticker);
@@ -227,6 +244,124 @@ export class DubSession {
 
   isActive(): boolean {
     return this.active;
+  }
+
+  isHolding(): boolean {
+    return this.holdArmed;
+  }
+
+  /**
+   * Stop the video from running ahead of the dub. Called the moment the viewer presses Dub,
+   * before captions are even fetched, because the un-dubbed stretch they complained about is
+   * exactly the caption fetch plus the first translate and TTS round trip.
+   *
+   * Releases itself when the first cue at the playhead settles, when the run fails, when the
+   * viewer presses play themselves, or after HOLD_TIMEOUT_MS.
+   */
+  beginHold(): void {
+    if (this.destroyed || this.holdArmed || !this.settings.holdUntilFirstDub) return;
+    this.holdArmed = true;
+    this.holdDeadline = Date.now() + HOLD_TIMEOUT_MS;
+    this.video.addEventListener("play", this.boundHoldPlay);
+    this.holdTimer = window.setInterval(() => this.evaluateHold(), HOLD_POLL_MS);
+    this.reportHolding();
+    this.evaluateHold();
+  }
+
+  private evaluateHold(): void {
+    if (!this.holdArmed) return;
+    if (this.destroyed || this.fatalBlocked || this.firstError) {
+      this.releaseHold(true);
+      return;
+    }
+    if (Date.now() >= this.holdDeadline) {
+      this.releaseHold(true);
+      return;
+    }
+    if (this.cues.length > 0 && this.isCueSettled(firstCueAtOrAfter(this.cues, this.video.currentTime * 1000))) {
+      this.releaseHold(true);
+      return;
+    }
+    if (!this.video.paused) {
+      this.holdSelfPaused = true;
+      this.video.pause();
+    }
+    // tick() deliberately generates nothing while the video is paused. During a hold that would
+    // deadlock: no playback, so no generation, so nothing to wait for.
+    this.pump();
+  }
+
+  /** A cue nobody is waiting on any more: audio in hand, translated to silence, or failed. */
+  private isCueSettled(idx: number): boolean {
+    if (idx < 0) return true;
+    const status = this.states[idx]?.status;
+    return status === "ready" || status === "empty" || status === "error";
+  }
+
+  private releaseHold(resume: boolean): void {
+    if (!this.holdArmed && !this.holdSelfPaused) return;
+    const wasArmed = this.holdArmed;
+    this.holdArmed = false;
+    if (this.holdTimer !== null) window.clearInterval(this.holdTimer);
+    this.holdTimer = null;
+    this.video.removeEventListener("play", this.boundHoldPlay);
+
+    const shouldResume = resume && this.holdSelfPaused;
+    this.holdSelfPaused = false;
+    if (shouldResume) {
+      this.holdResuming = true;
+      const done = (): void => {
+        this.holdResuming = false;
+      };
+      try {
+        const started = this.video.play() as Promise<void> | undefined;
+        if (started && typeof started.then === "function") started.then(done, done);
+        else done();
+      } catch {
+        done();
+      }
+    }
+    if (wasArmed && !this.destroyed && !this.firstError) this.reportLive();
+  }
+
+  /** The viewer pressed play while we were holding. Their hand on the control wins. */
+  private onExternalPlay(): void {
+    if (this.holdResuming || !this.holdArmed) return;
+    this.releaseHold(false);
+  }
+
+  private reportHolding(): void {
+    this.onProgress({
+      phase: "holding",
+      current: this.readyCount,
+      total: this.cues.length,
+      message: "Waiting for the first dubbed line"
+    });
+  }
+
+  private reportLive(): void {
+    this.onProgress({
+      phase: "ready",
+      current: this.readyCount,
+      total: this.cues.length,
+      message: this.mode === "remote" ? "Playing shared dub" : "Dubbing live"
+    });
+  }
+
+  private emitCoverage(): void {
+    if (!this.onCoverage) return;
+    const fromVideo = this.video.duration;
+    const durationMs =
+      Number.isFinite(fromVideo) && fromVideo > 0 ? Math.round(fromVideo * 1000) : this.context.durationMs;
+    this.onCoverage({
+      durationMs,
+      ranges: mergeCoverageRanges(this.cues, (i) => {
+        const status = this.states[i]?.status;
+        return status === "ready" || status === "empty";
+      }),
+      ready: this.readyCount,
+      total: this.cues.length
+    });
   }
 
   destroy(): void {
@@ -466,6 +601,10 @@ export class DubSession {
         }
       }
       this.reportError(msg, typeof status === "number" ? status : undefined);
+    } finally {
+      // Every exit above leaves the cue in a settled state, which is what the scrubber lane
+      // and the playback hold both read.
+      this.emitCoverage();
     }
   }
 

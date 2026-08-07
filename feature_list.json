@@ -182,6 +182,22 @@
       "status": "not_started",
       "evidence": "",
       "notes": "Immutable public distribution contract in docs/BUSINESS_MODEL.md."
+    },
+    {
+      "id": "hold-playback-until-first-dub",
+      "behavior": "With hold mode on, a viewer who presses Dub sees the video stop immediately with a notice on the player, and playback resumes by itself once the first dubbed line for that position is ready, so no un-dubbed opening stretch is heard.",
+      "verify": "npm run build:ext, load extension/dist unpacked, play a captioned YouTube video, press Dub mid-playback, and confirm the video pauses with the notice, then resumes speaking Vietnamese from the same position. Press play during the hold and confirm the video keeps playing instead of being paused again.",
+      "status": "in_progress",
+      "evidence": "",
+      "notes": "extension/src/lib/dubbing/session.ts beginHold(); releases on first settled cue, viewer play, fatal error, or a 30s timeout. Unit-covered by extension/test/session-hold.test.ts against a fake video element; never watched on a real player."
+    },
+    {
+      "id": "dub-coverage-on-player-timeline",
+      "behavior": "While a dub runs, a viewer can see which parts of the video already have dubbed audio as a lane under the YouTube scrubber, and it grows as segments finish.",
+      "verify": "npm run build:ext, load extension/dist unpacked, dub a captioned video, and confirm the lane under the scrubber fills around the playhead, extends as generation runs ahead, and stays aligned in theater and fullscreen mode and on a chaptered video.",
+      "status": "in_progress",
+      "evidence": "",
+      "notes": "extension/src/content/timeline.ts positions against the measured player box rather than YouTube's own progress DOM. Range merging is unit-covered by extension/test/dub-coverage.test.ts; the on-screen alignment is not."
     }
   ]
 }

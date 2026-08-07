@@ -25,6 +25,7 @@ export const en: StringTable = {
   "overlay.visibilityPrivate": "Private",
   "overlay.progressLabel": "Dubbing progress",
 
+  "status.holdingForFirstDub": "Waiting for the first dubbed line",
   "status.videoElementMissing": "Could not find the video element.",
   "status.checkingLibrary": "Checking the shared library",
   "status.lookupFailed":
@@ -88,6 +89,12 @@ export const en: StringTable = {
   "options.dubbing.sttProvider": "STT provider (fallback)",
   "options.dubbing.sttHint": "Used when the video has no captions to extract.",
   "options.dubbing.subtitles": "Show translated subtitles on the video",
+  "options.dubbing.timeline": "Show dubbing progress on the video timeline",
+  "options.dubbing.timelineHint":
+    "A thin lane under the scrubber marks the stretches that already have dubbed audio.",
+  "options.dubbing.hold": "Hold the video until the first dubbed line is ready",
+  "options.dubbing.holdHint":
+    "Pressing Dub pauses the video immediately and resumes it once the first dubbed line is ready, so you never hear an un-dubbed opening. Pressing play skips the wait.",
 
   "options.sharing.heading": "Sharing",
   "options.sharing.serverUrl": "Share server URL",
